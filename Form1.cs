@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -17,24 +18,49 @@ namespace ControleDeEstoque
             InitializeComponent();
         }
 
-       
+
 
         private void FrmEnter_Click(object sender, EventArgs e)
         {
-            string Email = tbxEmail.Text;
+            string email = tbxEmail.Text;
             string senha = tbxSenha.Text;
-            MessageBox.Show("Email: " + Email + "\nSenha: " + senha );
+           
 
-            Form2 product = new Form2();
-            this.Visible = false;
-            product.ShowDialog();
-            this.Visible = true;
+            string conexao = "Data Source=sqlexpress;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
 
+
+            using (SqlConnection conn = new SqlConnection(conexao))
+            {
+                conn.Open();
+
+                // verifica se o email já existe
+                string verificasql = "select count(*) from Usuario where Email = @Email and Senha = @Senha";
+                using (SqlCommand cmd = new SqlCommand(verificasql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.AddWithValue("@Senha", senha);
+
+                    int existe = (int)cmd.ExecuteScalar();
+
+                    if (existe > 0)
+                    {
+                        Form2 product = new Form2();
+                        this.Visible = false;
+                        product.ShowDialog();
+                        this.Visible = true;
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("Email ou Senha incorretos");
+                    }
+                }
+            }
         }
 
         private void texboxName_TextChanged(object sender, EventArgs e)
         {
-           
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -51,6 +77,11 @@ namespace ControleDeEstoque
         }
 
         private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
         {
 
         }

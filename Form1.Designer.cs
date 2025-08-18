@@ -48,6 +48,7 @@
             this.label1.Text = "Controle de Estoque";
             this.label1.UseMnemonic = false;
             this.label1.UseWaitCursor = true;
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // FrmEnter
             // 
