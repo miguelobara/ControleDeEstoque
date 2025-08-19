@@ -10,21 +10,19 @@ using System.Windows.Forms;
 
 namespace ControleDeEstoque
 {
-    public partial class Form2 : Form
+    public partial class Form5 : Form
     {
-        public Form2()
+        public Form5()
         {
             InitializeComponent();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Form4 product = new Form4();
+            Form3 product = new Form3();
             this.Visible = false;
             product.ShowDialog();
             this.Visible = true;
         }
-
-       
     }
 }

@@ -40,7 +40,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(80, 174);
+            this.label1.Location = new System.Drawing.Point(69, 174);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(127, 18);
             this.label1.TabIndex = 0;
@@ -52,7 +52,7 @@
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(77, 109);
+            this.label2.Location = new System.Drawing.Point(69, 109);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(122, 18);
             this.label2.TabIndex = 1;
@@ -61,7 +61,7 @@
             // 
             // tbxSenha1
             // 
-            this.tbxSenha1.Location = new System.Drawing.Point(80, 195);
+            this.tbxSenha1.Location = new System.Drawing.Point(72, 195);
             this.tbxSenha1.Multiline = true;
             this.tbxSenha1.Name = "tbxSenha1";
             this.tbxSenha1.Size = new System.Drawing.Size(127, 30);
@@ -69,10 +69,10 @@
             // 
             // tbxEmail1
             // 
-            this.tbxEmail1.Location = new System.Drawing.Point(80, 130);
+            this.tbxEmail1.Location = new System.Drawing.Point(72, 130);
             this.tbxEmail1.Multiline = true;
             this.tbxEmail1.Name = "tbxEmail1";
-            this.tbxEmail1.Size = new System.Drawing.Size(127, 30);
+            this.tbxEmail1.Size = new System.Drawing.Size(127, 31);
             this.tbxEmail1.TabIndex = 3;
             this.tbxEmail1.TextChanged += new System.EventHandler(this.tbxEmail1_TextChanged);
             // 
@@ -80,7 +80,7 @@
             // 
             this.btnCriar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.btnCriar.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCriar.Location = new System.Drawing.Point(80, 231);
+            this.btnCriar.Location = new System.Drawing.Point(72, 255);
             this.btnCriar.Name = "btnCriar";
             this.btnCriar.Size = new System.Drawing.Size(127, 34);
             this.btnCriar.TabIndex = 4;
@@ -91,7 +91,7 @@
             // btnVoltar
             // 
             this.btnVoltar.BackColor = System.Drawing.Color.Yellow;
-            this.btnVoltar.Location = new System.Drawing.Point(108, 44);
+            this.btnVoltar.Location = new System.Drawing.Point(94, 41);
             this.btnVoltar.Name = "btnVoltar";
             this.btnVoltar.Size = new System.Drawing.Size(76, 39);
             this.btnVoltar.TabIndex = 5;
@@ -105,7 +105,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(284, 311);
+            this.ClientSize = new System.Drawing.Size(267, 326);
             this.Controls.Add(this.btnVoltar);
             this.Controls.Add(this.btnCriar);
             this.Controls.Add(this.tbxEmail1);
