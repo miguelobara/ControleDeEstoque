@@ -16,5 +16,15 @@ namespace ControleDeEstoque
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Form4 product = new Form4();
+            this.Visible = false;
+            product.ShowDialog();
+            this.Visible = true;
+        }
+
+       
     }
 }

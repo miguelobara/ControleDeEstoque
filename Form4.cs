@@ -24,7 +24,56 @@ namespace ControleDeEstoque
 
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+       
+
+        private void textBox1_Click(object sender, EventArgs e)
+        {
+            textBox1.Clear();
+        }
+
+        private void textBox2_Click(object sender, EventArgs e)
+        {
+            textBox2.Clear();
+        }
+
+        private void textBox3_Click(object sender, EventArgs e)
+        {
+            textBox3.Clear();
+        }
+
+        private void textBox4_Click(object sender, EventArgs e)
+        {
+            textBox4.Clear();
+        }
+
+        private void textBox5_Click(object sender, EventArgs e)
+        {
+            textBox5.Clear();
+        }
+
+        private void textBox5_Enter(object sender, EventArgs e)
+        {
+            this.textBox5.Size = new System.Drawing.Size(728, 106);
+        }
+
+        private void textBox5_Leave(object sender, EventArgs e)
+        {
+            this.textBox5.Size = new System.Drawing.Size(100, 22);
+        }
+
+        private void textBox6_Click(object sender, EventArgs e)
+        {
+            textBox6.Clear();
+        }
+
+        private void dataGridView1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+       
+
+        private void textBox7_Click(object sender, EventArgs e)
         {
 
         }
