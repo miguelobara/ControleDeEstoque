@@ -25,6 +25,11 @@ namespace ControleDeEstoque
             this.Visible = true;
         }
 
+        private void textBox6_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
         //private void InitializeComponent()
         //{
         //    this.SuspendLayout();

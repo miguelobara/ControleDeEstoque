@@ -116,7 +116,6 @@
             this.textBox2.TabIndex = 3;
             this.textBox2.Text = "Nome do Produto";
             this.textBox2.Click += new System.EventHandler(this.textBox2_Click);
-          
             // 
             // textBox3
             // 
@@ -138,45 +137,6 @@
             // 
             // textBox5
             // 
-            // textBox5
-            // 
-            this.textBox5.Location = new System.Drawing.Point(12, 171);
-            this.textBox5.MaxLength = 256;
-            this.textBox5.Multiline = true;
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(101, 20);
-            this.textBox5.TabIndex = 6;
-            this.textBox5.Text = "Descricao";
-            this.textBox5.Click += new System.EventHandler(this.textBox5_Click);
-            this.textBox5.Enter += new System.EventHandler(this.textBox5_Enter);
-            this.textBox5.Leave += new System.EventHandler(this.textBox5_Leave);
-            // 
-            // textBox6
-            // 
-            this.textBox6.Location = new System.Drawing.Point(13, 145);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(100, 20);
-            this.textBox6.TabIndex = 7;
-            this.textBox6.Text = "Tipo";
-            this.textBox6.Click += new System.EventHandler(this.textBox6_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(144, 119);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 8;
-            this.button2.Text = "adicionar";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(241, 119);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 9;
-            this.button3.Text = "renomear";
-            this.button3.UseVisualStyleBackColor = true;
             this.textBox5.Location = new System.Drawing.Point(12, 171);
             this.textBox5.MaxLength = 256;
             this.textBox5.Multiline = true;
@@ -228,6 +188,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.ClientSize = new System.Drawing.Size(763, 479);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
