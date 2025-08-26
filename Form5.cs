@@ -24,5 +24,17 @@ namespace ControleDeEstoque
             product.ShowDialog();
             this.Visible = true;
         }
+
+        //private void InitializeComponent()
+        //{
+        //    this.SuspendLayout();
+        //    // 
+        //    // Form5
+        //    // 
+        //    this.ClientSize = new System.Drawing.Size(172, 503);
+        //    this.Name = "Form5";
+        //    this.ResumeLayout(false);
+
+        //}
     }
 }
