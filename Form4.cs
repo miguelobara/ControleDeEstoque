@@ -19,7 +19,7 @@ namespace ControleDeEstoque
 
         private void Form4_Load(object sender, EventArgs e)
         {
-            // TODO: esta linha de código carrega dados na tabela 'cJ3027511PR2DataSet.Usuario'. Você pode movê-la ou removê-la conforme necessário.
+           
             this.usuarioTableAdapter.Fill(this.cJ3027511PR2DataSet.Usuario);
 
         }
