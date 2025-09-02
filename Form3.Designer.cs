@@ -34,6 +34,7 @@
             this.tbxEmail1 = new System.Windows.Forms.TextBox();
             this.btnCriar = new System.Windows.Forms.Button();
             this.btnVoltar = new System.Windows.Forms.Button();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.SuspendLayout();
             // 
             // label1
@@ -105,7 +106,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(267, 326);
+            this.ClientSize = new System.Drawing.Size(503, 326);
             this.Controls.Add(this.btnVoltar);
             this.Controls.Add(this.btnCriar);
             this.Controls.Add(this.tbxEmail1);
@@ -129,5 +130,6 @@
         private System.Windows.Forms.TextBox tbxEmail1;
         private System.Windows.Forms.Button btnCriar;
         private System.Windows.Forms.Button btnVoltar;
+        private System.Windows.Forms.ColorDialog colorDialog1;
     }
 }

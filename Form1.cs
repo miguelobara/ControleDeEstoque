@@ -65,7 +65,7 @@ namespace ControleDeEstoque
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Form3 product = new Form3();
+            Form5 product = new Form5();
             this.Visible = false;
             product.ShowDialog();
             this.Visible = true;
