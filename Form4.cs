@@ -20,6 +20,14 @@ namespace ControleDeEstoque
 
         private void Form4_Load(object sender, EventArgs e)
         {
+            // TODO: esta linha de código carrega dados na tabela 'cJ3027511PR2DataSet4.Tipo'. Você pode movê-la ou removê-la conforme necessário.
+            this.tipoTableAdapter2.Fill(this.cJ3027511PR2DataSet4.Tipo);
+            // TODO: esta linha de código carrega dados na tabela 'cJ3027511PR2DataSet4.Produto'. Você pode movê-la ou removê-la conforme necessário.
+            this.produtoTableAdapter.Fill(this.cJ3027511PR2DataSet4.Produto);
+            // TODO: esta linha de código carrega dados na tabela 'cJ3027511PR2DataSet2.Tipo'. Você pode movê-la ou removê-la conforme necessário.
+            this.tipoTableAdapter1.Fill(this.cJ3027511PR2DataSet2.Tipo);
+            // TODO: esta linha de código carrega dados na tabela 'cJ3027511PR2DataSet1.Tipo'. Você pode movê-la ou removê-la conforme necessário.
+            this.tipoTableAdapter.Fill(this.cJ3027511PR2DataSet1.Tipo);
 
             this.usuarioTableAdapter.Fill(this.cJ3027511PR2DataSet.Usuario);
 
@@ -124,7 +132,7 @@ namespace ControleDeEstoque
 
             using (SqlConnection conn = new SqlConnection(conexao))
             {
-                string sql = "INSERT INTO Tipo (Nome, Unidade_Medida) VALUES (@Nome, @Unidade)";
+                string sql = "INSERT INTO Tipo (Nome_Tipo, Unidade_Medida) VALUES (@Nome, @Unidade)";
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Nome", nome);
                 cmd.Parameters.AddWithValue("@Unidade", unidade);
@@ -178,6 +186,26 @@ namespace ControleDeEstoque
         private void label2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tbxNome_Tipo_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tbxNome_Tipo_Click(object sender, EventArgs e)
+        {
+            tbxNome_Tipo.Clear();
+        }
+
+        private void tbxUnidade_Medida_Click(object sender, EventArgs e)
+        {
+            tbxUnidade_Medida.Clear();
         }
     }
 }
