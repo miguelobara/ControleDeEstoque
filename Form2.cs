@@ -25,6 +25,13 @@ namespace ControleDeEstoque
             this.Visible = true;
         }
 
-       
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+            Form6 product = new Form6();
+            this.Visible = false;
+            product.ShowDialog();
+            this.Visible = true;
+        }
     }
 }

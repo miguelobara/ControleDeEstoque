@@ -106,7 +106,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(503, 326);
+            this.ClientSize = new System.Drawing.Size(370, 326);
             this.Controls.Add(this.btnVoltar);
             this.Controls.Add(this.btnCriar);
             this.Controls.Add(this.tbxEmail1);

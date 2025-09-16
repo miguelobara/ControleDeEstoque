@@ -72,7 +72,7 @@ namespace ControleDeEstoque
 
         private void textBox6_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void dataGridView1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -152,15 +152,65 @@ namespace ControleDeEstoque
 
         private void btnRenomearTip_Click(object sender, EventArgs e)
         {
-            
-            
+
+
         }
 
         private void btnDeletarTipo_Click(object sender, EventArgs e)
-        {
-           
-            
+      {
+            string conexao = "Data Source=sqlexpress;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
+            string nome = tbxNome_Tipo.Text;
+            string unidade = tbxUnidade_Medida.Text;
+
+            int idTipo = -1;
+
+            using (SqlConnection conn = new SqlConnection(conexao))
+            {
+                string query = "SELECT Id_Tipo FROM Tipo WHERE Nome_Tipo = @Nome AND Unidade_Medida = @Unidade";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Nome", nome);
+                cmd.Parameters.AddWithValue("@Unidade", unidade);
+
+                try
+                {
+                    conn.Open();
+                    var resultado = cmd.ExecuteScalar();
+
+                    if (resultado != null)
+                    {
+                        idTipo = Convert.ToInt32(resultado);
+
+                        // Agora deletamos o tipo
+                        string deleteQuery = "DELETE FROM Tipo WHERE Id_Tipo = @Id";
+                        SqlCommand deleteCmd = new SqlCommand(deleteQuery, conn);
+                        deleteCmd.Parameters.AddWithValue("@Id", idTipo);
+
+                        int linhasAfetadas = deleteCmd.ExecuteNonQuery();
+
+                        if (linhasAfetadas > 0)
+                            MessageBox.Show("Tipo deletado com sucesso!");
+                        else
+                            MessageBox.Show("Erro ao deletar o tipo.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Tipo não encontrado.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro: " + ex.Message);
+                }
+            }
         }
+
+        
+       
+ 
+
+        
+
+        
 
         private void cmbNome_Tipo_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -206,6 +256,60 @@ namespace ControleDeEstoque
         private void tbxUnidade_Medida_Click(object sender, EventArgs e)
         {
             tbxUnidade_Medida.Clear();
+        }
+
+        private void fillByToolStripButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.produtoTableAdapter.FillBy(this.cJ3027511PR2DataSet4.Produto);
+            }
+            catch (System.Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void fillBy1ToolStripButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.produtoTableAdapter.FillBy1(this.cJ3027511PR2DataSet4.Produto);
+            }
+            catch (System.Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void fillBy2ToolStripButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.produtoTableAdapter.FillBy2(this.cJ3027511PR2DataSet4.Produto);
+            }
+            catch (System.Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void tbxNome_Tipo_Prod_Click(object sender, EventArgs e)
+        {
+            tbxNome_Tipo_Prod.Clear();
+        }
+
+        private void tbxNome_Tipo_Prod_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

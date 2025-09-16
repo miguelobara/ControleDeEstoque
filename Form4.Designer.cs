@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.produtoBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.cJ3027511PR2DataSet4BindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.cJ3027511PR2DataSet4 = new ControleDeEstoque.CJ3027511PR2DataSet4();
             this.usuarioBindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -51,7 +52,6 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.tipoBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.cJ3027511PR2DataSet2 = new ControleDeEstoque.CJ3027511PR2DataSet2();
-            this.cmbNome_Tipo = new System.Windows.Forms.ComboBox();
             this.tipoBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.cJ3027511PR2DataSet1 = new ControleDeEstoque.CJ3027511PR2DataSet1();
             this.btnAdicionar = new System.Windows.Forms.Button();
@@ -63,14 +63,17 @@
             this.produtoTableAdapter = new ControleDeEstoque.CJ3027511PR2DataSet4TableAdapters.ProdutoTableAdapter();
             this.tipoBindingSource2 = new System.Windows.Forms.BindingSource(this.components);
             this.tipoTableAdapter2 = new ControleDeEstoque.CJ3027511PR2DataSet4TableAdapters.TipoTableAdapter();
-            this.produtoBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.nomeProdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.categoriaDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.validadeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.descricaoDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nomeTipoDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.unidadeMedidaDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cmbNome_Tipo = new System.Windows.Forms.ComboBox();
+            this.tbxNome_Tipo_Prod = new System.Windows.Forms.TextBox();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.produtoBindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet4BindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.usuarioBindingSource)).BeginInit();
@@ -81,7 +84,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.produtoBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipoBindingSource2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.produtoBindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // dataGridView1
@@ -97,11 +99,16 @@
             this.nomeTipoDataGridViewTextBoxColumn,
             this.unidadeMedidaDataGridViewTextBoxColumn});
             this.dataGridView1.DataSource = this.produtoBindingSource1;
-            this.dataGridView1.Location = new System.Drawing.Point(13, 298);
+            this.dataGridView1.Location = new System.Drawing.Point(11, 341);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(727, 169);
+            this.dataGridView1.Size = new System.Drawing.Size(859, 169);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.dataGridView1_MouseDoubleClick);
+            // 
+            // produtoBindingSource1
+            // 
+            this.produtoBindingSource1.DataMember = "Produto";
+            this.produtoBindingSource1.DataSource = this.cJ3027511PR2DataSet4BindingSource;
             // 
             // cJ3027511PR2DataSet4BindingSource
             // 
@@ -175,7 +182,7 @@
             // 
             // tbxDescricao
             // 
-            this.tbxDescricao.Location = new System.Drawing.Point(11, 180);
+            this.tbxDescricao.Location = new System.Drawing.Point(13, 261);
             this.tbxDescricao.MaxLength = 256;
             this.tbxDescricao.Multiline = true;
             this.tbxDescricao.Name = "tbxDescricao";
@@ -188,7 +195,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(157, 92);
+            this.button2.Location = new System.Drawing.Point(314, 48);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 8;
@@ -198,7 +205,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(157, 116);
+            this.button3.Location = new System.Drawing.Point(269, 12);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 9;
@@ -207,7 +214,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(157, 142);
+            this.button4.Location = new System.Drawing.Point(233, 50);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 23);
             this.button4.TabIndex = 10;
@@ -226,7 +233,7 @@
             // 
             // tbxUnidade_Medida
             // 
-            this.tbxUnidade_Medida.Location = new System.Drawing.Point(572, 90);
+            this.tbxUnidade_Medida.Location = new System.Drawing.Point(572, 94);
             this.tbxUnidade_Medida.Name = "tbxUnidade_Medida";
             this.tbxUnidade_Medida.Size = new System.Drawing.Size(100, 20);
             this.tbxUnidade_Medida.TabIndex = 13;
@@ -274,18 +281,6 @@
             this.cJ3027511PR2DataSet2.DataSetName = "CJ3027511PR2DataSet2";
             this.cJ3027511PR2DataSet2.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
             // 
-            // cmbNome_Tipo
-            // 
-            this.cmbNome_Tipo.DataSource = this.tipoBindingSource;
-            this.cmbNome_Tipo.DisplayMember = "Nome_Tipo";
-            this.cmbNome_Tipo.FormattingEnabled = true;
-            this.cmbNome_Tipo.Location = new System.Drawing.Point(11, 128);
-            this.cmbNome_Tipo.Name = "cmbNome_Tipo";
-            this.cmbNome_Tipo.Size = new System.Drawing.Size(121, 21);
-            this.cmbNome_Tipo.TabIndex = 18;
-            this.cmbNome_Tipo.ValueMember = "Nome_Tipo";
-            this.cmbNome_Tipo.SelectedIndexChanged += new System.EventHandler(this.cmbNome_Tipo_SelectedIndexChanged);
-            // 
             // tipoBindingSource
             // 
             this.tipoBindingSource.DataMember = "Tipo";
@@ -309,7 +304,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(551, 74);
+            this.label1.Location = new System.Drawing.Point(551, 79);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(178, 13);
             this.label1.TabIndex = 20;
@@ -352,11 +347,6 @@
             // 
             this.tipoTableAdapter2.ClearBeforeFill = true;
             // 
-            // produtoBindingSource1
-            // 
-            this.produtoBindingSource1.DataMember = "Produto";
-            this.produtoBindingSource1.DataSource = this.cJ3027511PR2DataSet4BindingSource;
-            // 
             // nomeProdDataGridViewTextBoxColumn
             // 
             this.nomeProdDataGridViewTextBoxColumn.DataPropertyName = "Nome_Prod";
@@ -393,13 +383,45 @@
             this.unidadeMedidaDataGridViewTextBoxColumn.HeaderText = "Unidade_Medida";
             this.unidadeMedidaDataGridViewTextBoxColumn.Name = "unidadeMedidaDataGridViewTextBoxColumn";
             // 
+            // cmbNome_Tipo
+            // 
+            this.cmbNome_Tipo.DataSource = this.tipoBindingSource;
+            this.cmbNome_Tipo.DisplayMember = "Nome_Tipo";
+            this.cmbNome_Tipo.FormattingEnabled = true;
+            this.cmbNome_Tipo.Location = new System.Drawing.Point(11, 128);
+            this.cmbNome_Tipo.Name = "cmbNome_Tipo";
+            this.cmbNome_Tipo.Size = new System.Drawing.Size(121, 21);
+            this.cmbNome_Tipo.TabIndex = 18;
+            this.cmbNome_Tipo.ValueMember = "Nome_Tipo";
+            this.cmbNome_Tipo.SelectedIndexChanged += new System.EventHandler(this.cmbNome_Tipo_SelectedIndexChanged);
+            // 
+            // tbxNome_Tipo_Prod
+            // 
+            this.tbxNome_Tipo_Prod.Location = new System.Drawing.Point(13, 181);
+            this.tbxNome_Tipo_Prod.Name = "tbxNome_Tipo_Prod";
+            this.tbxNome_Tipo_Prod.Size = new System.Drawing.Size(100, 20);
+            this.tbxNome_Tipo_Prod.TabIndex = 22;
+            this.tbxNome_Tipo_Prod.Text = "nome";
+            this.tbxNome_Tipo_Prod.Click += new System.EventHandler(this.tbxNome_Tipo_Prod_Click);
+            this.tbxNome_Tipo_Prod.TextChanged += new System.EventHandler(this.tbxNome_Tipo_Prod_TextChanged);
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(13, 207);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(100, 20);
+            this.textBox3.TabIndex = 23;
+            this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+            // 
             // Form4
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.ClientSize = new System.Drawing.Size(763, 479);
+            this.ClientSize = new System.Drawing.Size(882, 522);
+            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.tbxNome_Tipo_Prod);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnAdicionar);
@@ -423,6 +445,7 @@
             this.Text = "produto";
             this.Load += new System.EventHandler(this.Form4_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.produtoBindingSource1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet4BindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.usuarioBindingSource)).EndInit();
@@ -433,7 +456,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.produtoBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipoBindingSource2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.produtoBindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -460,7 +482,6 @@
         private System.Windows.Forms.Button btnDeletarTipo;
         private System.Windows.Forms.Button btnRenomearTip;
         private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.ComboBox cmbNome_Tipo;
         private System.Windows.Forms.Button btnAdicionar;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
@@ -476,12 +497,15 @@
         private CJ3027511PR2DataSet4TableAdapters.ProdutoTableAdapter produtoTableAdapter;
         private System.Windows.Forms.BindingSource tipoBindingSource2;
         private CJ3027511PR2DataSet4TableAdapters.TipoTableAdapter tipoTableAdapter2;
+        private System.Windows.Forms.BindingSource produtoBindingSource1;
         private System.Windows.Forms.DataGridViewTextBoxColumn nomeProdDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn categoriaDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn validadeDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn descricaoDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn nomeTipoDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn unidadeMedidaDataGridViewTextBoxColumn;
-        private System.Windows.Forms.BindingSource produtoBindingSource1;
+        private System.Windows.Forms.ComboBox cmbNome_Tipo;
+        private System.Windows.Forms.TextBox tbxNome_Tipo_Prod;
+        private System.Windows.Forms.TextBox textBox3;
     }
 }

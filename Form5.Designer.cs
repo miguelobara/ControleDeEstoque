@@ -295,6 +295,7 @@
             this.button4.TabIndex = 28;
             this.button4.Text = "Voltar";
             this.button4.UseVisualStyleBackColor = false;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // Form5
             // 
@@ -328,6 +329,7 @@
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label6);
             this.Name = "Form5";
+            this.Load += new System.EventHandler(this.Form5_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
