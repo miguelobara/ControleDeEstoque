@@ -173,7 +173,7 @@
             this.tbxRua_For.Name = "tbxRua_For";
             this.tbxRua_For.Size = new System.Drawing.Size(100, 20);
             this.tbxRua_For.TabIndex = 14;
-            this.tbxRua_For.TextChanged += new System.EventHandler(this.tbxRua_For_TextChanged);
+            
             // 
             // tbxUf_For
             // 
