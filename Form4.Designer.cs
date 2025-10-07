@@ -4,7 +4,7 @@
     {
         private System.ComponentModel.IContainer components = null;
 
-        // DECLARAÇÕES DOS CONTROLES - ADICIONE ESTAS LINHAS
+        // DECLARAÇÕES DOS CONTROLES
         private System.Windows.Forms.TextBox tbxProcurar;
         private System.Windows.Forms.TextBox tbxNome;
         private System.Windows.Forms.ComboBox cbxTipo;
@@ -19,6 +19,9 @@
         private System.Windows.Forms.Button btnLimpar;
         private System.Windows.Forms.Button btnAdicionar;
         private System.Windows.Forms.Button btnDeletar;
+        private System.Windows.Forms.Button btnEditar;
+        private System.Windows.Forms.Button btnNovaUnidade;
+        private System.Windows.Forms.Button btnNovaCategoria;
         private System.Windows.Forms.DataGridView dgvProdutos;
         private System.Windows.Forms.Label lblProcurar;
         private System.Windows.Forms.Label lblNome;
@@ -30,6 +33,7 @@
         private System.Windows.Forms.Label lblPrecoVenda;
         private System.Windows.Forms.Label lblFornecedor;
         private System.Windows.Forms.Label lblValidade;
+        private System.Windows.Forms.Label lblPrecoVendaRecomendado;
 
         protected override void Dispose(bool disposing)
         {
@@ -42,7 +46,6 @@
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.tbxProcurar = new System.Windows.Forms.TextBox();
             this.tbxNome = new System.Windows.Forms.TextBox();
             this.cbxTipo = new System.Windows.Forms.ComboBox();
@@ -57,6 +60,9 @@
             this.btnLimpar = new System.Windows.Forms.Button();
             this.btnAdicionar = new System.Windows.Forms.Button();
             this.btnDeletar = new System.Windows.Forms.Button();
+            this.btnEditar = new System.Windows.Forms.Button();
+            this.btnNovaUnidade = new System.Windows.Forms.Button();
+            this.btnNovaCategoria = new System.Windows.Forms.Button();
             this.dgvProdutos = new System.Windows.Forms.DataGridView();
             this.lblProcurar = new System.Windows.Forms.Label();
             this.lblNome = new System.Windows.Forms.Label();
@@ -68,24 +74,8 @@
             this.lblPrecoVenda = new System.Windows.Forms.Label();
             this.lblFornecedor = new System.Windows.Forms.Label();
             this.lblValidade = new System.Windows.Forms.Label();
-            this.cJ3027511PR2DataSet6 = new ControleDeEstoque.CJ3027511PR2DataSet6();
-            this.produtoBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.produtoTableAdapter = new ControleDeEstoque.CJ3027511PR2DataSet6TableAdapters.ProdutoTableAdapter();
-            this.idProdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nomeProdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.categoriaDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.validadeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.idTipoDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.descricaoDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.precoVenDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.precoCmpDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nomeTipoProdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.quantidadeProdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.unidadeMedidaProdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.idFornecedorDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lblPrecoVendaRecomendado = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet6)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.produtoBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // tbxProcurar
@@ -105,11 +95,6 @@
             // cbxTipo
             // 
             this.cbxTipo.FormattingEnabled = true;
-            this.cbxTipo.Items.AddRange(new object[] {
-            "Limpeza",
-            "Bebida",
-            "Comida",
-            "Outros"});
             this.cbxTipo.Location = new System.Drawing.Point(120, 80);
             this.cbxTipo.Name = "cbxTipo";
             this.cbxTipo.Size = new System.Drawing.Size(200, 21);
@@ -118,12 +103,6 @@
             // cbxUnidade
             // 
             this.cbxUnidade.FormattingEnabled = true;
-            this.cbxUnidade.Items.AddRange(new object[] {
-            "Kg",
-            "g",
-            "L",
-            "ml",
-            "Unidade"});
             this.cbxUnidade.Location = new System.Drawing.Point(120, 110);
             this.cbxUnidade.Name = "cbxUnidade";
             this.cbxUnidade.Size = new System.Drawing.Size(200, 21);
@@ -208,27 +187,42 @@
             this.btnDeletar.Text = "Deletar";
             this.btnDeletar.UseVisualStyleBackColor = true;
             // 
+            // btnEditar
+            // 
+            this.btnEditar.Location = new System.Drawing.Point(550, 400);
+            this.btnEditar.Name = "btnEditar";
+            this.btnEditar.Size = new System.Drawing.Size(75, 23);
+            this.btnEditar.TabIndex = 14;
+            this.btnEditar.Text = "Editar";
+            this.btnEditar.UseVisualStyleBackColor = true;
+            // 
+            // btnNovaUnidade
+            // 
+            this.btnNovaUnidade.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNovaUnidade.Location = new System.Drawing.Point(326, 110);
+            this.btnNovaUnidade.Name = "btnNovaUnidade";
+            this.btnNovaUnidade.Size = new System.Drawing.Size(25, 21);
+            this.btnNovaUnidade.TabIndex = 15;
+            this.btnNovaUnidade.Text = "+";
+            this.btnNovaUnidade.UseVisualStyleBackColor = true;
+            // 
+            // btnNovaCategoria
+            // 
+            this.btnNovaCategoria.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNovaCategoria.Location = new System.Drawing.Point(326, 80);
+            this.btnNovaCategoria.Name = "btnNovaCategoria";
+            this.btnNovaCategoria.Size = new System.Drawing.Size(25, 21);
+            this.btnNovaCategoria.TabIndex = 16;
+            this.btnNovaCategoria.Text = "+";
+            this.btnNovaCategoria.UseVisualStyleBackColor = true;
+            // 
             // dgvProdutos
             // 
-            this.dgvProdutos.AutoGenerateColumns = false;
-            this.dgvProdutos.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.idProdDataGridViewTextBoxColumn,
-            this.nomeProdDataGridViewTextBoxColumn,
-            this.categoriaDataGridViewTextBoxColumn,
-            this.validadeDataGridViewTextBoxColumn,
-            this.idTipoDataGridViewTextBoxColumn,
-            this.descricaoDataGridViewTextBoxColumn,
-            this.precoVenDataGridViewTextBoxColumn,
-            this.precoCmpDataGridViewTextBoxColumn,
-            this.nomeTipoProdDataGridViewTextBoxColumn,
-            this.quantidadeProdDataGridViewTextBoxColumn,
-            this.unidadeMedidaProdDataGridViewTextBoxColumn,
-            this.idFornecedorDataGridViewTextBoxColumn});
-            this.dgvProdutos.DataSource = this.produtoBindingSource;
+            this.dgvProdutos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProdutos.Location = new System.Drawing.Point(350, 20);
             this.dgvProdutos.Name = "dgvProdutos";
-            this.dgvProdutos.Size = new System.Drawing.Size(400, 350);
-            this.dgvProdutos.TabIndex = 14;
+            this.dgvProdutos.Size = new System.Drawing.Size(843, 330);
+            this.dgvProdutos.TabIndex = 17;
             // 
             // lblProcurar
             // 
@@ -236,7 +230,7 @@
             this.lblProcurar.Location = new System.Drawing.Point(20, 23);
             this.lblProcurar.Name = "lblProcurar";
             this.lblProcurar.Size = new System.Drawing.Size(50, 13);
-            this.lblProcurar.TabIndex = 15;
+            this.lblProcurar.TabIndex = 18;
             this.lblProcurar.Text = "Procurar:";
             // 
             // lblNome
@@ -245,7 +239,7 @@
             this.lblNome.Location = new System.Drawing.Point(20, 53);
             this.lblNome.Name = "lblNome";
             this.lblNome.Size = new System.Drawing.Size(38, 13);
-            this.lblNome.TabIndex = 16;
+            this.lblNome.TabIndex = 19;
             this.lblNome.Text = "Nome:";
             // 
             // lblTipo
@@ -254,7 +248,7 @@
             this.lblTipo.Location = new System.Drawing.Point(20, 83);
             this.lblTipo.Name = "lblTipo";
             this.lblTipo.Size = new System.Drawing.Size(31, 13);
-            this.lblTipo.TabIndex = 17;
+            this.lblTipo.TabIndex = 20;
             this.lblTipo.Text = "Tipo:";
             // 
             // lblUnidade
@@ -263,7 +257,7 @@
             this.lblUnidade.Location = new System.Drawing.Point(20, 113);
             this.lblUnidade.Name = "lblUnidade";
             this.lblUnidade.Size = new System.Drawing.Size(50, 13);
-            this.lblUnidade.TabIndex = 18;
+            this.lblUnidade.TabIndex = 21;
             this.lblUnidade.Text = "Unidade:";
             // 
             // lblPrecoCompra
@@ -272,7 +266,7 @@
             this.lblPrecoCompra.Location = new System.Drawing.Point(20, 143);
             this.lblPrecoCompra.Name = "lblPrecoCompra";
             this.lblPrecoCompra.Size = new System.Drawing.Size(77, 13);
-            this.lblPrecoCompra.TabIndex = 19;
+            this.lblPrecoCompra.TabIndex = 22;
             this.lblPrecoCompra.Text = "Preço Compra:";
             // 
             // lblDescricao
@@ -281,7 +275,7 @@
             this.lblDescricao.Location = new System.Drawing.Point(20, 173);
             this.lblDescricao.Name = "lblDescricao";
             this.lblDescricao.Size = new System.Drawing.Size(58, 13);
-            this.lblDescricao.TabIndex = 20;
+            this.lblDescricao.TabIndex = 23;
             this.lblDescricao.Text = "Descrição:";
             // 
             // lblQuantidade
@@ -290,7 +284,7 @@
             this.lblQuantidade.Location = new System.Drawing.Point(20, 243);
             this.lblQuantidade.Name = "lblQuantidade";
             this.lblQuantidade.Size = new System.Drawing.Size(65, 13);
-            this.lblQuantidade.TabIndex = 21;
+            this.lblQuantidade.TabIndex = 24;
             this.lblQuantidade.Text = "Quantidade:";
             // 
             // lblPrecoVenda
@@ -299,7 +293,7 @@
             this.lblPrecoVenda.Location = new System.Drawing.Point(20, 273);
             this.lblPrecoVenda.Name = "lblPrecoVenda";
             this.lblPrecoVenda.Size = new System.Drawing.Size(72, 13);
-            this.lblPrecoVenda.TabIndex = 22;
+            this.lblPrecoVenda.TabIndex = 25;
             this.lblPrecoVenda.Text = "Preço Venda:";
             // 
             // lblFornecedor
@@ -308,7 +302,7 @@
             this.lblFornecedor.Location = new System.Drawing.Point(20, 303);
             this.lblFornecedor.Name = "lblFornecedor";
             this.lblFornecedor.Size = new System.Drawing.Size(64, 13);
-            this.lblFornecedor.TabIndex = 23;
+            this.lblFornecedor.TabIndex = 26;
             this.lblFornecedor.Text = "Fornecedor:";
             // 
             // lblValidade
@@ -317,101 +311,26 @@
             this.lblValidade.Location = new System.Drawing.Point(20, 333);
             this.lblValidade.Name = "lblValidade";
             this.lblValidade.Size = new System.Drawing.Size(51, 13);
-            this.lblValidade.TabIndex = 24;
+            this.lblValidade.TabIndex = 27;
             this.lblValidade.Text = "Validade:";
             // 
-            // cJ3027511PR2DataSet6
+            // lblPrecoVendaRecomendado
             // 
-            this.cJ3027511PR2DataSet6.DataSetName = "CJ3027511PR2DataSet6";
-            this.cJ3027511PR2DataSet6.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            // 
-            // produtoBindingSource
-            // 
-            this.produtoBindingSource.DataMember = "Produto";
-            this.produtoBindingSource.DataSource = this.cJ3027511PR2DataSet6;
-            // 
-            // produtoTableAdapter
-            // 
-            this.produtoTableAdapter.ClearBeforeFill = true;
-            // 
-            // idProdDataGridViewTextBoxColumn
-            // 
-            this.idProdDataGridViewTextBoxColumn.DataPropertyName = "Id_Prod";
-            this.idProdDataGridViewTextBoxColumn.HeaderText = "Id_Prod";
-            this.idProdDataGridViewTextBoxColumn.Name = "idProdDataGridViewTextBoxColumn";
-            this.idProdDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // nomeProdDataGridViewTextBoxColumn
-            // 
-            this.nomeProdDataGridViewTextBoxColumn.DataPropertyName = "Nome_Prod";
-            this.nomeProdDataGridViewTextBoxColumn.HeaderText = "Nome_Prod";
-            this.nomeProdDataGridViewTextBoxColumn.Name = "nomeProdDataGridViewTextBoxColumn";
-            // 
-            // categoriaDataGridViewTextBoxColumn
-            // 
-            this.categoriaDataGridViewTextBoxColumn.DataPropertyName = "Categoria";
-            this.categoriaDataGridViewTextBoxColumn.HeaderText = "Categoria";
-            this.categoriaDataGridViewTextBoxColumn.Name = "categoriaDataGridViewTextBoxColumn";
-            // 
-            // validadeDataGridViewTextBoxColumn
-            // 
-            this.validadeDataGridViewTextBoxColumn.DataPropertyName = "Validade";
-            this.validadeDataGridViewTextBoxColumn.HeaderText = "Validade";
-            this.validadeDataGridViewTextBoxColumn.Name = "validadeDataGridViewTextBoxColumn";
-            // 
-            // idTipoDataGridViewTextBoxColumn
-            // 
-            this.idTipoDataGridViewTextBoxColumn.DataPropertyName = "Id_Tipo";
-            this.idTipoDataGridViewTextBoxColumn.HeaderText = "Id_Tipo";
-            this.idTipoDataGridViewTextBoxColumn.Name = "idTipoDataGridViewTextBoxColumn";
-            // 
-            // descricaoDataGridViewTextBoxColumn
-            // 
-            this.descricaoDataGridViewTextBoxColumn.DataPropertyName = "Descricao";
-            this.descricaoDataGridViewTextBoxColumn.HeaderText = "Descricao";
-            this.descricaoDataGridViewTextBoxColumn.Name = "descricaoDataGridViewTextBoxColumn";
-            // 
-            // precoVenDataGridViewTextBoxColumn
-            // 
-            this.precoVenDataGridViewTextBoxColumn.DataPropertyName = "Preco_Ven";
-            this.precoVenDataGridViewTextBoxColumn.HeaderText = "Preco_Ven";
-            this.precoVenDataGridViewTextBoxColumn.Name = "precoVenDataGridViewTextBoxColumn";
-            // 
-            // precoCmpDataGridViewTextBoxColumn
-            // 
-            this.precoCmpDataGridViewTextBoxColumn.DataPropertyName = "Preco_Cmp";
-            this.precoCmpDataGridViewTextBoxColumn.HeaderText = "Preco_Cmp";
-            this.precoCmpDataGridViewTextBoxColumn.Name = "precoCmpDataGridViewTextBoxColumn";
-            // 
-            // nomeTipoProdDataGridViewTextBoxColumn
-            // 
-            this.nomeTipoProdDataGridViewTextBoxColumn.DataPropertyName = "Nome_Tipo_Prod";
-            this.nomeTipoProdDataGridViewTextBoxColumn.HeaderText = "Nome_Tipo_Prod";
-            this.nomeTipoProdDataGridViewTextBoxColumn.Name = "nomeTipoProdDataGridViewTextBoxColumn";
-            // 
-            // quantidadeProdDataGridViewTextBoxColumn
-            // 
-            this.quantidadeProdDataGridViewTextBoxColumn.DataPropertyName = "Quantidade_Prod";
-            this.quantidadeProdDataGridViewTextBoxColumn.HeaderText = "Quantidade_Prod";
-            this.quantidadeProdDataGridViewTextBoxColumn.Name = "quantidadeProdDataGridViewTextBoxColumn";
-            // 
-            // unidadeMedidaProdDataGridViewTextBoxColumn
-            // 
-            this.unidadeMedidaProdDataGridViewTextBoxColumn.DataPropertyName = "Unidade_Medida_Prod";
-            this.unidadeMedidaProdDataGridViewTextBoxColumn.HeaderText = "Unidade_Medida_Prod";
-            this.unidadeMedidaProdDataGridViewTextBoxColumn.Name = "unidadeMedidaProdDataGridViewTextBoxColumn";
-            // 
-            // idFornecedorDataGridViewTextBoxColumn
-            // 
-            this.idFornecedorDataGridViewTextBoxColumn.DataPropertyName = "Id_Fornecedor";
-            this.idFornecedorDataGridViewTextBoxColumn.HeaderText = "Id_Fornecedor";
-            this.idFornecedorDataGridViewTextBoxColumn.Name = "idFornecedorDataGridViewTextBoxColumn";
+            this.lblPrecoVendaRecomendado.AutoSize = true;
+            this.lblPrecoVendaRecomendado.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Italic);
+            this.lblPrecoVendaRecomendado.Location = new System.Drawing.Point(20, 380);
+            this.lblPrecoVendaRecomendado.Name = "lblPrecoVendaRecomendado";
+            this.lblPrecoVendaRecomendado.Size = new System.Drawing.Size(300, 13);
+            this.lblPrecoVendaRecomendado.TabIndex = 28;
+            this.lblPrecoVendaRecomendado.Text = "";
             // 
             // Form4
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 461);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+            this.ClientSize = new System.Drawing.Size(1213, 525);
+            this.Controls.Add(this.lblPrecoVendaRecomendado);
             this.Controls.Add(this.lblValidade);
             this.Controls.Add(this.lblFornecedor);
             this.Controls.Add(this.lblPrecoVenda);
@@ -423,6 +342,9 @@
             this.Controls.Add(this.lblNome);
             this.Controls.Add(this.lblProcurar);
             this.Controls.Add(this.dgvProdutos);
+            this.Controls.Add(this.btnNovaCategoria);
+            this.Controls.Add(this.btnNovaUnidade);
+            this.Controls.Add(this.btnEditar);
             this.Controls.Add(this.btnDeletar);
             this.Controls.Add(this.btnAdicionar);
             this.Controls.Add(this.btnLimpar);
@@ -441,27 +363,9 @@
             this.Text = "Cadastro de Produtos";
             this.Load += new System.EventHandler(this.Form4_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet6)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.produtoBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
-
-        private CJ3027511PR2DataSet6 cJ3027511PR2DataSet6;
-        private System.Windows.Forms.BindingSource produtoBindingSource;
-        private CJ3027511PR2DataSet6TableAdapters.ProdutoTableAdapter produtoTableAdapter;
-        private System.Windows.Forms.DataGridViewTextBoxColumn idProdDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nomeProdDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn categoriaDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn validadeDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn idTipoDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn descricaoDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn precoVenDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn precoCmpDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nomeTipoProdDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn quantidadeProdDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn unidadeMedidaProdDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn idFornecedorDataGridViewTextBoxColumn;
     }
 }

@@ -40,10 +40,11 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(291, 44);
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(248, 70);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(144, 18);
+            this.label1.Size = new System.Drawing.Size(253, 29);
             this.label1.TabIndex = 0;
             this.label1.Text = "Controle de Estoque";
             this.label1.UseMnemonic = false;
@@ -52,7 +53,7 @@
             // 
             // FrmEnter
             // 
-            this.FrmEnter.Location = new System.Drawing.Point(294, 222);
+            this.FrmEnter.Location = new System.Drawing.Point(294, 260);
             this.FrmEnter.Name = "FrmEnter";
             this.FrmEnter.Size = new System.Drawing.Size(141, 40);
             this.FrmEnter.TabIndex = 1;
@@ -63,10 +64,11 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(175, 103);
+            this.label2.BackColor = System.Drawing.Color.Transparent;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(141, 144);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(122, 18);
+            this.label2.Size = new System.Drawing.Size(194, 25);
             this.label2.TabIndex = 2;
             this.label2.Text = "Qual e Seu Email";
             this.label2.Click += new System.EventHandler(this.label2_Click);
@@ -74,17 +76,19 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(430, 103);
+            this.label3.BackColor = System.Drawing.Color.Transparent;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.Color.Black;
+            this.label3.Location = new System.Drawing.Point(405, 144);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(127, 18);
+            this.label3.Size = new System.Drawing.Size(203, 25);
             this.label3.TabIndex = 3;
             this.label3.Text = "Qual e Sua Senha";
             this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // tbxEmail
             // 
-            this.tbxEmail.Location = new System.Drawing.Point(178, 137);
+            this.tbxEmail.Location = new System.Drawing.Point(163, 192);
             this.tbxEmail.Multiline = true;
             this.tbxEmail.Name = "tbxEmail";
             this.tbxEmail.Size = new System.Drawing.Size(123, 25);
@@ -93,7 +97,7 @@
             // 
             // tbxSenha
             // 
-            this.tbxSenha.Location = new System.Drawing.Point(433, 137);
+            this.tbxSenha.Location = new System.Drawing.Point(441, 192);
             this.tbxSenha.Multiline = true;
             this.tbxSenha.Name = "tbxSenha";
             this.tbxSenha.Size = new System.Drawing.Size(124, 25);
@@ -114,7 +118,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.BackgroundImage = global::ControleDeEstoque.Properties.Resources._53v4abds;
+            this.BackgroundImage = global::ControleDeEstoque.Properties.Resources.qu3dar2n;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(750, 391);
             this.Controls.Add(this.button1);

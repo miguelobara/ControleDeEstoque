@@ -1,14 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ControleDeEstoque
@@ -18,148 +9,176 @@ namespace ControleDeEstoque
         public Form5()
         {
             InitializeComponent();
+            this.AcceptButton = btnCriar;
+
+            // Adicionar placeholder manualmente (para versões antigas do .NET)
+            AddPlaceholderText();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void AddPlaceholderText()
         {
-            Form3 product = new Form3();
-            this.Visible = false;
-            product.ShowDialog();
-            this.Visible = true;
-        }
+            // Simular placeholder para versões antigas
+            tbxNascimento.Enter += (s, e) =>
+            {
+                if (tbxNascimento.Text == "DD/MM/AAAA")
+                    tbxNascimento.Text = "";
+            };
 
-       
+            tbxNascimento.Leave += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(tbxNascimento.Text))
+                    tbxNascimento.Text = "DD/MM/AAAA";
+            };
 
-        private void tbxEmail1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tbxSenha1_TextChanged(object sender, EventArgs e)
-        {
-
+            // Definir texto inicial
+            if (string.IsNullOrWhiteSpace(tbxNascimento.Text))
+                tbxNascimento.Text = "DD/MM/AAAA";
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
+            if (ValidarCampos())
             {
-                // Coleta os dados dos TextBoxes
-                string nome = tbxNome.Text;
-                string nascimento = tbxNascimento.Text;
-                string cpf = tbxCpf.Text;
-                string rg = tbxRg.Text;
-                string email = tbxEmail1.Text;
-                string telefone = tbxTelefone.Text;
-                string cidade = tbxCidade.Text;
-                string rua = tbxRua.Text;
-                string uf = tbxUf.Text;
-                string cep = tbxCep.Text;
-                string pais = tbxPais.Text;
-                string senha = tbxSenha1.Text;
+                CadastrarUsuario();
+            }
+        }
 
-                // String de conexão
+        private bool ValidarCampos()
+        {
+            if (string.IsNullOrWhiteSpace(tbxNome.Text) || tbxNome.Text == "Nome")
+            {
+                MessageBox.Show("Por favor, preencha o campo Nome.", "Campo Obrigatório",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                tbxNome.Focus();
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(tbxEmail1.Text) || tbxEmail1.Text == "Email")
+            {
+                MessageBox.Show("Por favor, preencha o campo Email.", "Campo Obrigatório",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                tbxEmail1.Focus();
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(tbxSenha1.Text))
+            {
+                MessageBox.Show("Por favor, preencha o campo Senha.", "Campo Obrigatório",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                tbxSenha1.Focus();
+                return false;
+            }
+
+            // Validar formato da data
+            if (tbxNascimento.Text != "DD/MM/AAAA" && !string.IsNullOrWhiteSpace(tbxNascimento.Text))
+            {
+                try
+                {
+                    DateTime.Parse(tbxNascimento.Text);
+                }
+                catch
+                {
+                    MessageBox.Show("Por favor, insira uma data válida no formato DD/MM/AAAA.", "Data Inválida",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    tbxNascimento.Focus();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void CadastrarUsuario()
+        {
+            try
+            {
                 string conexao = "Data Source=SQLEXPRESS;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
 
                 using (SqlConnection conn = new SqlConnection(conexao))
                 {
                     conn.Open();
 
-                    // Verifica se o email já existe
+                    // Verificar se email já existe
                     string verificaSql = "SELECT COUNT(*) FROM Usuario WHERE Email = @Email";
                     using (SqlCommand verificaCmd = new SqlCommand(verificaSql, conn))
                     {
-                        verificaCmd.Parameters.AddWithValue("@Email", email);
+                        verificaCmd.Parameters.AddWithValue("@Email", tbxEmail1.Text.Trim());
                         int existe = (int)verificaCmd.ExecuteScalar();
 
                         if (existe > 0)
                         {
-                            MessageBox.Show("Este email já está cadastrado.");
+                            MessageBox.Show("Este email já está cadastrado.", "Email Existente",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
                     }
 
-                    // Insere novo usuário
+                    // Inserir novo usuário
                     string sql = @"INSERT INTO Usuario 
-            (Nome, Nascimento, Cpf, Rg, Email, Telefone, Cidade, Rua, Uf, Cep, Pais, Senha) VALUES (@Nome, @Nascimento, @Cpf, @Rg, @Email, @Telefone, @Cidade, @Rua, @Uf, @Cep, @Pais, @Senha)";
+                    (Nome, Nascimento, Cpf, Rg, Email, Telefone, Cidade, Rua, Uf, Cep, Pais, Senha) 
+                    VALUES (@Nome, @Nascimento, @Cpf, @Rg, @Email, @Telefone, @Cidade, @Rua, @Uf, @Cep, @Pais, @Senha)";
 
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                     {
-                        cmd.Parameters.AddWithValue("@Nome", nome);
-                        cmd.Parameters.AddWithValue("@Nascimento", DateTime.Parse(nascimento));
-                        cmd.Parameters.AddWithValue("@Cpf", cpf);
-                        cmd.Parameters.AddWithValue("@Rg", rg);
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@Telefone", telefone);
-                        cmd.Parameters.AddWithValue("@Cidade", cidade);
-                        cmd.Parameters.AddWithValue("@Rua", rua);
-                        cmd.Parameters.AddWithValue("@Uf", uf);
-                        cmd.Parameters.AddWithValue("@Cep", cep);
-                        cmd.Parameters.AddWithValue("@Pais", pais);
-                        cmd.Parameters.AddWithValue("@Senha", senha);
+                        cmd.Parameters.AddWithValue("@Nome", tbxNome.Text.Trim());
 
-                        cmd.ExecuteNonQuery(); 
+                        // Tratar data de nascimento
+                        if (tbxNascimento.Text != "DD/MM/AAAA" && !string.IsNullOrWhiteSpace(tbxNascimento.Text))
+                            cmd.Parameters.AddWithValue("@Nascimento", DateTime.Parse(tbxNascimento.Text.Trim()));
+                        else
+                            cmd.Parameters.AddWithValue("@Nascimento", DBNull.Value);
+
+                        cmd.Parameters.AddWithValue("@Cpf", string.IsNullOrWhiteSpace(tbxCpf.Text) ? DBNull.Value : (object)tbxCpf.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Rg", string.IsNullOrWhiteSpace(tbxRg.Text) ? DBNull.Value : (object)tbxRg.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Email", tbxEmail1.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Telefone", string.IsNullOrWhiteSpace(tbxTelefone.Text) ? DBNull.Value : (object)tbxTelefone.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Cidade", string.IsNullOrWhiteSpace(tbxCidade.Text) ? DBNull.Value : (object)tbxCidade.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Rua", string.IsNullOrWhiteSpace(tbxRua.Text) ? DBNull.Value : (object)tbxRua.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Uf", string.IsNullOrWhiteSpace(tbxUf.Text) ? DBNull.Value : (object)tbxUf.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Cep", string.IsNullOrWhiteSpace(tbxCep.Text) ? DBNull.Value : (object)tbxCep.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Pais", string.IsNullOrWhiteSpace(tbxPais.Text) ? DBNull.Value : (object)tbxPais.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Senha", tbxSenha1.Text);
+
+                        cmd.ExecuteNonQuery();
                     }
 
-                    MessageBox.Show("Cadastro realizado com sucesso!");
+                    MessageBox.Show("Cadastro realizado com sucesso!", "Sucesso",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Limpa os campos
-                    tbxNome.Clear();
-                    tbxNascimento.Clear();
-                    tbxCpf.Clear();
-                    tbxRg.Clear();
-                    tbxEmail1.Clear();
-                    tbxTelefone.Clear();
-                    tbxCidade.Clear();
-                    tbxRua.Clear();
-                    tbxUf.Clear();
-                    tbxCep.Clear();
-                    tbxPais.Clear();
-                    tbxSenha1.Clear();
+                    LimparCampos();
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao cadastrar: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        private void textBox13_TextChanged(object sender, EventArgs e)
+        private void LimparCampos()
         {
-
-        }
-
-        private void texNacimento_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form5_Load(object sender, EventArgs e)
-        {
-
+            tbxNome.Clear();
+            tbxNascimento.Text = "DD/MM/AAAA";
+            tbxCpf.Clear();
+            tbxRg.Clear();
+            tbxEmail1.Clear();
+            tbxTelefone.Clear();
+            tbxCidade.Clear();
+            tbxRua.Clear();
+            tbxUf.Clear();
+            tbxCep.Clear();
+            tbxPais.Clear();
+            tbxSenha1.Clear();
+            tbxNome.Focus();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-
+            this.Close();
         }
 
-
-
-
-
-
-
-
-
-
-
-        //private void InitializeComponent()
-        //{
-        //    this.SuspendLayout();
-        //    // 
-        //    // Form5
-        //    // 
-        //    this.ClientSize = new System.Drawing.Size(172, 503);
-        //    this.Name = "Form5";
-        //    this.ResumeLayout(false);
-
-        //}
+        private void Form5_Load(object sender, EventArgs e) { }
+        private void tbxEmail1_TextChanged(object sender, EventArgs e) { }
+        private void tbxSenha1_TextChanged(object sender, EventArgs e) { }
     }
 }
