@@ -17,11 +17,11 @@
         private System.Windows.Forms.DateTimePicker dtpValidade;
         private System.Windows.Forms.Button btnSalvar;
         private System.Windows.Forms.Button btnLimpar;
-        private System.Windows.Forms.Button btnAdicionar;
         private System.Windows.Forms.Button btnDeletar;
         private System.Windows.Forms.Button btnEditar;
         private System.Windows.Forms.Button btnNovaUnidade;
         private System.Windows.Forms.Button btnNovaCategoria;
+        private System.Windows.Forms.Button btnMudarLucro;
         private System.Windows.Forms.DataGridView dgvProdutos;
         private System.Windows.Forms.Label lblProcurar;
         private System.Windows.Forms.Label lblNome;
@@ -34,6 +34,11 @@
         private System.Windows.Forms.Label lblFornecedor;
         private System.Windows.Forms.Label lblValidade;
         private System.Windows.Forms.Label lblPrecoVendaRecomendado;
+        private System.Windows.Forms.Label lblPercentualLucro;
+        private System.Windows.Forms.CheckBox chkBuscarNome;
+        private System.Windows.Forms.CheckBox chkBuscarCategoria;
+        private System.Windows.Forms.CheckBox chkBuscarFornecedor;
+        private System.Windows.Forms.GroupBox groupBoxBusca;
 
         protected override void Dispose(bool disposing)
         {
@@ -58,11 +63,11 @@
             this.dtpValidade = new System.Windows.Forms.DateTimePicker();
             this.btnSalvar = new System.Windows.Forms.Button();
             this.btnLimpar = new System.Windows.Forms.Button();
-            this.btnAdicionar = new System.Windows.Forms.Button();
             this.btnDeletar = new System.Windows.Forms.Button();
             this.btnEditar = new System.Windows.Forms.Button();
             this.btnNovaUnidade = new System.Windows.Forms.Button();
             this.btnNovaCategoria = new System.Windows.Forms.Button();
+            this.btnMudarLucro = new System.Windows.Forms.Button();
             this.dgvProdutos = new System.Windows.Forms.DataGridView();
             this.lblProcurar = new System.Windows.Forms.Label();
             this.lblNome = new System.Windows.Forms.Label();
@@ -75,7 +80,13 @@
             this.lblFornecedor = new System.Windows.Forms.Label();
             this.lblValidade = new System.Windows.Forms.Label();
             this.lblPrecoVendaRecomendado = new System.Windows.Forms.Label();
+            this.lblPercentualLucro = new System.Windows.Forms.Label();
+            this.groupBoxBusca = new System.Windows.Forms.GroupBox();
+            this.chkBuscarFornecedor = new System.Windows.Forms.CheckBox();
+            this.chkBuscarCategoria = new System.Windows.Forms.CheckBox();
+            this.chkBuscarNome = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).BeginInit();
+            this.groupBoxBusca.SuspendLayout();
             this.SuspendLayout();
             // 
             // tbxProcurar
@@ -169,30 +180,21 @@
             this.btnLimpar.Text = "Limpar";
             this.btnLimpar.UseVisualStyleBackColor = true;
             // 
-            // btnAdicionar
-            // 
-            this.btnAdicionar.Location = new System.Drawing.Point(450, 400);
-            this.btnAdicionar.Name = "btnAdicionar";
-            this.btnAdicionar.Size = new System.Drawing.Size(75, 23);
-            this.btnAdicionar.TabIndex = 12;
-            this.btnAdicionar.Text = "Adicionar";
-            this.btnAdicionar.UseVisualStyleBackColor = true;
-            // 
             // btnDeletar
             // 
-            this.btnDeletar.Location = new System.Drawing.Point(450, 430);
+            this.btnDeletar.Location = new System.Drawing.Point(450, 400);
             this.btnDeletar.Name = "btnDeletar";
             this.btnDeletar.Size = new System.Drawing.Size(75, 23);
-            this.btnDeletar.TabIndex = 13;
+            this.btnDeletar.TabIndex = 12;
             this.btnDeletar.Text = "Deletar";
             this.btnDeletar.UseVisualStyleBackColor = true;
             // 
             // btnEditar
             // 
-            this.btnEditar.Location = new System.Drawing.Point(550, 400);
+            this.btnEditar.Location = new System.Drawing.Point(450, 430);
             this.btnEditar.Name = "btnEditar";
             this.btnEditar.Size = new System.Drawing.Size(75, 23);
-            this.btnEditar.TabIndex = 14;
+            this.btnEditar.TabIndex = 13;
             this.btnEditar.Text = "Editar";
             this.btnEditar.UseVisualStyleBackColor = true;
             // 
@@ -202,7 +204,7 @@
             this.btnNovaUnidade.Location = new System.Drawing.Point(326, 110);
             this.btnNovaUnidade.Name = "btnNovaUnidade";
             this.btnNovaUnidade.Size = new System.Drawing.Size(25, 21);
-            this.btnNovaUnidade.TabIndex = 15;
+            this.btnNovaUnidade.TabIndex = 14;
             this.btnNovaUnidade.Text = "+";
             this.btnNovaUnidade.UseVisualStyleBackColor = true;
             // 
@@ -212,14 +214,24 @@
             this.btnNovaCategoria.Location = new System.Drawing.Point(326, 80);
             this.btnNovaCategoria.Name = "btnNovaCategoria";
             this.btnNovaCategoria.Size = new System.Drawing.Size(25, 21);
-            this.btnNovaCategoria.TabIndex = 16;
+            this.btnNovaCategoria.TabIndex = 15;
             this.btnNovaCategoria.Text = "+";
             this.btnNovaCategoria.UseVisualStyleBackColor = true;
+            // 
+            // btnMudarLucro
+            // 
+            this.btnMudarLucro.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMudarLucro.Location = new System.Drawing.Point(120, 355);
+            this.btnMudarLucro.Name = "btnMudarLucro";
+            this.btnMudarLucro.Size = new System.Drawing.Size(25, 21);
+            this.btnMudarLucro.TabIndex = 16;
+            this.btnMudarLucro.Text = "+";
+            this.btnMudarLucro.UseVisualStyleBackColor = true;
             // 
             // dgvProdutos
             // 
             this.dgvProdutos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvProdutos.Location = new System.Drawing.Point(350, 20);
+            this.dgvProdutos.Location = new System.Drawing.Point(350, 50);
             this.dgvProdutos.Name = "dgvProdutos";
             this.dgvProdutos.Size = new System.Drawing.Size(843, 330);
             this.dgvProdutos.TabIndex = 17;
@@ -320,9 +332,62 @@
             this.lblPrecoVendaRecomendado.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Italic);
             this.lblPrecoVendaRecomendado.Location = new System.Drawing.Point(20, 380);
             this.lblPrecoVendaRecomendado.Name = "lblPrecoVendaRecomendado";
-            this.lblPrecoVendaRecomendado.Size = new System.Drawing.Size(300, 13);
+            this.lblPrecoVendaRecomendado.Size = new System.Drawing.Size(300, 120);
             this.lblPrecoVendaRecomendado.TabIndex = 28;
-            this.lblPrecoVendaRecomendado.Text = "";
+            // 
+            // lblPercentualLucro
+            // 
+            this.lblPercentualLucro.AutoSize = true;
+            this.lblPercentualLucro.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPercentualLucro.Location = new System.Drawing.Point(20, 360);
+            this.lblPercentualLucro.Name = "lblPercentualLucro";
+            this.lblPercentualLucro.Size = new System.Drawing.Size(97, 13);
+            this.lblPercentualLucro.TabIndex = 29;
+            this.lblPercentualLucro.Text = "Lucro: 30% (+)";
+            // 
+            // groupBoxBusca
+            // 
+            this.groupBoxBusca.Controls.Add(this.chkBuscarFornecedor);
+            this.groupBoxBusca.Controls.Add(this.chkBuscarCategoria);
+            this.groupBoxBusca.Controls.Add(this.chkBuscarNome);
+            this.groupBoxBusca.Location = new System.Drawing.Point(330, 10);
+            this.groupBoxBusca.Name = "groupBoxBusca";
+            this.groupBoxBusca.Size = new System.Drawing.Size(200, 40);
+            this.groupBoxBusca.TabIndex = 30;
+            this.groupBoxBusca.TabStop = false;
+            this.groupBoxBusca.Text = "Buscar por:";
+            // 
+            // chkBuscarFornecedor
+            // 
+            this.chkBuscarFornecedor.AutoSize = true;
+            this.chkBuscarFornecedor.Location = new System.Drawing.Point(145, 17);
+            this.chkBuscarFornecedor.Name = "chkBuscarFornecedor";
+            this.chkBuscarFornecedor.Size = new System.Drawing.Size(50, 17);
+            this.chkBuscarFornecedor.TabIndex = 2;
+            this.chkBuscarFornecedor.Text = "Forn.";
+            this.chkBuscarFornecedor.UseVisualStyleBackColor = true;
+            // 
+            // chkBuscarCategoria
+            // 
+            this.chkBuscarCategoria.AutoSize = true;
+            this.chkBuscarCategoria.Location = new System.Drawing.Point(70, 17);
+            this.chkBuscarCategoria.Name = "chkBuscarCategoria";
+            this.chkBuscarCategoria.Size = new System.Drawing.Size(73, 17);
+            this.chkBuscarCategoria.TabIndex = 1;
+            this.chkBuscarCategoria.Text = "Categoria";
+            this.chkBuscarCategoria.UseVisualStyleBackColor = true;
+            // 
+            // chkBuscarNome
+            // 
+            this.chkBuscarNome.AutoSize = true;
+            this.chkBuscarNome.Checked = true;
+            this.chkBuscarNome.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkBuscarNome.Location = new System.Drawing.Point(10, 17);
+            this.chkBuscarNome.Name = "chkBuscarNome";
+            this.chkBuscarNome.Size = new System.Drawing.Size(55, 17);
+            this.chkBuscarNome.TabIndex = 0;
+            this.chkBuscarNome.Text = "Nome";
+            this.chkBuscarNome.UseVisualStyleBackColor = true;
             // 
             // Form4
             // 
@@ -330,6 +395,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
             this.ClientSize = new System.Drawing.Size(1213, 525);
+            this.Controls.Add(this.groupBoxBusca);
+            this.Controls.Add(this.lblPercentualLucro);
             this.Controls.Add(this.lblPrecoVendaRecomendado);
             this.Controls.Add(this.lblValidade);
             this.Controls.Add(this.lblFornecedor);
@@ -342,11 +409,11 @@
             this.Controls.Add(this.lblNome);
             this.Controls.Add(this.lblProcurar);
             this.Controls.Add(this.dgvProdutos);
+            this.Controls.Add(this.btnMudarLucro);
             this.Controls.Add(this.btnNovaCategoria);
             this.Controls.Add(this.btnNovaUnidade);
             this.Controls.Add(this.btnEditar);
             this.Controls.Add(this.btnDeletar);
-            this.Controls.Add(this.btnAdicionar);
             this.Controls.Add(this.btnLimpar);
             this.Controls.Add(this.btnSalvar);
             this.Controls.Add(this.dtpValidade);
@@ -363,6 +430,8 @@
             this.Text = "Cadastro de Produtos";
             this.Load += new System.EventHandler(this.Form4_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).EndInit();
+            this.groupBoxBusca.ResumeLayout(false);
+            this.groupBoxBusca.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

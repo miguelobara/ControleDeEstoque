@@ -16,19 +16,25 @@ namespace ControleDeEstoque
         private bool modoEdicao = false;
         private int produtoIdEmEdicao = 0;
 
+        // VARIÁVEL PARA CONTROLE DO PERCENTUAL DE LUCRO
+        private decimal percentualLucro = 30m; // Valor padrão 30%
+
         public Form4()
         {
             InitializeComponent();
 
-            // CONECTA OS EVENTOS
+            // CONECTA OS EVENTOS CORRETAMENTE
             this.btnSalvar.Click += new System.EventHandler(this.btnSalvar_Click);
             this.btnLimpar.Click += new System.EventHandler(this.btnLimpar_Click);
-            this.btnAdicionar.Click += new System.EventHandler(this.btnAdicionar_Click);
             this.btnDeletar.Click += new System.EventHandler(this.btnDeletar_Click);
             this.btnEditar.Click += new System.EventHandler(this.btnEditar_Click);
             this.btnNovaUnidade.Click += new System.EventHandler(this.btnNovaUnidade_Click);
             this.btnNovaCategoria.Click += new System.EventHandler(this.btnNovaCategoria_Click);
+            this.btnMudarLucro.Click += new System.EventHandler(this.btnMudarLucro_Click);
             this.tbxProcurar.TextChanged += new System.EventHandler(this.tbxProcurar_TextChanged);
+            this.chkBuscarNome.CheckedChanged += new System.EventHandler(this.chkBuscarNome_CheckedChanged);
+            this.chkBuscarCategoria.CheckedChanged += new System.EventHandler(this.chkBuscarCategoria_CheckedChanged);
+            this.chkBuscarFornecedor.CheckedChanged += new System.EventHandler(this.chkBuscarFornecedor_CheckedChanged);
             this.dgvProdutos.SelectionChanged += new System.EventHandler(this.dgvProdutos_SelectionChanged);
 
             // EVENTO PARA CALCULAR PREÇO RECOMENDADO
@@ -47,6 +53,9 @@ namespace ControleDeEstoque
             CarregarUnidades();
             CarregarCategorias();
 
+            // ATUALIZAR LABEL DO PERCENTUAL DE LUCRO
+            AtualizarLabelPercentualLucro();
+
             // ESTILO MELHORADO PARA O DATAGRIDVIEW
             dgvProdutos.BackgroundColor = Color.White;
             dgvProdutos.BorderStyle = BorderStyle.None;
@@ -55,6 +64,297 @@ namespace ControleDeEstoque
             dgvProdutos.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dgvProdutos.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
             dgvProdutos.RowHeadersVisible = false;
+        }
+
+        // MÉTODO PARA ADICIONAR NOVA UNIDADE
+        private void btnNovaUnidade_Click(object sender, EventArgs e)
+        {
+            string novaUnidade = ShowInputDialog("Digite o nome da nova unidade de medida:", "Nova Unidade");
+
+            if (!string.IsNullOrEmpty(novaUnidade))
+            {
+                cbxUnidade.Items.Add(novaUnidade);
+                cbxUnidade.Text = novaUnidade;
+                MessageBox.Show($"Unidade '{novaUnidade}' adicionada com sucesso!", "Sucesso",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        // MÉTODO PARA ADICIONAR NOVA CATEGORIA
+        private void btnNovaCategoria_Click(object sender, EventArgs e)
+        {
+            string novaCategoria = ShowInputDialog("Digite o nome da nova categoria:", "Nova Categoria");
+
+            if (!string.IsNullOrEmpty(novaCategoria))
+            {
+                cbxTipo.Items.Add(novaCategoria);
+                cbxTipo.Text = novaCategoria;
+                MessageBox.Show($"Categoria '{novaCategoria}' adicionada com sucesso!", "Sucesso",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        // NOVO MÉTODO: BUSCA INTELIGENTE COM CHECKBOXES
+        private void ProcurarProdutosInteligente()
+        {
+            string textoBusca = tbxProcurar.Text.Trim();
+
+            if (string.IsNullOrEmpty(textoBusca))
+            {
+                CarregarProdutos();
+                return;
+            }
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = "SELECT Nome_Prod, Categoria, Validade, Descricao, Preco_Ven, Preco_Cmp, Quantidade_Prod, Unidade_Medida_Prod, Id_Fornecedor FROM Produto WHERE ";
+
+                    List<string> conditions = new List<string>();
+                    List<SqlParameter> parameters = new List<SqlParameter>();
+
+                    if (chkBuscarNome.Checked)
+                    {
+                        conditions.Add("Nome_Prod LIKE @Nome");
+                        parameters.Add(new SqlParameter("@Nome", "%" + textoBusca + "%"));
+                    }
+
+                    if (chkBuscarCategoria.Checked)
+                    {
+                        conditions.Add("Categoria LIKE @Categoria");
+                        parameters.Add(new SqlParameter("@Categoria", "%" + textoBusca + "%"));
+                    }
+
+                    if (chkBuscarFornecedor.Checked)
+                    {
+                        // Tenta converter para número se for busca por fornecedor ID
+                        if (int.TryParse(textoBusca, out int fornecedorId))
+                        {
+                            conditions.Add("Id_Fornecedor = @FornecedorId");
+                            parameters.Add(new SqlParameter("@FornecedorId", fornecedorId));
+                        }
+                        else
+                        {
+                            conditions.Add("CAST(Id_Fornecedor AS VARCHAR) LIKE @Fornecedor");
+                            parameters.Add(new SqlParameter("@Fornecedor", "%" + textoBusca + "%"));
+                        }
+                    }
+
+                    // Se nenhum checkbox está marcado, busca por nome por padrão
+                    if (conditions.Count == 0)
+                    {
+                        conditions.Add("Nome_Prod LIKE @Nome");
+                        parameters.Add(new SqlParameter("@Nome", "%" + textoBusca + "%"));
+                    }
+
+                    query += string.Join(" OR ", conditions);
+
+                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
+
+                    // Adiciona os parâmetros
+                    foreach (var param in parameters)
+                    {
+                        adapter.SelectCommand.Parameters.Add(param);
+                    }
+
+                    DataTable dataTable = new DataTable();
+                    adapter.Fill(dataTable);
+
+                    // Formatar quantidade como inteiro
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        if (row["Quantidade_Prod"] != DBNull.Value && decimal.TryParse(row["Quantidade_Prod"].ToString(), out decimal quantidade))
+                        {
+                            row["Quantidade_Prod"] = ((int)quantidade).ToString();
+                        }
+                    }
+
+                    dgvProdutos.DataSource = dataTable;
+
+                    // APLICA AS CONFIGURAÇÕES DE COLUNAS
+                    AplicarConfiguracoesColunas();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao procurar produtos: " + ex.Message, "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // MÉTODO AUXILIAR PARA APLICAR CONFIGURAÇÕES DAS COLUNAS
+        private void AplicarConfiguracoesColunas()
+        {
+            if (dgvProdutos.Columns.Count > 0)
+            {
+                if (dgvProdutos.Columns.Contains("Nome_Prod"))
+                    dgvProdutos.Columns["Nome_Prod"].HeaderText = "Nome do Produto";
+                if (dgvProdutos.Columns.Contains("Categoria"))
+                    dgvProdutos.Columns["Categoria"].HeaderText = "Categoria";
+                if (dgvProdutos.Columns.Contains("Validade"))
+                    dgvProdutos.Columns["Validade"].HeaderText = "Validade";
+                if (dgvProdutos.Columns.Contains("Descricao"))
+                    dgvProdutos.Columns["Descricao"].HeaderText = "Descrição";
+                if (dgvProdutos.Columns.Contains("Preco_Ven"))
+                    dgvProdutos.Columns["Preco_Ven"].HeaderText = "Preço Venda";
+                if (dgvProdutos.Columns.Contains("Preco_Cmp"))
+                    dgvProdutos.Columns["Preco_Cmp"].HeaderText = "Preço Compra";
+                if (dgvProdutos.Columns.Contains("Quantidade_Prod"))
+                    dgvProdutos.Columns["Quantidade_Prod"].HeaderText = "Quantidade";
+                if (dgvProdutos.Columns.Contains("Unidade_Medida_Prod"))
+                    dgvProdutos.Columns["Unidade_Medida_Prod"].HeaderText = "Unidade";
+                if (dgvProdutos.Columns.Contains("Id_Fornecedor"))
+                    dgvProdutos.Columns["Id_Fornecedor"].HeaderText = "Fornecedor ID";
+            }
+        }
+
+        // EVENTOS DOS CHECKBOXES
+        private void chkBuscarNome_CheckedChanged(object sender, EventArgs e)
+        {
+            ProcurarProdutosInteligente();
+        }
+
+        private void chkBuscarCategoria_CheckedChanged(object sender, EventArgs e)
+        {
+            ProcurarProdutosInteligente();
+        }
+
+        private void chkBuscarFornecedor_CheckedChanged(object sender, EventArgs e)
+        {
+            ProcurarProdutosInteligente();
+        }
+
+        // MÉTODO ATUALIZADO: PROCURAR PRODUTOS (AGORA CHAMA A BUSCA INTELIGENTE)
+        private void tbxProcurar_TextChanged(object sender, EventArgs e)
+        {
+            ProcurarProdutosInteligente();
+        }
+
+        // MÉTODO: CARREGAR TODOS OS PRODUTOS
+        private void CarregarProdutos()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = "SELECT Nome_Prod, Categoria, Validade, Descricao, Preco_Ven, Preco_Cmp, Quantidade_Prod, Unidade_Medida_Prod, Id_Fornecedor FROM Produto";
+                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
+                    DataTable dataTable = new DataTable();
+                    adapter.Fill(dataTable);
+
+                    // Formatar quantidade como inteiro
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        if (row["Quantidade_Prod"] != DBNull.Value && decimal.TryParse(row["Quantidade_Prod"].ToString(), out decimal quantidade))
+                        {
+                            row["Quantidade_Prod"] = ((int)quantidade).ToString();
+                        }
+                    }
+
+                    dgvProdutos.DataSource = null;
+                    dgvProdutos.DataSource = dataTable;
+
+                    // RENOMEIA AS COLUNAS PARA PORTUGUÊS E AJUSTA LARGURAS
+                    if (dgvProdutos.Columns.Count > 0)
+                    {
+                        if (dgvProdutos.Columns.Contains("Nome_Prod"))
+                        {
+                            dgvProdutos.Columns["Nome_Prod"].HeaderText = "Nome do Produto";
+                            dgvProdutos.Columns["Nome_Prod"].Width = 150;
+                        }
+
+                        if (dgvProdutos.Columns.Contains("Categoria"))
+                        {
+                            dgvProdutos.Columns["Categoria"].HeaderText = "Categoria";
+                            dgvProdutos.Columns["Categoria"].Width = 100;
+                        }
+
+                        if (dgvProdutos.Columns.Contains("Validade"))
+                        {
+                            dgvProdutos.Columns["Validade"].HeaderText = "Validade";
+                            dgvProdutos.Columns["Validade"].Width = 80;
+                        }
+
+                        if (dgvProdutos.Columns.Contains("Descricao"))
+                        {
+                            dgvProdutos.Columns["Descricao"].HeaderText = "Descrição";
+                            dgvProdutos.Columns["Descricao"].Width = 200;
+                        }
+
+                        if (dgvProdutos.Columns.Contains("Preco_Ven"))
+                        {
+                            dgvProdutos.Columns["Preco_Ven"].HeaderText = "Preço Venda";
+                            dgvProdutos.Columns["Preco_Ven"].Width = 90;
+                        }
+
+                        if (dgvProdutos.Columns.Contains("Preco_Cmp"))
+                        {
+                            dgvProdutos.Columns["Preco_Cmp"].HeaderText = "Preço Compra";
+                            dgvProdutos.Columns["Preco_Cmp"].Width = 90;
+                        }
+
+                        if (dgvProdutos.Columns.Contains("Quantidade_Prod"))
+                        {
+                            dgvProdutos.Columns["Quantidade_Prod"].HeaderText = "Quantidade";
+                            dgvProdutos.Columns["Quantidade_Prod"].Width = 80;
+                        }
+
+                        if (dgvProdutos.Columns.Contains("Unidade_Medida_Prod"))
+                        {
+                            dgvProdutos.Columns["Unidade_Medida_Prod"].HeaderText = "Unidade";
+                            dgvProdutos.Columns["Unidade_Medida_Prod"].Width = 80;
+                        }
+
+                        if (dgvProdutos.Columns.Contains("Id_Fornecedor"))
+                        {
+                            dgvProdutos.Columns["Id_Fornecedor"].HeaderText = "Fornecedor ID";
+                            dgvProdutos.Columns["Id_Fornecedor"].Width = 80;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao carregar produtos: " + ex.Message, "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // MÉTODO: ATUALIZAR LABEL DO PERCENTUAL DE LUCRO
+        private void AtualizarLabelPercentualLucro()
+        {
+            lblPercentualLucro.Text = $"Lucro: {percentualLucro}% (+)";
+        }
+
+        // MÉTODO: BOTÃO PARA MUDAR PERCENTUAL DE LUCRO
+        private void btnMudarLucro_Click(object sender, EventArgs e)
+        {
+            string novoPercentual = ShowInputDialog($"Percentual de lucro atual: {percentualLucro}%\n\nDigite o novo percentual:", "Alterar Percentual de Lucro");
+
+            if (!string.IsNullOrEmpty(novoPercentual))
+            {
+                if (decimal.TryParse(novoPercentual, out decimal novoPercentualValue) && novoPercentualValue > 0)
+                {
+                    percentualLucro = novoPercentualValue;
+                    AtualizarLabelPercentualLucro();
+
+                    // RECALCULAR PREÇO RECOMENDADO COM NOVO PERCENTUAL
+                    CalcularPrecoVendaRecomendado();
+
+                    MessageBox.Show($"Percentual de lucro alterado para {percentualLucro}%!", "Sucesso",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Por favor, digite um percentual válido (ex: 25, 30, 40).", "Erro",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         // CARREGAR UNIDADES PADRÃO
@@ -80,15 +380,15 @@ namespace ControleDeEstoque
         {
             if (decimal.TryParse(tbxPrecoCompra.Text, out decimal precoCompraUnitario) && precoCompraUnitario > 0)
             {
-                // MUDANÇA: Usar int para quantidade
                 int quantidade = 1;
                 if (int.TryParse(tbxQuantidade.Text, out int qtd) && qtd > 0)
                 {
                     quantidade = qtd;
                 }
 
-                // CÁLCULOS - TUDO UNITÁRIO
-                decimal precoVendaRecomendadoUnitario = precoCompraUnitario * 1.30m; // 30% lucro
+                // CÁLCULOS - TUDO UNITÁRIO (USA O PERCENTUAL CONFIGURADO)
+                decimal fatorLucro = 1 + (percentualLucro / 100m);
+                decimal precoVendaRecomendadoUnitario = precoCompraUnitario * fatorLucro;
                 decimal lucroUnitario = precoVendaRecomendadoUnitario - precoCompraUnitario;
 
                 // CÁLCULOS TOTAIS (APENAS PARA INFORMAÇÃO)
@@ -102,30 +402,30 @@ namespace ControleDeEstoque
                     tbxPrecoVenda.Text = precoVendaRecomendadoUnitario.ToString("F2");
                 }
 
-                // MOSTRA INFORMAÇÕES CLARAS - COM CORES MELHORADAS
+                // MOSTRA INFORMAÇÕES CLARAS
                 if (quantidade > 1)
                 {
                     lblPrecoVendaRecomendado.Text =
-                        "Preço Venda Recomendado: R$ " + precoVendaRecomendadoUnitario.ToString("F2") + " (cada unidade)" + Environment.NewLine +
-                        "Lucro por unidade: R$ " + lucroUnitario.ToString("F2") + " (+30%)" + Environment.NewLine +
-                        "Valor total em estoque: R$ " + valorTotalEstoque.ToString("F2") + Environment.NewLine +
-                        "Potencial de venda total: R$ " + valorTotalVendaRecomendado.ToString("F2") + Environment.NewLine +
-                        "Lucro total potencial: R$ " + lucroTotalPotencial.ToString("F2");
+                        $"Preço Venda Recomendado: R$ {precoVendaRecomendadoUnitario:F2} (cada unidade)" + Environment.NewLine +
+                        $"Lucro por unidade: R$ {lucroUnitario:F2} (+{percentualLucro}%)" + Environment.NewLine +
+                        $"Valor total em estoque: R$ {valorTotalEstoque:F2}" + Environment.NewLine +
+                        $"Potencial de venda total: R$ {valorTotalVendaRecomendado:F2}" + Environment.NewLine +
+                        $"Lucro total potencial: R$ {lucroTotalPotencial:F2}";
                 }
                 else
                 {
                     lblPrecoVendaRecomendado.Text =
-                        "Preço Venda Recomendado: R$ " + precoVendaRecomendadoUnitario.ToString("F2") + Environment.NewLine +
-                        "Lucro: R$ " + lucroUnitario.ToString("F2") + " (+30%)";
+                        $"Preço Venda Recomendado: R$ {precoVendaRecomendadoUnitario:F2}" + Environment.NewLine +
+                        $"Lucro: R$ {lucroUnitario:F2} (+{percentualLucro}%)";
                 }
 
-                // CORES MELHORADAS PARA MELHOR CONTRASTE
+                // CORES MELHORADAS
                 lblPrecoVendaRecomendado.ForeColor = Color.DarkBlue;
                 lblPrecoVendaRecomendado.BackColor = Color.LightYellow;
                 lblPrecoVendaRecomendado.BorderStyle = BorderStyle.FixedSingle;
                 lblPrecoVendaRecomendado.Padding = new Padding(3);
                 lblPrecoVendaRecomendado.AutoSize = false;
-                lblPrecoVendaRecomendado.Size = new Size(300, 80);
+                lblPrecoVendaRecomendado.Size = new Size(300, 120);
                 lblPrecoVendaRecomendado.Visible = true;
                 VerificarDiferencaPreco();
             }
@@ -143,7 +443,8 @@ namespace ControleDeEstoque
             if (decimal.TryParse(tbxPrecoCompra.Text, out decimal precoCompra) &&
                 decimal.TryParse(tbxPrecoVenda.Text, out decimal precoVenda))
             {
-                decimal precoRecomendado = precoCompra * 1.30m;
+                decimal fatorLucro = 1 + (percentualLucro / 100m);
+                decimal precoRecomendado = precoCompra * fatorLucro;
                 int quantidade = 1;
 
                 if (int.TryParse(tbxQuantidade.Text, out int qtd) && qtd > 0)
@@ -151,13 +452,13 @@ namespace ControleDeEstoque
                     quantidade = qtd;
                 }
 
-                if (precoVenda < precoRecomendado * 0.90m) // 10% abaixo do recomendado
+                if (precoVenda < precoRecomendado * 0.90m)
                 {
                     lblPrecoVendaRecomendado.ForeColor = Color.DarkRed;
                     lblPrecoVendaRecomendado.BackColor = Color.LightCoral;
                     lblPrecoVendaRecomendado.Text += Environment.NewLine + "ATENÇÃO: Preço abaixo do recomendado!";
                 }
-                else if (precoVenda > precoRecomendado * 1.20m) // 20% acima do recomendado
+                else if (precoVenda > precoRecomendado * 1.20m)
                 {
                     lblPrecoVendaRecomendado.ForeColor = Color.Purple;
                     lblPrecoVendaRecomendado.BackColor = Color.Lavender;
@@ -167,62 +468,6 @@ namespace ControleDeEstoque
                 {
                     lblPrecoVendaRecomendado.ForeColor = Color.DarkGreen;
                     lblPrecoVendaRecomendado.BackColor = Color.LightGreen;
-                }
-            }
-        }
-
-        // BOTÃO PARA ADICIONAR NOVA UNIDADE
-        private void btnNovaUnidade_Click(object sender, EventArgs e)
-        {
-            string novaUnidade = ShowInputDialog("Digite o nome da nova unidade:", "Nova Unidade de Medida");
-
-            if (!string.IsNullOrEmpty(novaUnidade))
-            {
-                // VERIFICA SE JÁ EXISTE
-                if (!cbxUnidade.Items.Contains(novaUnidade))
-                {
-                    cbxUnidade.Items.Add(novaUnidade);
-                    cbxUnidade.Text = novaUnidade;
-                    MessageBox.Show("Unidade '" + novaUnidade + "' adicionada com sucesso!",
-                                  "Sucesso",
-                                  MessageBoxButtons.OK,
-                                  MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("A unidade '" + novaUnidade + "' já existe!",
-                                  "Aviso",
-                                  MessageBoxButtons.OK,
-                                  MessageBoxIcon.Warning);
-                    cbxUnidade.Text = novaUnidade;
-                }
-            }
-        }
-
-        // BOTÃO PARA ADICIONAR NOVA CATEGORIA
-        private void btnNovaCategoria_Click(object sender, EventArgs e)
-        {
-            string novaCategoria = ShowInputDialog("Digite o nome da nova categoria:", "Nova Categoria");
-
-            if (!string.IsNullOrEmpty(novaCategoria))
-            {
-                // VERIFICA SE JÁ EXISTE
-                if (!cbxTipo.Items.Contains(novaCategoria))
-                {
-                    cbxTipo.Items.Add(novaCategoria);
-                    cbxTipo.Text = novaCategoria;
-                    MessageBox.Show("Categoria '" + novaCategoria + "' adicionada com sucesso!",
-                                  "Sucesso",
-                                  MessageBoxButtons.OK,
-                                  MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("A categoria '" + novaCategoria + "' já existe!",
-                                  "Aviso",
-                                  MessageBoxButtons.OK,
-                                  MessageBoxIcon.Warning);
-                    cbxTipo.Text = novaCategoria;
                 }
             }
         }
@@ -285,7 +530,6 @@ namespace ControleDeEstoque
                 // VERIFICA SE TEM PREJUÍZO
                 if (precoVenda < precoCompra)
                 {
-                    // MUDANÇA: Usar int para quantidade
                     int quantidade = 1;
                     int.TryParse(tbxQuantidade.Text, out quantidade);
 
@@ -321,7 +565,7 @@ namespace ControleDeEstoque
                     }
                 }
 
-                // CONVERSÃO DOS DEMAIS VALORES - MUDANÇA: usar int para quantidade
+                // CONVERSÃO DOS DEMAIS VALORES
                 int.TryParse(tbxQuantidade.Text, out int quantidadeFinal);
                 int.TryParse(tbxFornecedor.Text, out int idFornecedor);
 
@@ -332,7 +576,6 @@ namespace ControleDeEstoque
                     string query;
                     if (modoEdicao)
                     {
-                        // MODO EDIÇÃO - UPDATE
                         query = @"UPDATE Produto SET 
                                  Nome_Prod = @Nome, 
                                  Categoria = @Categoria, 
@@ -342,21 +585,19 @@ namespace ControleDeEstoque
                                  Preco_Cmp = @PrecoCompra, 
                                  Quantidade_Prod = @Quantidade, 
                                  Unidade_Medida_Prod = @UnidadeMedida, 
-                                 Id_Fornecedor = @IdFornecedor,
-                                 Nome_Tipo = @NomeTipo
+                                 Id_Fornecedor = @IdFornecedor
                                  WHERE Id_Prod = @IdProduto";
                     }
                     else
                     {
-                        // MODO NOVO CADASTRO - INSERT
                         query = @"INSERT INTO Produto 
                                  (Nome_Prod, Categoria, Validade, Descricao, 
                                   Preco_Ven, Preco_Cmp, Quantidade_Prod, 
-                                  Unidade_Medida_Prod, Id_Fornecedor, Nome_Tipo) 
+                                  Unidade_Medida_Prod, Id_Fornecedor) 
                                  VALUES 
                                  (@Nome, @Categoria, @Validade, @Descricao, 
                                   @PrecoVenda, @PrecoCompra, @Quantidade, 
-                                  @UnidadeMedida, @IdFornecedor, @NomeTipo)";
+                                  @UnidadeMedida, @IdFornecedor)";
                     }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -370,7 +611,6 @@ namespace ControleDeEstoque
                         command.Parameters.AddWithValue("@Quantidade", quantidadeFinal);
                         command.Parameters.AddWithValue("@UnidadeMedida", cbxUnidade.Text);
                         command.Parameters.AddWithValue("@IdFornecedor", idFornecedor);
-                        command.Parameters.AddWithValue("@NomeTipo", cbxTipo.Text);
 
                         if (modoEdicao)
                         {
@@ -404,96 +644,6 @@ namespace ControleDeEstoque
             }
         }
 
-        // MÉTODO PARA CARREGAR PRODUTOS DO BANCO
-        private void CarregarProdutos()
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string query = "SELECT * FROM Produto";
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-                    DataTable dataTable = new DataTable();
-                    adapter.Fill(dataTable);
-
-                    // MUDANÇA: Formatar quantidade como inteiro
-                    foreach (DataRow row in dataTable.Rows)
-                    {
-                        if (row["Quantidade_Prod"] != DBNull.Value && decimal.TryParse(row["Quantidade_Prod"].ToString(), out decimal quantidade))
-                        {
-                            row["Quantidade_Prod"] = ((int)quantidade).ToString();
-                        }
-                    }
-
-                    dgvProdutos.DataSource = null;
-                    dgvProdutos.DataSource = dataTable;
-
-                    // RENOMEIA AS COLUNAS PARA PORTUGUÊS
-                    if (dgvProdutos.Columns.Count > 0)
-                    {
-                        if (dgvProdutos.Columns.Contains("Nome_Prod"))
-                            dgvProdutos.Columns["Nome_Prod"].HeaderText = "Nome do Produto";
-                        if (dgvProdutos.Columns.Contains("Categoria"))
-                            dgvProdutos.Columns["Categoria"].HeaderText = "Categoria";
-                        if (dgvProdutos.Columns.Contains("Validade"))
-                            dgvProdutos.Columns["Validade"].HeaderText = "Validade";
-                        if (dgvProdutos.Columns.Contains("Preco_Ven"))
-                            dgvProdutos.Columns["Preco_Ven"].HeaderText = "Preço Venda";
-                        if (dgvProdutos.Columns.Contains("Preco_Cmp"))
-                            dgvProdutos.Columns["Preco_Cmp"].HeaderText = "Preço Compra";
-                        if (dgvProdutos.Columns.Contains("Quantidade_Prod"))
-                            dgvProdutos.Columns["Quantidade_Prod"].HeaderText = "Quantidade";
-                        if (dgvProdutos.Columns.Contains("Unidade_Medida_Prod"))
-                            dgvProdutos.Columns["Unidade_Medida_Prod"].HeaderText = "Unidade";
-                        if (dgvProdutos.Columns.Contains("Nome_Tipo"))
-                            dgvProdutos.Columns["Nome_Tipo"].HeaderText = "Tipo";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Erro ao carregar produtos: " + ex.Message, "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        // MÉTODO PARA PROCURAR PRODUTOS
-        private void ProcurarProdutos()
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string query = "SELECT * FROM Produto WHERE Nome_Prod LIKE @Procurar OR Categoria LIKE @Procurar";
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-                    adapter.SelectCommand.Parameters.AddWithValue("@Procurar", "%" + tbxProcurar.Text + "%");
-
-                    DataTable dataTable = new DataTable();
-                    adapter.Fill(dataTable);
-
-                    // MUDANÇA: Formatar quantidade como inteiro na busca também
-                    foreach (DataRow row in dataTable.Rows)
-                    {
-                        if (row["Quantidade_Prod"] != DBNull.Value && decimal.TryParse(row["Quantidade_Prod"].ToString(), out decimal quantidade))
-                        {
-                            row["Quantidade_Prod"] = ((int)quantidade).ToString();
-                        }
-                    }
-
-                    dgvProdutos.DataSource = dataTable;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Erro ao procurar produtos: " + ex.Message, "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         // MÉTODO PARA DELETAR PRODUTO
         private void DeletarProduto()
         {
@@ -509,16 +659,6 @@ namespace ControleDeEstoque
                     }
 
                     DataGridViewRow row = dgvProdutos.SelectedRows[0];
-                    string idProdutoValue = GetCellValue(row, "Id_Prod");
-
-                    if (string.IsNullOrEmpty(idProdutoValue))
-                    {
-                        MessageBox.Show("Não foi possível identificar o produto selecionado.", "Erro",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    int idProduto = Convert.ToInt32(idProdutoValue);
                     string nomeProduto = GetCellValue(row, "Nome_Prod") ?? "Produto selecionado";
 
                     DialogResult result = MessageBox.Show(
@@ -535,17 +675,29 @@ namespace ControleDeEstoque
                         {
                             connection.Open();
 
-                            string query = "DELETE FROM Produto WHERE Id_Prod = @Id";
-                            using (SqlCommand command = new SqlCommand(query, connection))
+                            string queryBuscaId = "SELECT Id_Prod FROM Produto WHERE Nome_Prod = @Nome";
+                            using (SqlCommand commandBusca = new SqlCommand(queryBuscaId, connection))
                             {
-                                command.Parameters.AddWithValue("@Id", idProduto);
-                                int rowsAffected = command.ExecuteNonQuery();
+                                commandBusca.Parameters.AddWithValue("@Nome", nomeProduto);
+                                object idResult = commandBusca.ExecuteScalar();
 
-                                if (rowsAffected > 0)
+                                if (idResult != null)
                                 {
-                                    MessageBox.Show("Produto deletado com sucesso!", "Sucesso",
-                                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                    CarregarProdutos();
+                                    int idProduto = Convert.ToInt32(idResult);
+
+                                    string queryDelete = "DELETE FROM Produto WHERE Id_Prod = @Id";
+                                    using (SqlCommand commandDelete = new SqlCommand(queryDelete, connection))
+                                    {
+                                        commandDelete.Parameters.AddWithValue("@Id", idProduto);
+                                        int rowsAffected = commandDelete.ExecuteNonQuery();
+
+                                        if (rowsAffected > 0)
+                                        {
+                                            MessageBox.Show("Produto deletado com sucesso!", "Sucesso",
+                                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                            CarregarProdutos();
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -570,22 +722,45 @@ namespace ControleDeEstoque
             if (dgvProdutos.SelectedRows.Count > 0)
             {
                 DataGridViewRow row = dgvProdutos.SelectedRows[0];
-                string idProdutoValue = GetCellValue(row, "Id_Prod");
+                string nomeProduto = GetCellValue(row, "Nome_Prod");
 
-                if (!string.IsNullOrEmpty(idProdutoValue))
+                if (!string.IsNullOrEmpty(nomeProduto))
                 {
-                    modoEdicao = true;
-                    produtoIdEmEdicao = Convert.ToInt32(idProdutoValue);
+                    try
+                    {
+                        using (SqlConnection connection = new SqlConnection(connectionString))
+                        {
+                            connection.Open();
 
-                    CarregarDadosParaEdicao(row);
-                    AtivarModoEdicao();
+                            string queryBuscaId = "SELECT Id_Prod FROM Produto WHERE Nome_Prod = @Nome";
+                            using (SqlCommand command = new SqlCommand(queryBuscaId, connection))
+                            {
+                                command.Parameters.AddWithValue("@Nome", nomeProduto);
+                                object idResult = command.ExecuteScalar();
 
-                    MessageBox.Show("MODO EDIÇÃO ATIVADO!" + Environment.NewLine + Environment.NewLine +
-                                  "Faça as alterações necessárias e clique em SALVAR para confirmar." + Environment.NewLine +
-                                  "Use LIMPAR para cancelar a edição.",
-                                  "Modo Edição",
-                                  MessageBoxButtons.OK,
-                                  MessageBoxIcon.Information);
+                                if (idResult != null)
+                                {
+                                    modoEdicao = true;
+                                    produtoIdEmEdicao = Convert.ToInt32(idResult);
+
+                                    CarregarDadosParaEdicao(row);
+                                    AtivarModoEdicao();
+
+                                    MessageBox.Show("MODO EDIÇÃO ATIVADO!" + Environment.NewLine + Environment.NewLine +
+                                                  "Faça as alterações necessárias e clique em SALVAR para confirmar." + Environment.NewLine +
+                                                  "Use LIMPAR para cancelar a edição.",
+                                                  "Modo Edição",
+                                                  MessageBoxButtons.OK,
+                                                  MessageBoxIcon.Information);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Erro ao buscar produto para edição: " + ex.Message, "Erro",
+                                      MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
                 else
                 {
@@ -609,7 +784,6 @@ namespace ControleDeEstoque
             tbxPrecoCompra.Text = GetCellValue(row, "Preco_Cmp");
             tbxDescricao.Text = GetCellValue(row, "Descricao");
 
-            // MUDANÇA: Carregar quantidade sem casas decimais
             string quantidadeValue = GetCellValue(row, "Quantidade_Prod");
             if (decimal.TryParse(quantidadeValue, out decimal quantidadeDecimal))
             {
@@ -669,25 +843,9 @@ namespace ControleDeEstoque
             }
         }
 
-        private void btnAdicionar_Click(object sender, EventArgs e)
-        {
-            if (modoEdicao)
-            {
-                DesativarModoEdicao();
-            }
-
-            LimparCampos();
-            tbxNome.Focus();
-        }
-
         private void btnDeletar_Click(object sender, EventArgs e)
         {
             DeletarProduto();
-        }
-
-        private void tbxProcurar_TextChanged(object sender, EventArgs e)
-        {
-            ProcurarProdutos();
         }
 
         // EVENTO PARA CALCULAR PREÇO RECOMENDADO
@@ -696,13 +854,11 @@ namespace ControleDeEstoque
             CalcularPrecoVendaRecomendado();
         }
 
-        // EVENTO PARA VERIFICAR DIFERENÇA QUANDO O USUÁRIO DIGITA O PREÇO DE VENDA
         private void tbxPrecoVenda_TextChanged(object sender, EventArgs e)
         {
             VerificarDiferencaPreco();
         }
 
-        // EVENTO PARA RECALCULAR QUANDO A QUANTIDADE MUDAR
         private void tbxQuantidade_TextChanged(object sender, EventArgs e)
         {
             CalcularPrecoVendaRecomendado();
@@ -725,7 +881,7 @@ namespace ControleDeEstoque
             }
         }
 
-        // MÉTODO AUXILIAR PARA OBTER VALORES DE CÉLULAS COM SEGURANÇA
+        // MÉTODO AUXILIAR PARA OBTER VALORES DE CÉLULAS
         private string GetCellValue(DataGridViewRow row, string columnName)
         {
             if (dgvProdutos.Columns.Contains(columnName) &&
@@ -752,9 +908,13 @@ namespace ControleDeEstoque
             lblPrecoVendaRecomendado.Text = "";
             lblPrecoVendaRecomendado.Visible = false;
             lblPrecoVendaRecomendado.BackColor = this.BackColor;
-            lblPrecoVendaRecomendado.Size = new Size(300, 13);
+            lblPrecoVendaRecomendado.Size = new Size(300, 120);
             lblPrecoVendaRecomendado.AutoSize = true;
-            lblPrecoVenda.Text = "Preço Venda:";
+
+            // Reseta os checkboxes de busca (nome marcado por padrão)
+            chkBuscarNome.Checked = true;
+            chkBuscarCategoria.Checked = false;
+            chkBuscarFornecedor.Checked = false;
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace ControleDeEstoque
 {
@@ -16,32 +17,44 @@ namespace ControleDeEstoque
         public Form6()
         {
             InitializeComponent();
+            ConfigureDataPicker();
+            ConfigureMasks();
+        }
+
+        private void ConfigureDataPicker()
+        {
+            dtpDataCadastro.Format = DateTimePickerFormat.Short;
+            dtpDataCadastro.Value = DateTime.Today;
+        }
+
+        private void ConfigureMasks()
+        {
+            // Configurar máscaras para melhor usabilidade
+            mtbCnpj.Mask = "00,000,000/0000-00";
+            mtbTelefone.Mask = "(00) 00000-0000";
+            mtbCep.Mask = "00000-000";
+            mtbUf.Mask = "AA";
         }
 
         private void btnAdicionarFor_Click(object sender, EventArgs e)
         {
+            if (!ValidarCampos())
+                return;
+
             string conexao = "Data Source=SQLEXPRESS;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
 
             // Captura dos campos da interface
             string nome = tbxNome_For.Text.Trim();
-            string cnpj = tbxCnpj_For.Text.Trim();
-            string telefone = tbxTelefone_For.Text.Trim();
+            string cnpj = mtbCnpj.Text.Replace(",", "").Replace("/", "").Replace("-", "").Replace(".", "");
+            string telefone = mtbTelefone.Text.Replace("(", "").Replace(")", "").Replace("-", "").Replace(" ", "");
             string email = tbxEmail_For.Text.Trim();
             string cidade = tbxCidade_For.Text.Trim();
             string rua = tbxRua_For.Text.Trim();
-            string uf = tbxUf_For.Text.Trim();
-            string cep = tbxCep_For.Text.Trim();
-            string estatus = "A"; // ou "I" se quiser usar checkbox futuramente
+            string uf = mtbUf.Text.ToUpper();
+            string cep = mtbCep.Text.Replace("-", "");
+            string estatus = "A";
+            DateTime dataCadastro = dtpDataCadastro.Value;
 
-
-            // Validação de Data
-            if (!DateTime.TryParse(tbxData_Cadastro_For.Text, out DateTime dataCadastro))
-            {
-                MessageBox.Show("Data de cadastro inválida.");
-                return;
-            }
-
-            // Comando SQL (sem Id_Fornecedor, pois é gerado automaticamente)
             string query = @"
 INSERT INTO Fornecedor 
 (Nome_For, Cnpj_For, Telefone_For, Email_For, Cidade_For, Rua_For, Uf_For, Cep_For, Data_Cadastro_For, estatus_For)
@@ -51,7 +64,6 @@ VALUES
             using (SqlConnection conn = new SqlConnection(conexao))
             using (SqlCommand cmd = new SqlCommand(query, conn))
             {
-                // Parâmetros
                 cmd.Parameters.AddWithValue("@Nome", nome);
                 cmd.Parameters.AddWithValue("@Cnpj", cnpj);
                 cmd.Parameters.AddWithValue("@Telefone", telefone);
@@ -66,36 +78,97 @@ VALUES
                 try
                 {
                     conn.Open();
-                    cmd.ExecuteNonQuery();
-                    MessageBox.Show("Fornecedor cadastrado com sucesso!");
+                    int result = cmd.ExecuteNonQuery();
+                    if (result > 0)
+                    {
+                        MessageBox.Show("Fornecedor cadastrado com sucesso!", "Sucesso",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LimparCampos();
+                    }
                 }
                 catch (SqlException ex)
                 {
-                    MessageBox.Show("Erro de SQL: " + ex.Message);
+                    MessageBox.Show($"Erro de SQL: {ex.Message}", "Erro",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro inesperado: " + ex.Message);
+                    MessageBox.Show($"Erro inesperado: {ex.Message}", "Erro",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        
-
-        private void tbxEmail_For_TextChanged(object sender, EventArgs e)
+        private bool ValidarCampos()
         {
+            // Validação básica dos campos
+            if (string.IsNullOrWhiteSpace(tbxNome_For.Text))
+            {
+                MessageBox.Show("Por favor, informe o nome do fornecedor.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                tbxNome_For.Focus();
+                return false;
+            }
 
+            if (string.IsNullOrWhiteSpace(mtbCnpj.Text) || mtbCnpj.Text.Contains(" "))
+            {
+                MessageBox.Show("Por favor, informe um CNPJ válido.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                mtbCnpj.Focus();
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(tbxEmail_For.Text) || !IsValidEmail(tbxEmail_For.Text))
+            {
+                MessageBox.Show("Por favor, informe um e-mail válido.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                tbxEmail_For.Focus();
+                return false;
+            }
+
+            return true;
         }
 
-     
-
-        private void button2_Click(object sender, EventArgs e)
+        private bool IsValidEmail(string email)
         {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
+        private void LimparCampos()
+        {
+            tbxNome_For.Clear();
+            mtbCnpj.Clear();
+            mtbTelefone.Clear();
+            tbxEmail_For.Clear();
+            tbxCidade_For.Clear();
+            tbxRua_For.Clear();
+            mtbUf.Clear();
+            mtbCep.Clear();
+            dtpDataCadastro.Value = DateTime.Today;
+            tbxNome_For.Focus();
+        }
+
+        private void btnVoltar_Click(object sender, EventArgs e)
+        {
             Form2 product = new Form2();
-            this.Visible = false;
+            this.Hide();
             product.ShowDialog();
-            this.Visible = true;
+            this.Close();
         }
+
+        private void btnLimpar_Click(object sender, EventArgs e)
+        {
+            LimparCampos();
+        }
+
+        
     }
 }
