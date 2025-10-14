@@ -45,6 +45,7 @@ namespace ControleDeEstoque
 
         private void Form4_Load(object sender, EventArgs e)
         {
+            CarregarConfiguracoesJuros(); // CARREGA JUROS DO BANCO
             CarregarProdutos();
             dgvProdutos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProdutos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -64,6 +65,79 @@ namespace ControleDeEstoque
             dgvProdutos.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dgvProdutos.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9, FontStyle.Bold);
             dgvProdutos.RowHeadersVisible = false;
+        }
+
+        // CARREGAR CONFIGURAÇÕES DE JUROS DO BANCO
+        private void CarregarConfiguracoesJuros()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Verifica se existe algum produto com juros configurado
+                    string query = "SELECT TOP 1 juros FROM Produto WHERE juros IS NOT NULL AND juros > 0 ORDER BY Id_Prod DESC";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        object result = command.ExecuteScalar();
+
+                        if (result != null && result != DBNull.Value)
+                        {
+                            percentualLucro = Convert.ToDecimal(result);
+                        }
+                        else
+                        {
+                            // Valor padrão se não encontrar nenhum juros configurado
+                            percentualLucro = 30m;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao carregar configurações de juros: " + ex.Message, "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                percentualLucro = 30m; // Valor padrão em caso de erro
+            }
+        }
+
+        // SALVAR PERCENTUAL DE LUCRO NO BANCO
+        private bool SalvarPercentualLucroNoBanco(decimal novoPercentual)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Atualiza TODOS os produtos com o novo percentual de juros
+                    string query = "UPDATE Produto SET juros = @Juros WHERE juros IS NOT NULL";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Juros", novoPercentual);
+                        int result = command.ExecuteNonQuery();
+
+                        // Se não atualizou nenhum (primeira vez), insere em um produto qualquer
+                        if (result == 0)
+                        {
+                            query = "UPDATE TOP (1) Produto SET juros = @Juros";
+                            command.CommandText = query;
+                            command.ExecuteNonQuery();
+                        }
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao salvar percentual de lucro: " + ex.Message, "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
 
         // MÉTODO PARA ADICIONAR NOVA UNIDADE
@@ -94,6 +168,36 @@ namespace ControleDeEstoque
             }
         }
 
+        // MÉTODO: BOTÃO PARA MUDAR PERCENTUAL DE LUCRO
+        private void btnMudarLucro_Click(object sender, EventArgs e)
+        {
+            string novoPercentual = ShowInputDialog($"Percentual de lucro atual: {percentualLucro}%\n\nDigite o novo percentual:", "Alterar Percentual de Lucro");
+
+            if (!string.IsNullOrEmpty(novoPercentual))
+            {
+                if (decimal.TryParse(novoPercentual, out decimal novoPercentualValue) && novoPercentualValue > 0)
+                {
+                    // ATUALIZA NO BANCO DE DADOS
+                    if (SalvarPercentualLucroNoBanco(novoPercentualValue))
+                    {
+                        percentualLucro = novoPercentualValue;
+                        AtualizarLabelPercentualLucro();
+
+                        // RECALCULAR PREÇO RECOMENDADO COM NOVO PERCENTUAL
+                        CalcularPrecoVendaRecomendado();
+
+                        MessageBox.Show($"Percentual de lucro alterado para {percentualLucro}%!", "Sucesso",
+                                      MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Por favor, digite um percentual válido (ex: 25, 30, 40).", "Erro",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
         // NOVO MÉTODO: BUSCA INTELIGENTE COM CHECKBOXES
         private void ProcurarProdutosInteligente()
         {
@@ -111,7 +215,7 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    string query = "SELECT Nome_Prod, Categoria, Validade, Descricao, Preco_Ven, Preco_Cmp, Quantidade_Prod, Unidade_Medida_Prod, Id_Fornecedor FROM Produto WHERE ";
+                    string query = "SELECT Nome_Prod, Categoria, Validade, Descricao, Preco_Ven, Preco_Cmp, Quantidade_Prod, Unidade_Medida_Prod, Id_Fornecedor, juros FROM Produto WHERE ";
 
                     List<string> conditions = new List<string>();
                     List<SqlParameter> parameters = new List<SqlParameter>();
@@ -208,6 +312,8 @@ namespace ControleDeEstoque
                     dgvProdutos.Columns["Unidade_Medida_Prod"].HeaderText = "Unidade";
                 if (dgvProdutos.Columns.Contains("Id_Fornecedor"))
                     dgvProdutos.Columns["Id_Fornecedor"].HeaderText = "Fornecedor ID";
+                if (dgvProdutos.Columns.Contains("juros"))
+                    dgvProdutos.Columns["juros"].HeaderText = "Juros %";
             }
         }
 
@@ -242,7 +348,7 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    string query = "SELECT Nome_Prod, Categoria, Validade, Descricao, Preco_Ven, Preco_Cmp, Quantidade_Prod, Unidade_Medida_Prod, Id_Fornecedor FROM Produto";
+                    string query = "SELECT Nome_Prod, Categoria, Validade, Descricao, Preco_Ven, Preco_Cmp, Quantidade_Prod, Unidade_Medida_Prod, Id_Fornecedor, juros FROM Produto";
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable dataTable = new DataTable();
                     adapter.Fill(dataTable);
@@ -315,6 +421,12 @@ namespace ControleDeEstoque
                             dgvProdutos.Columns["Id_Fornecedor"].HeaderText = "Fornecedor ID";
                             dgvProdutos.Columns["Id_Fornecedor"].Width = 80;
                         }
+
+                        if (dgvProdutos.Columns.Contains("juros"))
+                        {
+                            dgvProdutos.Columns["juros"].HeaderText = "Juros %";
+                            dgvProdutos.Columns["juros"].Width = 60;
+                        }
                     }
                 }
             }
@@ -329,32 +441,6 @@ namespace ControleDeEstoque
         private void AtualizarLabelPercentualLucro()
         {
             lblPercentualLucro.Text = $"Lucro: {percentualLucro}% (+)";
-        }
-
-        // MÉTODO: BOTÃO PARA MUDAR PERCENTUAL DE LUCRO
-        private void btnMudarLucro_Click(object sender, EventArgs e)
-        {
-            string novoPercentual = ShowInputDialog($"Percentual de lucro atual: {percentualLucro}%\n\nDigite o novo percentual:", "Alterar Percentual de Lucro");
-
-            if (!string.IsNullOrEmpty(novoPercentual))
-            {
-                if (decimal.TryParse(novoPercentual, out decimal novoPercentualValue) && novoPercentualValue > 0)
-                {
-                    percentualLucro = novoPercentualValue;
-                    AtualizarLabelPercentualLucro();
-
-                    // RECALCULAR PREÇO RECOMENDADO COM NOVO PERCENTUAL
-                    CalcularPrecoVendaRecomendado();
-
-                    MessageBox.Show($"Percentual de lucro alterado para {percentualLucro}%!", "Sucesso",
-                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Por favor, digite um percentual válido (ex: 25, 30, 40).", "Erro",
-                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
         }
 
         // CARREGAR UNIDADES PADRÃO
@@ -396,11 +482,8 @@ namespace ControleDeEstoque
                 decimal valorTotalVendaRecomendado = precoVendaRecomendadoUnitario * quantidade;
                 decimal lucroTotalPotencial = valorTotalVendaRecomendado - valorTotalEstoque;
 
-                // ATUALIZA O CAMPO DE VENDA (UNITÁRIO)
-                if (string.IsNullOrEmpty(tbxPrecoVenda.Text) || tbxPrecoVenda.Text == tbxPrecoCompra.Text)
-                {
-                    tbxPrecoVenda.Text = precoVendaRecomendadoUnitario.ToString("F2");
-                }
+                // SEMPRE ATUALIZA O CAMPO DE VENDA COM O PREÇO RECOMENDADO
+                tbxPrecoVenda.Text = precoVendaRecomendadoUnitario.ToString("F2");
 
                 // MOSTRA INFORMAÇÕES CLARAS
                 if (quantidade > 1)
@@ -585,7 +668,8 @@ namespace ControleDeEstoque
                                  Preco_Cmp = @PrecoCompra, 
                                  Quantidade_Prod = @Quantidade, 
                                  Unidade_Medida_Prod = @UnidadeMedida, 
-                                 Id_Fornecedor = @IdFornecedor
+                                 Id_Fornecedor = @IdFornecedor,
+                                 juros = @Juros
                                  WHERE Id_Prod = @IdProduto";
                     }
                     else
@@ -593,11 +677,11 @@ namespace ControleDeEstoque
                         query = @"INSERT INTO Produto 
                                  (Nome_Prod, Categoria, Validade, Descricao, 
                                   Preco_Ven, Preco_Cmp, Quantidade_Prod, 
-                                  Unidade_Medida_Prod, Id_Fornecedor) 
+                                  Unidade_Medida_Prod, Id_Fornecedor, juros) 
                                  VALUES 
                                  (@Nome, @Categoria, @Validade, @Descricao, 
                                   @PrecoVenda, @PrecoCompra, @Quantidade, 
-                                  @UnidadeMedida, @IdFornecedor)";
+                                  @UnidadeMedida, @IdFornecedor, @Juros)";
                     }
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -611,6 +695,7 @@ namespace ControleDeEstoque
                         command.Parameters.AddWithValue("@Quantidade", quantidadeFinal);
                         command.Parameters.AddWithValue("@UnidadeMedida", cbxUnidade.Text);
                         command.Parameters.AddWithValue("@IdFornecedor", idFornecedor);
+                        command.Parameters.AddWithValue("@Juros", percentualLucro); // SALVA O JUROS NO PRODUTO
 
                         if (modoEdicao)
                         {
@@ -797,6 +882,14 @@ namespace ControleDeEstoque
             tbxPrecoVenda.Text = GetCellValue(row, "Preco_Ven");
             tbxFornecedor.Text = GetCellValue(row, "Id_Fornecedor");
 
+            // CARREGA O JUROS DO PRODUTO SE EXISTIR
+            string jurosValue = GetCellValue(row, "juros");
+            if (!string.IsNullOrEmpty(jurosValue) && decimal.TryParse(jurosValue, out decimal jurosProduto))
+            {
+                percentualLucro = jurosProduto;
+                AtualizarLabelPercentualLucro();
+            }
+
             string validadeValue = GetCellValue(row, "Validade");
             if (!string.IsNullOrEmpty(validadeValue) && DateTime.TryParse(validadeValue, out DateTime validade))
             {
@@ -915,6 +1008,19 @@ namespace ControleDeEstoque
             chkBuscarNome.Checked = true;
             chkBuscarCategoria.Checked = false;
             chkBuscarFornecedor.Checked = false;
+        }
+
+        private void lblFornecedor_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnVoltar_Click(object sender, EventArgs e)
+        {
+            Form2 product = new Form2();
+            this.Visible = false;
+            product.ShowDialog();
+            this.Visible = true;
         }
     }
 }

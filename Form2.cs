@@ -33,5 +33,14 @@ namespace ControleDeEstoque
             product.ShowDialog();
             this.Visible = true;
         }
+
+        private void btnVoltar_Click(object sender, EventArgs e)
+        {
+            Form1 product = new Form1();
+            this.Visible = false;
+            product.ShowDialog();
+            this.Visible = true;
+        }
     }
-}
+    }
+

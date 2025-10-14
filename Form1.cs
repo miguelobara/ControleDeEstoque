@@ -85,5 +85,15 @@ namespace ControleDeEstoque
         {
 
         }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tbxSenha_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
