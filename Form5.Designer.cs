@@ -66,7 +66,7 @@
             // panelForm
             // 
             this.panelForm.AutoScroll = true;
-            this.panelForm.BackColor = System.Drawing.Color.Silver;
+            this.panelForm.BackColor = System.Drawing.Color.White;
             this.panelForm.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelForm.Controls.Add(this.btnCriar);
             this.panelForm.Controls.Add(this.btnVoltar);

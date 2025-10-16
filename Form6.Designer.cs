@@ -43,7 +43,6 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.btnLimpar = new System.Windows.Forms.Button();
             this.btnAdicionarFor = new System.Windows.Forms.Button();
-            this.label10 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -88,6 +87,7 @@
             // 
             // panel2
             // 
+            this.panel2.BackColor = System.Drawing.Color.White;
             this.panel2.Controls.Add(this.groupBox1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 60);
@@ -98,7 +98,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.BackColor = System.Drawing.Color.White;
             this.groupBox1.Controls.Add(this.dtpDataCadastro);
             this.groupBox1.Controls.Add(this.mtbUf);
             this.groupBox1.Controls.Add(this.mtbCep);
@@ -313,16 +313,6 @@
             this.btnAdicionarFor.UseVisualStyleBackColor = false;
             this.btnAdicionarFor.Click += new System.EventHandler(this.btnAdicionarFor_Click);
             // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(502, 253);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(44, 15);
-            this.label10.TabIndex = 16;
-            this.label10.Text = "label10";
-           
-            // 
             // Form6
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -375,6 +365,5 @@
         private System.Windows.Forms.MaskedTextBox mtbUf;
         private System.Windows.Forms.DateTimePicker dtpDataCadastro;
         private System.Windows.Forms.Button btnLimpar;
-        private System.Windows.Forms.Label label10;
     }
 }

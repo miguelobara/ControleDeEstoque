@@ -46,9 +46,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSetBindingSource)).BeginInit();
             this.SuspendLayout();
-
             // 
-            // panel1 - Cabeçalho
+            // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.RoyalBlue;
             this.panel1.Controls.Add(this.label1);
@@ -58,19 +57,17 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(800, 60);
             this.panel1.TabIndex = 0;
-
             // 
-            // label1 - Título
+            // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
             this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(300, 18);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(200, 25);
+            this.label1.Size = new System.Drawing.Size(205, 25);
             this.label1.TabIndex = 1;
             this.label1.Text = "Lista de Fornecedores";
-
             // 
             // btnVoltar
             // 
@@ -85,10 +82,10 @@
             this.btnVoltar.Text = "← Voltar";
             this.btnVoltar.UseVisualStyleBackColor = false;
             this.btnVoltar.Click += new System.EventHandler(this.button2_Click);
-
             // 
-            // panel2 - Corpo
+            // panel2
             // 
+            this.panel2.BackColor = System.Drawing.Color.White;
             this.panel2.Controls.Add(this.dataGridView1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 60);
@@ -96,12 +93,11 @@
             this.panel2.Padding = new System.Windows.Forms.Padding(20);
             this.panel2.Size = new System.Drawing.Size(800, 330);
             this.panel2.TabIndex = 1;
-
             // 
             // dataGridView1
             // 
             this.dataGridView1.AutoGenerateColumns = false;
-            this.dataGridView1.BackgroundColor = System.Drawing.Color.White;
+            this.dataGridView1.BackgroundColor = System.Drawing.Color.Silver;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.nomeForDataGridViewTextBoxColumn,
@@ -116,7 +112,6 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(760, 290);
             this.dataGridView1.TabIndex = 5;
-
             // 
             // nomeForDataGridViewTextBoxColumn
             // 
@@ -168,7 +163,7 @@
             this.cJ3027511PR2DataSet5.DataSetName = "CJ3027511PR2DataSet5";
             this.cJ3027511PR2DataSet5.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
             // 
-            // panel3 - Rodapé
+            // panel3
             // 
             this.panel3.BackColor = System.Drawing.Color.Gainsboro;
             this.panel3.Controls.Add(this.label2);
@@ -178,7 +173,6 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(800, 60);
             this.panel3.TabIndex = 2;
-
             // 
             // label2
             // 
@@ -186,7 +180,7 @@
             this.label2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(550, 20);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(120, 19);
+            this.label2.Size = new System.Drawing.Size(115, 19);
             this.label2.TabIndex = 4;
             this.label2.Text = "Novo Fornecedor";
             // 
@@ -202,8 +196,6 @@
             this.btnAdicionar.TabIndex = 3;
             this.btnAdicionar.Text = "Adicionar";
             this.btnAdicionar.UseVisualStyleBackColor = false;
-           
-
             // 
             // cJ3027511PR2DataSet
             // 
@@ -223,7 +215,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
+            this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel3);

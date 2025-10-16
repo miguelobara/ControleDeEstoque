@@ -35,6 +35,7 @@ namespace ControleDeEstoque
             this.chkBuscarNome.CheckedChanged += new System.EventHandler(this.chkBuscarNome_CheckedChanged);
             this.chkBuscarCategoria.CheckedChanged += new System.EventHandler(this.chkBuscarCategoria_CheckedChanged);
             this.chkBuscarFornecedor.CheckedChanged += new System.EventHandler(this.chkBuscarFornecedor_CheckedChanged);
+            this.chkBuscarDescricao.CheckedChanged += new System.EventHandler(this.chkBuscarDescricao_CheckedChanged);
             this.dgvProdutos.SelectionChanged += new System.EventHandler(this.dgvProdutos_SelectionChanged);
 
             // EVENTO PARA CALCULAR PREÇO RECOMENDADO
@@ -247,6 +248,13 @@ namespace ControleDeEstoque
                         }
                     }
 
+                    // ADICIONE ESTA CONDIÇÃO PARA BUSCAR POR DESCRIÇÃO
+                    if (chkBuscarDescricao.Checked)
+                    {
+                        conditions.Add("Descricao LIKE @Descricao");
+                        parameters.Add(new SqlParameter("@Descricao", "%" + textoBusca + "%"));
+                    }
+
                     // Se nenhum checkbox está marcado, busca por nome por padrão
                     if (conditions.Count == 0)
                     {
@@ -329,6 +337,11 @@ namespace ControleDeEstoque
         }
 
         private void chkBuscarFornecedor_CheckedChanged(object sender, EventArgs e)
+        {
+            ProcurarProdutosInteligente();
+        }
+
+        private void chkBuscarDescricao_CheckedChanged(object sender, EventArgs e)
         {
             ProcurarProdutosInteligente();
         }
@@ -863,6 +876,12 @@ namespace ControleDeEstoque
         // Método para carregar dados para edição
         private void CarregarDadosParaEdicao(DataGridViewRow row)
         {
+            // SE NÃO ESTIVER NO MODO EDIÇÃO, NÃO CARREGA OS DADOS DA GRID
+            if (!modoEdicao)
+            {
+                return;
+            }
+
             tbxNome.Text = GetCellValue(row, "Nome_Prod");
             cbxTipo.Text = GetCellValue(row, "Categoria");
             cbxUnidade.Text = GetCellValue(row, "Unidade_Medida_Prod");
@@ -957,10 +976,11 @@ namespace ControleDeEstoque
             CalcularPrecoVendaRecomendado();
         }
 
-        // MÉTODO PARA PREENCHER CAMPOS (QUANDO SELECIONA NA GRADE)
+        // MÉTODO PARA PREENCHER CAMPOS (QUANDO SELECIONA NA GRADE) - MODIFICADO
         private void dgvProdutos_SelectionChanged(object sender, EventArgs e)
         {
-            if (!modoEdicao && dgvProdutos.SelectedRows.Count > 0 && dgvProdutos.DataSource != null)
+            // SÓ PREENCHE OS CAMPOS SE ESTIVER NO MODO EDIÇÃO
+            if (modoEdicao && dgvProdutos.SelectedRows.Count > 0 && dgvProdutos.DataSource != null)
             {
                 try
                 {
@@ -1008,6 +1028,7 @@ namespace ControleDeEstoque
             chkBuscarNome.Checked = true;
             chkBuscarCategoria.Checked = false;
             chkBuscarFornecedor.Checked = false;
+            chkBuscarDescricao.Checked = false;
         }
 
         private void lblFornecedor_Click(object sender, EventArgs e)

@@ -38,9 +38,8 @@
         private System.Windows.Forms.CheckBox chkBuscarNome;
         private System.Windows.Forms.CheckBox chkBuscarCategoria;
         private System.Windows.Forms.CheckBox chkBuscarFornecedor;
+        private System.Windows.Forms.CheckBox chkBuscarDescricao;
         private System.Windows.Forms.GroupBox groupBoxBusca;
-
-        // NOVOS CONTROLES PARA O ESTILO
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel3;
@@ -90,16 +89,18 @@
             this.lblPrecoVendaRecomendado = new System.Windows.Forms.Label();
             this.lblPercentualLucro = new System.Windows.Forms.Label();
             this.groupBoxBusca = new System.Windows.Forms.GroupBox();
+            this.chkBuscarDescricao = new System.Windows.Forms.CheckBox();
             this.chkBuscarFornecedor = new System.Windows.Forms.CheckBox();
             this.chkBuscarCategoria = new System.Windows.Forms.CheckBox();
             this.chkBuscarNome = new System.Windows.Forms.CheckBox();
+            this.tbxProcurar = new System.Windows.Forms.TextBox();
+            this.lblProcurar = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.btnVoltar = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).BeginInit();
             this.groupBoxBusca.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -405,12 +406,12 @@
             // 
             // groupBoxBusca
             // 
-            this.groupBoxBusca.Controls.Add(this.button1);
-            this.groupBoxBusca.Controls.Add(this.tbxProcurar);
-            this.groupBoxBusca.Controls.Add(this.lblProcurar);
+            this.groupBoxBusca.Controls.Add(this.chkBuscarDescricao);
             this.groupBoxBusca.Controls.Add(this.chkBuscarFornecedor);
             this.groupBoxBusca.Controls.Add(this.chkBuscarCategoria);
             this.groupBoxBusca.Controls.Add(this.chkBuscarNome);
+            this.groupBoxBusca.Controls.Add(this.tbxProcurar);
+            this.groupBoxBusca.Controls.Add(this.lblProcurar);
             this.groupBoxBusca.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxBusca.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.groupBoxBusca.Location = new System.Drawing.Point(20, 20);
@@ -419,6 +420,17 @@
             this.groupBoxBusca.TabIndex = 30;
             this.groupBoxBusca.TabStop = false;
             this.groupBoxBusca.Text = "Buscar por:";
+            // 
+            // chkBuscarDescricao
+            // 
+            this.chkBuscarDescricao.AutoSize = true;
+            this.chkBuscarDescricao.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.chkBuscarDescricao.Location = new System.Drawing.Point(549, 15);
+            this.chkBuscarDescricao.Name = "chkBuscarDescricao";
+            this.chkBuscarDescricao.Size = new System.Drawing.Size(78, 19);
+            this.chkBuscarDescricao.TabIndex = 19;
+            this.chkBuscarDescricao.Text = "Descrição";
+            this.chkBuscarDescricao.UseVisualStyleBackColor = true;
             // 
             // chkBuscarFornecedor
             // 
@@ -550,16 +562,6 @@
             this.panel3.Size = new System.Drawing.Size(1213, 60);
             this.panel3.TabIndex = 33;
             // 
-            // button1
-            // 
-            this.button1.Font = new System.Drawing.Font("Segoe UI Semilight", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(1092, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 19;
-            this.button1.Text = "Descrição";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
             // Form4
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -584,7 +586,5 @@
             this.ResumeLayout(false);
 
         }
-
-        private System.Windows.Forms.Button button1;
     }
 }
