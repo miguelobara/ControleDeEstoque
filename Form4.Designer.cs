@@ -93,8 +93,6 @@
             this.chkBuscarFornecedor = new System.Windows.Forms.CheckBox();
             this.chkBuscarCategoria = new System.Windows.Forms.CheckBox();
             this.chkBuscarNome = new System.Windows.Forms.CheckBox();
-            this.tbxProcurar = new System.Windows.Forms.TextBox();
-            this.lblProcurar = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.btnVoltar = new System.Windows.Forms.Button();
@@ -198,7 +196,7 @@
             // 
             // btnLimpar
             // 
-            this.btnLimpar.BackColor = System.Drawing.Color.Silver;
+            this.btnLimpar.BackColor = System.Drawing.Color.White;
             this.btnLimpar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLimpar.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnLimpar.Location = new System.Drawing.Point(1093, 18);
@@ -427,7 +425,7 @@
             this.chkBuscarDescricao.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.chkBuscarDescricao.Location = new System.Drawing.Point(549, 15);
             this.chkBuscarDescricao.Name = "chkBuscarDescricao";
-            this.chkBuscarDescricao.Size = new System.Drawing.Size(78, 19);
+            this.chkBuscarDescricao.Size = new System.Drawing.Size(77, 19);
             this.chkBuscarDescricao.TabIndex = 19;
             this.chkBuscarDescricao.Text = "Descrição";
             this.chkBuscarDescricao.UseVisualStyleBackColor = true;
@@ -516,6 +514,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.BackColor = System.Drawing.Color.Silver;
             this.groupBox1.Controls.Add(this.lblNome);
             this.groupBox1.Controls.Add(this.tbxNome);
             this.groupBox1.Controls.Add(this.lblTipo);
@@ -566,7 +565,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
+            this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(1213, 525);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel3);
@@ -586,5 +585,7 @@
             this.ResumeLayout(false);
 
         }
+
+
     }
 }

@@ -158,7 +158,7 @@ VALUES
 
         private void btnVoltar_Click(object sender, EventArgs e)
         {
-            Form2 product = new Form2();
+            Form7 product = new Form7();
             this.Hide();
             product.ShowDialog();
             this.Close();

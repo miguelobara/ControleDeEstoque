@@ -26,9 +26,18 @@ namespace ControleDeEstoque
 
         private void button2_Click(object sender, EventArgs e)
         {
-
+            Form2 product = new Form2();
+            this.Hide();
+            product.ShowDialog();
+            this.Close();
         }
 
-        
+        private void btnAdicionar_Click(object sender, EventArgs e)
+        {
+            Form6 product = new Form6();
+            this.Hide();
+            product.ShowDialog();
+            this.Close();
+        }
     }
 }

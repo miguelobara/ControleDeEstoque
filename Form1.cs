@@ -24,7 +24,7 @@ namespace ControleDeEstoque
         {
             string email = tbxEmail.Text;
             string senha = tbxSenha.Text;
-           
+
 
             string conexao = "Data Source=sqlexpress;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
 

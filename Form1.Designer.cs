@@ -59,7 +59,7 @@
             // 
             // panel2
             // 
-            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            this.panel2.BackColor = System.Drawing.Color.Silver;
             this.panel2.Controls.Add(this.panel3);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 120);
@@ -83,6 +83,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.BackColor = System.Drawing.Color.White;
             this.groupBox1.Controls.Add(this.tbxSenha);
             this.groupBox1.Controls.Add(this.tbxEmail);
             this.groupBox1.Controls.Add(this.label3);
@@ -164,13 +165,13 @@
             // btnPrimeiroLogin
             // 
             this.btnPrimeiroLogin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPrimeiroLogin.BackColor = System.Drawing.Color.Transparent;
+            this.btnPrimeiroLogin.BackColor = System.Drawing.Color.RoyalBlue;
             this.btnPrimeiroLogin.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
             this.btnPrimeiroLogin.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
             this.btnPrimeiroLogin.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.btnPrimeiroLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPrimeiroLogin.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnPrimeiroLogin.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
+            this.btnPrimeiroLogin.ForeColor = System.Drawing.Color.White;
             this.btnPrimeiroLogin.Location = new System.Drawing.Point(300, 350);
             this.btnPrimeiroLogin.Name = "btnPrimeiroLogin";
             this.btnPrimeiroLogin.Size = new System.Drawing.Size(175, 35);

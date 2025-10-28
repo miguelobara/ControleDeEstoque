@@ -70,6 +70,7 @@
             // 
             // panel2
             // 
+            this.panel2.BackColor = System.Drawing.Color.Silver;
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.button3);
             this.panel2.Controls.Add(this.button2);
@@ -83,9 +84,9 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.BackColor = System.Drawing.Color.White;
+            this.label2.BackColor = System.Drawing.Color.Silver;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.label2.ForeColor = System.Drawing.Color.Black;
             this.label2.Location = new System.Drawing.Point(400, 60);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(256, 30);
@@ -108,6 +109,7 @@
             this.button3.TabIndex = 2;
             this.button3.Text = "lucros";
             this.button3.UseVisualStyleBackColor = false;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // button2
             // 

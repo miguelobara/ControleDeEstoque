@@ -19,6 +19,9 @@ namespace ControleDeEstoque
         // VARIÁVEL PARA CONTROLE DO PERCENTUAL DE LUCRO
         private decimal percentualLucro = 30m; // Valor padrão 30%
 
+        // DICIONÁRIO PARA ARMAZENAR FORNECEDORES (ID -> NOME)
+        private Dictionary<int, string> fornecedores = new Dictionary<int, string>();
+
         public Form4()
         {
             InitializeComponent();
@@ -54,6 +57,7 @@ namespace ControleDeEstoque
             // CARREGAR UNIDADES E CATEGORIAS PADRÃO
             CarregarUnidades();
             CarregarCategorias();
+            CarregarFornecedores();
 
             // ATUALIZAR LABEL DO PERCENTUAL DE LUCRO
             AtualizarLabelPercentualLucro();
@@ -68,6 +72,53 @@ namespace ControleDeEstoque
             dgvProdutos.RowHeadersVisible = false;
         }
 
+        // MÉTODO CORRIGIDO PARA CARREGAR FORNECEDORES DO BANCO
+        private void CarregarFornecedores()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // CORREÇÃO: Use a coluna correta para o ID do fornecedor
+                    // Se a coluna do ID for diferente, ajuste conforme sua estrutura real
+                    string query = "SELECT Id_Fornecedor, Nome_For FROM Fornecedor WHERE estatus_For = 'Ativo' OR estatus_For IS NULL ORDER BY Nome_For";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            fornecedores.Clear();
+
+                            while (reader.Read())
+                            {
+                                int idFornecedor = reader.GetInt32(0);
+                                string nomeFornecedor = reader.GetString(1);
+                                fornecedores.Add(idFornecedor, nomeFornecedor);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao carregar fornecedores: " + ex.Message, "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // MÉTODO PARA OBTER NOME DO FORNECEDOR POR ID
+        private string ObterNomeFornecedorPorId(int? idFornecedor)
+        {
+            if (!idFornecedor.HasValue) return "";
+
+            if (fornecedores.ContainsKey(idFornecedor.Value))
+                return fornecedores[idFornecedor.Value];
+
+            return "";
+        }
+
         // CARREGAR CONFIGURAÇÕES DE JUROS DO BANCO
         private void CarregarConfiguracoesJuros()
         {
@@ -77,7 +128,6 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    // Verifica se existe algum produto com juros configurado
                     string query = "SELECT TOP 1 juros FROM Produto WHERE juros IS NOT NULL AND juros > 0 ORDER BY Id_Prod DESC";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -90,7 +140,6 @@ namespace ControleDeEstoque
                         }
                         else
                         {
-                            // Valor padrão se não encontrar nenhum juros configurado
                             percentualLucro = 30m;
                         }
                     }
@@ -100,7 +149,7 @@ namespace ControleDeEstoque
             {
                 MessageBox.Show("Erro ao carregar configurações de juros: " + ex.Message, "Erro",
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
-                percentualLucro = 30m; // Valor padrão em caso de erro
+                percentualLucro = 30m;
             }
         }
 
@@ -113,7 +162,6 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    // Atualiza TODOS os produtos com o novo percentual de juros
                     string query = "UPDATE Produto SET juros = @Juros WHERE juros IS NOT NULL";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -121,7 +169,6 @@ namespace ControleDeEstoque
                         command.Parameters.AddWithValue("@Juros", novoPercentual);
                         int result = command.ExecuteNonQuery();
 
-                        // Se não atualizou nenhum (primeira vez), insere em um produto qualquer
                         if (result == 0)
                         {
                             query = "UPDATE TOP (1) Produto SET juros = @Juros";
@@ -178,13 +225,10 @@ namespace ControleDeEstoque
             {
                 if (decimal.TryParse(novoPercentual, out decimal novoPercentualValue) && novoPercentualValue > 0)
                 {
-                    // ATUALIZA NO BANCO DE DADOS
                     if (SalvarPercentualLucroNoBanco(novoPercentualValue))
                     {
                         percentualLucro = novoPercentualValue;
                         AtualizarLabelPercentualLucro();
-
-                        // RECALCULAR PREÇO RECOMENDADO COM NOVO PERCENTUAL
                         CalcularPrecoVendaRecomendado();
 
                         MessageBox.Show($"Percentual de lucro alterado para {percentualLucro}%!", "Sucesso",
@@ -216,49 +260,42 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    string query = "SELECT Nome_Prod, Categoria, Validade, Descricao, Preco_Ven, Preco_Cmp, Quantidade_Prod, Unidade_Medida_Prod, Id_Fornecedor, juros FROM Produto WHERE ";
+                    string query = @"SELECT p.Nome_Prod, p.Categoria, p.Validade, p.Descricao, 
+                                    p.Preco_Ven, p.Preco_Cmp, p.Quantidade_Prod, 
+                                    p.Unidade_Medida_Prod, p.Id_Fornecedor, p.juros
+                                    FROM Produto p
+                                    WHERE ";
 
                     List<string> conditions = new List<string>();
                     List<SqlParameter> parameters = new List<SqlParameter>();
 
                     if (chkBuscarNome.Checked)
                     {
-                        conditions.Add("Nome_Prod LIKE @Nome");
+                        conditions.Add("p.Nome_Prod LIKE @Nome");
                         parameters.Add(new SqlParameter("@Nome", "%" + textoBusca + "%"));
                     }
 
                     if (chkBuscarCategoria.Checked)
                     {
-                        conditions.Add("Categoria LIKE @Categoria");
+                        conditions.Add("p.Categoria LIKE @Categoria");
                         parameters.Add(new SqlParameter("@Categoria", "%" + textoBusca + "%"));
                     }
 
                     if (chkBuscarFornecedor.Checked)
                     {
-                        // Tenta converter para número se for busca por fornecedor ID
-                        if (int.TryParse(textoBusca, out int fornecedorId))
-                        {
-                            conditions.Add("Id_Fornecedor = @FornecedorId");
-                            parameters.Add(new SqlParameter("@FornecedorId", fornecedorId));
-                        }
-                        else
-                        {
-                            conditions.Add("CAST(Id_Fornecedor AS VARCHAR) LIKE @Fornecedor");
-                            parameters.Add(new SqlParameter("@Fornecedor", "%" + textoBusca + "%"));
-                        }
+                        conditions.Add("CAST(p.Id_Fornecedor AS VARCHAR) LIKE @Fornecedor");
+                        parameters.Add(new SqlParameter("@Fornecedor", "%" + textoBusca + "%"));
                     }
 
-                    // ADICIONE ESTA CONDIÇÃO PARA BUSCAR POR DESCRIÇÃO
                     if (chkBuscarDescricao.Checked)
                     {
-                        conditions.Add("Descricao LIKE @Descricao");
+                        conditions.Add("p.Descricao LIKE @Descricao");
                         parameters.Add(new SqlParameter("@Descricao", "%" + textoBusca + "%"));
                     }
 
-                    // Se nenhum checkbox está marcado, busca por nome por padrão
                     if (conditions.Count == 0)
                     {
-                        conditions.Add("Nome_Prod LIKE @Nome");
+                        conditions.Add("p.Nome_Prod LIKE @Nome");
                         parameters.Add(new SqlParameter("@Nome", "%" + textoBusca + "%"));
                     }
 
@@ -266,7 +303,6 @@ namespace ControleDeEstoque
 
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
 
-                    // Adiciona os parâmetros
                     foreach (var param in parameters)
                     {
                         adapter.SelectCommand.Parameters.Add(param);
@@ -275,7 +311,6 @@ namespace ControleDeEstoque
                     DataTable dataTable = new DataTable();
                     adapter.Fill(dataTable);
 
-                    // Formatar quantidade como inteiro
                     foreach (DataRow row in dataTable.Rows)
                     {
                         if (row["Quantidade_Prod"] != DBNull.Value && decimal.TryParse(row["Quantidade_Prod"].ToString(), out decimal quantidade))
@@ -285,8 +320,6 @@ namespace ControleDeEstoque
                     }
 
                     dgvProdutos.DataSource = dataTable;
-
-                    // APLICA AS CONFIGURAÇÕES DE COLUNAS
                     AplicarConfiguracoesColunas();
                 }
             }
@@ -346,7 +379,7 @@ namespace ControleDeEstoque
             ProcurarProdutosInteligente();
         }
 
-        // MÉTODO ATUALIZADO: PROCURAR PRODUTOS (AGORA CHAMA A BUSCA INTELIGENTE)
+        // MÉTODO ATUALIZADO: PROCURAR PRODUTOS
         private void tbxProcurar_TextChanged(object sender, EventArgs e)
         {
             ProcurarProdutosInteligente();
@@ -361,12 +394,15 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    string query = "SELECT Nome_Prod, Categoria, Validade, Descricao, Preco_Ven, Preco_Cmp, Quantidade_Prod, Unidade_Medida_Prod, Id_Fornecedor, juros FROM Produto";
+                    string query = @"SELECT Nome_Prod, Categoria, Validade, Descricao, 
+                                    Preco_Ven, Preco_Cmp, Quantidade_Prod, 
+                                    Unidade_Medida_Prod, Id_Fornecedor, juros
+                                    FROM Produto";
+
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable dataTable = new DataTable();
                     adapter.Fill(dataTable);
 
-                    // Formatar quantidade como inteiro
                     foreach (DataRow row in dataTable.Rows)
                     {
                         if (row["Quantidade_Prod"] != DBNull.Value && decimal.TryParse(row["Quantidade_Prod"].ToString(), out decimal quantidade))
@@ -378,7 +414,6 @@ namespace ControleDeEstoque
                     dgvProdutos.DataSource = null;
                     dgvProdutos.DataSource = dataTable;
 
-                    // RENOMEIA AS COLUNAS PARA PORTUGUÊS E AJUSTA LARGURAS
                     if (dgvProdutos.Columns.Count > 0)
                     {
                         if (dgvProdutos.Columns.Contains("Nome_Prod"))
@@ -485,20 +520,16 @@ namespace ControleDeEstoque
                     quantidade = qtd;
                 }
 
-                // CÁLCULOS - TUDO UNITÁRIO (USA O PERCENTUAL CONFIGURADO)
                 decimal fatorLucro = 1 + (percentualLucro / 100m);
                 decimal precoVendaRecomendadoUnitario = precoCompraUnitario * fatorLucro;
                 decimal lucroUnitario = precoVendaRecomendadoUnitario - precoCompraUnitario;
 
-                // CÁLCULOS TOTAIS (APENAS PARA INFORMAÇÃO)
                 decimal valorTotalEstoque = precoCompraUnitario * quantidade;
                 decimal valorTotalVendaRecomendado = precoVendaRecomendadoUnitario * quantidade;
                 decimal lucroTotalPotencial = valorTotalVendaRecomendado - valorTotalEstoque;
 
-                // SEMPRE ATUALIZA O CAMPO DE VENDA COM O PREÇO RECOMENDADO
                 tbxPrecoVenda.Text = precoVendaRecomendadoUnitario.ToString("F2");
 
-                // MOSTRA INFORMAÇÕES CLARAS
                 if (quantidade > 1)
                 {
                     lblPrecoVendaRecomendado.Text =
@@ -515,7 +546,6 @@ namespace ControleDeEstoque
                         $"Lucro: R$ {lucroUnitario:F2} (+{percentualLucro}%)";
                 }
 
-                // CORES MELHORADAS
                 lblPrecoVendaRecomendado.ForeColor = Color.DarkBlue;
                 lblPrecoVendaRecomendado.BackColor = Color.LightYellow;
                 lblPrecoVendaRecomendado.BorderStyle = BorderStyle.FixedSingle;
@@ -623,6 +653,28 @@ namespace ControleDeEstoque
                     return;
                 }
 
+                // VALIDAÇÃO DO FORNECEDOR
+                int idFornecedor = 0;
+                if (!string.IsNullOrEmpty(tbxFornecedor.Text))
+                {
+                    if (!int.TryParse(tbxFornecedor.Text, out idFornecedor) || idFornecedor <= 0)
+                    {
+                        MessageBox.Show("Por favor, informe um ID de fornecedor válido (número maior que zero).", "Aviso",
+                                      MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        tbxFornecedor.Focus();
+                        return;
+                    }
+
+                    // VERIFICAR SE O FORNECEDOR EXISTE NO BANCO
+                    if (!FornecedorExiste(idFornecedor))
+                    {
+                        MessageBox.Show($"Fornecedor com ID {idFornecedor} não encontrado no banco de dados.\n\nPor favor, verifique o ID ou cadastre o fornecedor primeiro.", "Fornecedor Não Encontrado",
+                                      MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        tbxFornecedor.Focus();
+                        return;
+                    }
+                }
+
                 // VERIFICA SE TEM PREJUÍZO
                 if (precoVenda < precoCompra)
                 {
@@ -663,7 +715,6 @@ namespace ControleDeEstoque
 
                 // CONVERSÃO DOS DEMAIS VALORES
                 int.TryParse(tbxQuantidade.Text, out int quantidadeFinal);
-                int.TryParse(tbxFornecedor.Text, out int idFornecedor);
 
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
@@ -707,8 +758,13 @@ namespace ControleDeEstoque
                         command.Parameters.AddWithValue("@PrecoCompra", precoCompra);
                         command.Parameters.AddWithValue("@Quantidade", quantidadeFinal);
                         command.Parameters.AddWithValue("@UnidadeMedida", cbxUnidade.Text);
-                        command.Parameters.AddWithValue("@IdFornecedor", idFornecedor);
-                        command.Parameters.AddWithValue("@Juros", percentualLucro); // SALVA O JUROS NO PRODUTO
+
+                        if (idFornecedor == 0)
+                            command.Parameters.AddWithValue("@IdFornecedor", DBNull.Value);
+                        else
+                            command.Parameters.AddWithValue("@IdFornecedor", idFornecedor);
+
+                        command.Parameters.AddWithValue("@Juros", percentualLucro);
 
                         if (modoEdicao)
                         {
@@ -739,6 +795,32 @@ namespace ControleDeEstoque
             {
                 MessageBox.Show("Erro ao salvar produto: " + ex.Message, "Erro",
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // MÉTODO PARA VERIFICAR SE FORNECEDOR EXISTE
+        private bool FornecedorExiste(int idFornecedor)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    string query = "SELECT COUNT(1) FROM Fornecedor WHERE Id_Fornecedor = @IdFornecedor";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@IdFornecedor", idFornecedor);
+                        int count = Convert.ToInt32(command.ExecuteScalar());
+                        return count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao verificar fornecedor: " + ex.Message, "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
         }
 
@@ -876,7 +958,6 @@ namespace ControleDeEstoque
         // Método para carregar dados para edição
         private void CarregarDadosParaEdicao(DataGridViewRow row)
         {
-            // SE NÃO ESTIVER NO MODO EDIÇÃO, NÃO CARREGA OS DADOS DA GRID
             if (!modoEdicao)
             {
                 return;
@@ -901,7 +982,6 @@ namespace ControleDeEstoque
             tbxPrecoVenda.Text = GetCellValue(row, "Preco_Ven");
             tbxFornecedor.Text = GetCellValue(row, "Id_Fornecedor");
 
-            // CARREGA O JUROS DO PRODUTO SE EXISTIR
             string jurosValue = GetCellValue(row, "juros");
             if (!string.IsNullOrEmpty(jurosValue) && decimal.TryParse(jurosValue, out decimal jurosProduto))
             {
@@ -932,7 +1012,7 @@ namespace ControleDeEstoque
         {
             modoEdicao = false;
             produtoIdEmEdicao = 0;
-            this.BackColor = Color.FromArgb(255, 192, 128);
+            this.BackColor = Color.Silver;
             btnSalvar.Text = "Salvar";
             btnEditar.Enabled = true;
             this.Text = "Cadastro de Produtos";
@@ -976,10 +1056,9 @@ namespace ControleDeEstoque
             CalcularPrecoVendaRecomendado();
         }
 
-        // MÉTODO PARA PREENCHER CAMPOS (QUANDO SELECIONA NA GRADE) - MODIFICADO
+        // MÉTODO PARA PREENCHER CAMPOS (QUANDO SELECIONA NA GRADE)
         private void dgvProdutos_SelectionChanged(object sender, EventArgs e)
         {
-            // SÓ PREENCHE OS CAMPOS SE ESTIVER NO MODO EDIÇÃO
             if (modoEdicao && dgvProdutos.SelectedRows.Count > 0 && dgvProdutos.DataSource != null)
             {
                 try
@@ -1033,7 +1112,7 @@ namespace ControleDeEstoque
 
         private void lblFornecedor_Click(object sender, EventArgs e)
         {
-
+            // Método vazio necessário para o evento
         }
 
         private void btnVoltar_Click(object sender, EventArgs e)

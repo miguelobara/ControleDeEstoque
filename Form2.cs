@@ -28,7 +28,7 @@ namespace ControleDeEstoque
         private void button2_Click(object sender, EventArgs e)
         {
 
-            Form6 product = new Form6();
+            Form7 product = new Form7();
             this.Visible = false;
             product.ShowDialog();
             this.Visible = true;
@@ -41,6 +41,14 @@ namespace ControleDeEstoque
             product.ShowDialog();
             this.Visible = true;
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Form8 product = new Form8();
+            this.Visible = false;
+            product.ShowDialog();
+            this.Visible = true;
+        }
     }
-    }
+}
 
