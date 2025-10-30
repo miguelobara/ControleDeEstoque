@@ -33,6 +33,7 @@ namespace ControleDeEstoque
             this.btnEditar.Click += new System.EventHandler(this.btnEditar_Click);
             this.btnNovaUnidade.Click += new System.EventHandler(this.btnNovaUnidade_Click);
             this.btnNovaCategoria.Click += new System.EventHandler(this.btnNovaCategoria_Click);
+            this.btnNovoFornecedor.Click += new System.EventHandler(this.btnNovoFornecedor_Click);
             this.btnMudarLucro.Click += new System.EventHandler(this.btnMudarLucro_Click);
             this.tbxProcurar.TextChanged += new System.EventHandler(this.tbxProcurar_TextChanged);
             this.chkBuscarNome.CheckedChanged += new System.EventHandler(this.chkBuscarNome_CheckedChanged);
@@ -54,7 +55,7 @@ namespace ControleDeEstoque
             dgvProdutos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProdutos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            // CARREGAR UNIDADES E CATEGORIAS PADRÃO
+            // CARREGAR UNIDADES, CATEGORIAS E FORNECEDORES
             CarregarUnidades();
             CarregarCategorias();
             CarregarFornecedores();
@@ -72,7 +73,7 @@ namespace ControleDeEstoque
             dgvProdutos.RowHeadersVisible = false;
         }
 
-        // MÉTODO CORRIGIDO PARA CARREGAR FORNECEDORES DO BANCO
+        // MÉTODO CORRIGIDO PARA CARREGAR FORNECEDORES DO BANCO - USANDO SUA TABELA
         private void CarregarFornecedores()
         {
             try
@@ -81,21 +82,25 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    // CORREÇÃO: Use a coluna correta para o ID do fornecedor
-                    // Se a coluna do ID for diferente, ajuste conforme sua estrutura real
-                    string query = "SELECT Id_Fornecedor, Nome_For FROM Fornecedor WHERE estatus_For = 'Ativo' OR estatus_For IS NULL ORDER BY Nome_For";
+                    // CORREÇÃO: Nome da coluna correto - Id_Fornecedor
+                    string query = "SELECT Id_Fornecedor, Nome_For FROM Fornecedor ORDER BY Nome_For";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
                             fornecedores.Clear();
+                            cbxFornecedor.Items.Clear();
+
+                            // Adiciona opção vazia
+                            cbxFornecedor.Items.Add("Selecione um fornecedor");
 
                             while (reader.Read())
                             {
                                 int idFornecedor = reader.GetInt32(0);
                                 string nomeFornecedor = reader.GetString(1);
                                 fornecedores.Add(idFornecedor, nomeFornecedor);
+                                cbxFornecedor.Items.Add(nomeFornecedor);
                             }
                         }
                     }
@@ -106,6 +111,20 @@ namespace ControleDeEstoque
                 MessageBox.Show("Erro ao carregar fornecedores: " + ex.Message, "Erro",
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        // MÉTODO PARA OBTER ID DO FORNECEDOR POR NOME
+        private int? ObterIdFornecedorPorNome(string nomeFornecedor)
+        {
+            if (string.IsNullOrEmpty(nomeFornecedor) || nomeFornecedor == "Selecione um fornecedor")
+                return null;
+
+            foreach (var fornecedor in fornecedores)
+            {
+                if (fornecedor.Value == nomeFornecedor)
+                    return fornecedor.Key;
+            }
+            return null;
         }
 
         // MÉTODO PARA OBTER NOME DO FORNECEDOR POR ID
@@ -119,7 +138,7 @@ namespace ControleDeEstoque
             return "";
         }
 
-        // CARREGAR CONFIGURAÇÕES DE JUROS DO BANCO
+        // CARREGAR CONFIGURAÇÕES DE JUROS DO BANCO - CORRIGIDO
         private void CarregarConfiguracoesJuros()
         {
             try
@@ -128,6 +147,7 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
+                    // CORREÇÃO: Usando Id_Prod (nome correto da coluna)
                     string query = "SELECT TOP 1 juros FROM Produto WHERE juros IS NOT NULL AND juros > 0 ORDER BY Id_Prod DESC";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -216,6 +236,14 @@ namespace ControleDeEstoque
             }
         }
 
+        // MÉTODO PARA ATUALIZAR A LISTA DE FORNECEDORES
+        private void btnNovoFornecedor_Click(object sender, EventArgs e)
+        {
+            CarregarFornecedores();
+            MessageBox.Show("Lista de fornecedores atualizada!", "Atualização",
+                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         // MÉTODO: BOTÃO PARA MUDAR PERCENTUAL DE LUCRO
         private void btnMudarLucro_Click(object sender, EventArgs e)
         {
@@ -260,10 +288,11 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    string query = @"SELECT p.Nome_Prod, p.Categoria, p.Validade, p.Descricao, 
+                    string query = @"SELECT p.Id_Prod, p.Nome_Prod, p.Categoria, p.Validade, p.Descricao, 
                                     p.Preco_Ven, p.Preco_Cmp, p.Quantidade_Prod, 
-                                    p.Unidade_Medida_Prod, p.Id_Fornecedor, p.juros
+                                    p.Unidade_Medida_Prod, f.Nome_For as Fornecedor, p.juros
                                     FROM Produto p
+                                    LEFT JOIN Fornecedor f ON p.Id_Fornecedor = f.Id_Fornecedor
                                     WHERE ";
 
                     List<string> conditions = new List<string>();
@@ -283,7 +312,7 @@ namespace ControleDeEstoque
 
                     if (chkBuscarFornecedor.Checked)
                     {
-                        conditions.Add("CAST(p.Id_Fornecedor AS VARCHAR) LIKE @Fornecedor");
+                        conditions.Add("f.Nome_For LIKE @Fornecedor");
                         parameters.Add(new SqlParameter("@Fornecedor", "%" + textoBusca + "%"));
                     }
 
@@ -335,6 +364,8 @@ namespace ControleDeEstoque
         {
             if (dgvProdutos.Columns.Count > 0)
             {
+                if (dgvProdutos.Columns.Contains("Id_Prod"))
+                    dgvProdutos.Columns["Id_Prod"].HeaderText = "ID";
                 if (dgvProdutos.Columns.Contains("Nome_Prod"))
                     dgvProdutos.Columns["Nome_Prod"].HeaderText = "Nome do Produto";
                 if (dgvProdutos.Columns.Contains("Categoria"))
@@ -351,8 +382,8 @@ namespace ControleDeEstoque
                     dgvProdutos.Columns["Quantidade_Prod"].HeaderText = "Quantidade";
                 if (dgvProdutos.Columns.Contains("Unidade_Medida_Prod"))
                     dgvProdutos.Columns["Unidade_Medida_Prod"].HeaderText = "Unidade";
-                if (dgvProdutos.Columns.Contains("Id_Fornecedor"))
-                    dgvProdutos.Columns["Id_Fornecedor"].HeaderText = "Fornecedor ID";
+                if (dgvProdutos.Columns.Contains("Fornecedor"))
+                    dgvProdutos.Columns["Fornecedor"].HeaderText = "Fornecedor";
                 if (dgvProdutos.Columns.Contains("juros"))
                     dgvProdutos.Columns["juros"].HeaderText = "Juros %";
             }
@@ -394,10 +425,11 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
-                    string query = @"SELECT Nome_Prod, Categoria, Validade, Descricao, 
-                                    Preco_Ven, Preco_Cmp, Quantidade_Prod, 
-                                    Unidade_Medida_Prod, Id_Fornecedor, juros
-                                    FROM Produto";
+                    string query = @"SELECT p.Id_Prod, p.Nome_Prod, p.Categoria, p.Validade, p.Descricao, 
+                                    p.Preco_Ven, p.Preco_Cmp, p.Quantidade_Prod, 
+                                    p.Unidade_Medida_Prod, f.Nome_For as Fornecedor, p.juros
+                                    FROM Produto p
+                                    LEFT JOIN Fornecedor f ON p.Id_Fornecedor = f.Id_Fornecedor";
 
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable dataTable = new DataTable();
@@ -416,6 +448,12 @@ namespace ControleDeEstoque
 
                     if (dgvProdutos.Columns.Count > 0)
                     {
+                        if (dgvProdutos.Columns.Contains("Id_Prod"))
+                        {
+                            dgvProdutos.Columns["Id_Prod"].HeaderText = "ID";
+                            dgvProdutos.Columns["Id_Prod"].Width = 50;
+                        }
+
                         if (dgvProdutos.Columns.Contains("Nome_Prod"))
                         {
                             dgvProdutos.Columns["Nome_Prod"].HeaderText = "Nome do Produto";
@@ -464,10 +502,10 @@ namespace ControleDeEstoque
                             dgvProdutos.Columns["Unidade_Medida_Prod"].Width = 80;
                         }
 
-                        if (dgvProdutos.Columns.Contains("Id_Fornecedor"))
+                        if (dgvProdutos.Columns.Contains("Fornecedor"))
                         {
-                            dgvProdutos.Columns["Id_Fornecedor"].HeaderText = "Fornecedor ID";
-                            dgvProdutos.Columns["Id_Fornecedor"].Width = 80;
+                            dgvProdutos.Columns["Fornecedor"].HeaderText = "Fornecedor";
+                            dgvProdutos.Columns["Fornecedor"].Width = 120;
                         }
 
                         if (dgvProdutos.Columns.Contains("juros"))
@@ -623,7 +661,30 @@ namespace ControleDeEstoque
             return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
         }
 
-        // MÉTODO PARA SALVAR NO BANCO DE DADOS
+        // MÉTODO PARA GERAR PRÓXIMO ID DISPONÍVEL
+        private int GerarProximoId()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    string query = "SELECT ISNULL(MAX(Id_Prod), 0) + 1 FROM Produto";
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        return Convert.ToInt32(command.ExecuteScalar());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao gerar próximo ID: " + ex.Message, "Erro",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return 1; // Retorna 1 se houver erro
+            }
+        }
+
+        // MÉTODO PARA SALVAR NO BANCO DE DADOS - CORRIGIDO COM GERAÇÃO DE ID
         private void SalvarProduto()
         {
             try
@@ -654,23 +715,16 @@ namespace ControleDeEstoque
                 }
 
                 // VALIDAÇÃO DO FORNECEDOR
-                int idFornecedor = 0;
-                if (!string.IsNullOrEmpty(tbxFornecedor.Text))
+                int? idFornecedor = null;
+                if (!string.IsNullOrEmpty(cbxFornecedor.Text) && cbxFornecedor.Text != "Selecione um fornecedor")
                 {
-                    if (!int.TryParse(tbxFornecedor.Text, out idFornecedor) || idFornecedor <= 0)
-                    {
-                        MessageBox.Show("Por favor, informe um ID de fornecedor válido (número maior que zero).", "Aviso",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        tbxFornecedor.Focus();
-                        return;
-                    }
+                    idFornecedor = ObterIdFornecedorPorNome(cbxFornecedor.Text);
 
-                    // VERIFICAR SE O FORNECEDOR EXISTE NO BANCO
-                    if (!FornecedorExiste(idFornecedor))
+                    if (!idFornecedor.HasValue)
                     {
-                        MessageBox.Show($"Fornecedor com ID {idFornecedor} não encontrado no banco de dados.\n\nPor favor, verifique o ID ou cadastre o fornecedor primeiro.", "Fornecedor Não Encontrado",
+                        MessageBox.Show("Fornecedor selecionado não encontrado no banco de dados.\n\nPor favor, selecione um fornecedor válido da lista.", "Fornecedor Não Encontrado",
                                       MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        tbxFornecedor.Focus();
+                        cbxFornecedor.Focus();
                         return;
                     }
                 }
@@ -720,6 +774,13 @@ namespace ControleDeEstoque
                 {
                     connection.Open();
 
+                    // GERA PRÓXIMO ID SE FOR NOVO PRODUTO
+                    int proximoId = 0;
+                    if (!modoEdicao)
+                    {
+                        proximoId = GerarProximoId();
+                    }
+
                     string query;
                     if (modoEdicao)
                     {
@@ -739,11 +800,11 @@ namespace ControleDeEstoque
                     else
                     {
                         query = @"INSERT INTO Produto 
-                                 (Nome_Prod, Categoria, Validade, Descricao, 
+                                 (Id_Prod, Nome_Prod, Categoria, Validade, Descricao, 
                                   Preco_Ven, Preco_Cmp, Quantidade_Prod, 
                                   Unidade_Medida_Prod, Id_Fornecedor, juros) 
                                  VALUES 
-                                 (@Nome, @Categoria, @Validade, @Descricao, 
+                                 (@IdProd, @Nome, @Categoria, @Validade, @Descricao, 
                                   @PrecoVenda, @PrecoCompra, @Quantidade, 
                                   @UnidadeMedida, @IdFornecedor, @Juros)";
                     }
@@ -759,16 +820,20 @@ namespace ControleDeEstoque
                         command.Parameters.AddWithValue("@Quantidade", quantidadeFinal);
                         command.Parameters.AddWithValue("@UnidadeMedida", cbxUnidade.Text);
 
-                        if (idFornecedor == 0)
-                            command.Parameters.AddWithValue("@IdFornecedor", DBNull.Value);
+                        if (idFornecedor.HasValue)
+                            command.Parameters.AddWithValue("@IdFornecedor", idFornecedor.Value);
                         else
-                            command.Parameters.AddWithValue("@IdFornecedor", idFornecedor);
+                            command.Parameters.AddWithValue("@IdFornecedor", DBNull.Value);
 
                         command.Parameters.AddWithValue("@Juros", percentualLucro);
 
                         if (modoEdicao)
                         {
                             command.Parameters.AddWithValue("@IdProduto", produtoIdEmEdicao);
+                        }
+                        else
+                        {
+                            command.Parameters.AddWithValue("@IdProd", proximoId);
                         }
 
                         int result = command.ExecuteNonQuery();
@@ -798,33 +863,7 @@ namespace ControleDeEstoque
             }
         }
 
-        // MÉTODO PARA VERIFICAR SE FORNECEDOR EXISTE
-        private bool FornecedorExiste(int idFornecedor)
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    string query = "SELECT COUNT(1) FROM Fornecedor WHERE Id_Fornecedor = @IdFornecedor";
-
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@IdFornecedor", idFornecedor);
-                        int count = Convert.ToInt32(command.ExecuteScalar());
-                        return count > 0;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Erro ao verificar fornecedor: " + ex.Message, "Erro",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-        }
-
-        // MÉTODO PARA DELETAR PRODUTO
+        // MÉTODO PARA DELETAR PRODUTO - CORRIGIDO
         private void DeletarProduto()
         {
             if (dgvProdutos.SelectedRows.Count > 0)
@@ -840,9 +879,11 @@ namespace ControleDeEstoque
 
                     DataGridViewRow row = dgvProdutos.SelectedRows[0];
                     string nomeProduto = GetCellValue(row, "Nome_Prod") ?? "Produto selecionado";
+                    string idProduto = GetCellValue(row, "Id_Prod") ?? "";
 
                     DialogResult result = MessageBox.Show(
                         "DELETAR PRODUTO" + Environment.NewLine + Environment.NewLine +
+                        "ID: " + idProduto + Environment.NewLine +
                         "Nome: " + nomeProduto + Environment.NewLine + Environment.NewLine +
                         "Tem certeza que deseja deletar este produto?",
                         "Confirmar Deleção",
@@ -855,29 +896,18 @@ namespace ControleDeEstoque
                         {
                             connection.Open();
 
-                            string queryBuscaId = "SELECT Id_Prod FROM Produto WHERE Nome_Prod = @Nome";
-                            using (SqlCommand commandBusca = new SqlCommand(queryBuscaId, connection))
+                            // CORREÇÃO: Usando Id_Prod (nome correto da coluna)
+                            string queryDelete = "DELETE FROM Produto WHERE Id_Prod = @Id";
+                            using (SqlCommand commandDelete = new SqlCommand(queryDelete, connection))
                             {
-                                commandBusca.Parameters.AddWithValue("@Nome", nomeProduto);
-                                object idResult = commandBusca.ExecuteScalar();
+                                commandDelete.Parameters.AddWithValue("@Id", Convert.ToInt32(idProduto));
+                                int rowsAffected = commandDelete.ExecuteNonQuery();
 
-                                if (idResult != null)
+                                if (rowsAffected > 0)
                                 {
-                                    int idProduto = Convert.ToInt32(idResult);
-
-                                    string queryDelete = "DELETE FROM Produto WHERE Id_Prod = @Id";
-                                    using (SqlCommand commandDelete = new SqlCommand(queryDelete, connection))
-                                    {
-                                        commandDelete.Parameters.AddWithValue("@Id", idProduto);
-                                        int rowsAffected = commandDelete.ExecuteNonQuery();
-
-                                        if (rowsAffected > 0)
-                                        {
-                                            MessageBox.Show("Produto deletado com sucesso!", "Sucesso",
-                                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                            CarregarProdutos();
-                                        }
-                                    }
+                                    MessageBox.Show("Produto deletado com sucesso!", "Sucesso",
+                                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    CarregarProdutos();
                                 }
                             }
                         }
@@ -896,49 +926,35 @@ namespace ControleDeEstoque
             }
         }
 
-        // BOTÃO EDITAR - ATIVA MODO EDIÇÃO
+        // BOTÃO EDITAR - ATIVA MODO EDIÇÃO - CORRIGIDO
         private void btnEditar_Click(object sender, EventArgs e)
         {
             if (dgvProdutos.SelectedRows.Count > 0)
             {
                 DataGridViewRow row = dgvProdutos.SelectedRows[0];
-                string nomeProduto = GetCellValue(row, "Nome_Prod");
+                string idProduto = GetCellValue(row, "Id_Prod");
 
-                if (!string.IsNullOrEmpty(nomeProduto))
+                if (!string.IsNullOrEmpty(idProduto))
                 {
                     try
                     {
-                        using (SqlConnection connection = new SqlConnection(connectionString))
-                        {
-                            connection.Open();
+                        modoEdicao = true;
+                        produtoIdEmEdicao = Convert.ToInt32(idProduto);
 
-                            string queryBuscaId = "SELECT Id_Prod FROM Produto WHERE Nome_Prod = @Nome";
-                            using (SqlCommand command = new SqlCommand(queryBuscaId, connection))
-                            {
-                                command.Parameters.AddWithValue("@Nome", nomeProduto);
-                                object idResult = command.ExecuteScalar();
+                        CarregarDadosParaEdicao(row);
+                        AtivarModoEdicao();
 
-                                if (idResult != null)
-                                {
-                                    modoEdicao = true;
-                                    produtoIdEmEdicao = Convert.ToInt32(idResult);
-
-                                    CarregarDadosParaEdicao(row);
-                                    AtivarModoEdicao();
-
-                                    MessageBox.Show("MODO EDIÇÃO ATIVADO!" + Environment.NewLine + Environment.NewLine +
-                                                  "Faça as alterações necessárias e clique em SALVAR para confirmar." + Environment.NewLine +
-                                                  "Use LIMPAR para cancelar a edição.",
-                                                  "Modo Edição",
-                                                  MessageBoxButtons.OK,
-                                                  MessageBoxIcon.Information);
-                                }
-                            }
-                        }
+                        MessageBox.Show("MODO EDIÇÃO ATIVADO!" + Environment.NewLine + Environment.NewLine +
+                                      "ID do Produto: " + idProduto + Environment.NewLine +
+                                      "Faça as alterações necessárias e clique em SALVAR para confirmar." + Environment.NewLine +
+                                      "Use LIMPAR para cancelar a edição.",
+                                      "Modo Edição",
+                                      MessageBoxButtons.OK,
+                                      MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Erro ao buscar produto para edição: " + ex.Message, "Erro",
+                        MessageBox.Show("Erro ao ativar modo edição: " + ex.Message, "Erro",
                                       MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -980,7 +996,17 @@ namespace ControleDeEstoque
             }
 
             tbxPrecoVenda.Text = GetCellValue(row, "Preco_Ven");
-            tbxFornecedor.Text = GetCellValue(row, "Id_Fornecedor");
+
+            // Carrega o nome do fornecedor em vez do ID
+            string nomeFornecedor = GetCellValue(row, "Fornecedor");
+            if (!string.IsNullOrEmpty(nomeFornecedor))
+            {
+                cbxFornecedor.Text = nomeFornecedor;
+            }
+            else
+            {
+                cbxFornecedor.SelectedIndex = 0; // "Selecione um fornecedor"
+            }
 
             string jurosValue = GetCellValue(row, "juros");
             if (!string.IsNullOrEmpty(jurosValue) && decimal.TryParse(jurosValue, out decimal jurosProduto))
@@ -1095,7 +1121,7 @@ namespace ControleDeEstoque
             tbxDescricao.Clear();
             tbxQuantidade.Clear();
             tbxPrecoVenda.Clear();
-            tbxFornecedor.Clear();
+            cbxFornecedor.SelectedIndex = 0; // Volta para "Selecione um fornecedor"
             dtpValidade.Value = DateTime.Now;
             lblPrecoVendaRecomendado.Text = "";
             lblPrecoVendaRecomendado.Visible = false;

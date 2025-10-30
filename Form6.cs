@@ -50,16 +50,19 @@ namespace ControleDeEstoque
             string email = tbxEmail_For.Text.Trim();
             string cidade = tbxCidade_For.Text.Trim();
             string rua = tbxRua_For.Text.Trim();
-            string uf = mtbUf.Text.ToUpper();
             string cep = mtbCep.Text.Replace("-", "");
             string estatus = "A";
             DateTime dataCadastro = dtpDataCadastro.Value;
 
+            // Query que obtém o próximo ID automaticamente
             string query = @"
+DECLARE @NextID INT;
+SELECT @NextID = ISNULL(MAX(id_Fornecedor), 0) + 1 FROM Fornecedor;
+
 INSERT INTO Fornecedor 
-(Nome_For, Cnpj_For, Telefone_For, Email_For, Cidade_For, Rua_For, Uf_For, Cep_For, Data_Cadastro_For, estatus_For)
+(id_Fornecedor, Nome_For, Cnpj_For, Telefone_For, Email_For, Cidade_For, Rua_For, Cep_For, Data_Cadastro_For, estatus_For)
 VALUES 
-(@Nome, @Cnpj, @Telefone, @Email, @Cidade, @Rua, @Uf, @Cep, @DataCadastro, @Estatus)";
+(@NextID, @Nome, @Cnpj, @Telefone, @Email, @Cidade, @Rua, @Cep, @DataCadastro, @Estatus)";
 
             using (SqlConnection conn = new SqlConnection(conexao))
             using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -70,7 +73,6 @@ VALUES
                 cmd.Parameters.AddWithValue("@Email", email);
                 cmd.Parameters.AddWithValue("@Cidade", cidade);
                 cmd.Parameters.AddWithValue("@Rua", rua);
-                cmd.Parameters.AddWithValue("@Uf", uf);
                 cmd.Parameters.AddWithValue("@Cep", cep);
                 cmd.Parameters.AddWithValue("@DataCadastro", dataCadastro);
                 cmd.Parameters.AddWithValue("@Estatus", estatus);
@@ -115,6 +117,22 @@ VALUES
                 MessageBox.Show("Por favor, informe um CNPJ válido.", "Aviso",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 mtbCnpj.Focus();
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(tbxCidade_For.Text))
+            {
+                MessageBox.Show("Por favor, informe a cidade.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                tbxCidade_For.Focus();
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(tbxRua_For.Text))
+            {
+                MessageBox.Show("Por favor, informe o endereço.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                tbxRua_For.Focus();
                 return false;
             }
 
@@ -168,7 +186,5 @@ VALUES
         {
             LimparCampos();
         }
-
-     
     }
 }

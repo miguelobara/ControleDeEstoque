@@ -13,7 +13,7 @@
         private System.Windows.Forms.TextBox tbxDescricao;
         private System.Windows.Forms.TextBox tbxQuantidade;
         private System.Windows.Forms.TextBox tbxPrecoVenda;
-        private System.Windows.Forms.TextBox tbxFornecedor;
+        private System.Windows.Forms.ComboBox cbxFornecedor; // MODIFICADO: ComboBox em vez de TextBox
         private System.Windows.Forms.DateTimePicker dtpValidade;
         private System.Windows.Forms.Button btnSalvar;
         private System.Windows.Forms.Button btnLimpar;
@@ -22,6 +22,7 @@
         private System.Windows.Forms.Button btnNovaUnidade;
         private System.Windows.Forms.Button btnNovaCategoria;
         private System.Windows.Forms.Button btnMudarLucro;
+        private System.Windows.Forms.Button btnNovoFornecedor; // NOVO: Botão para adicionar fornecedor
         private System.Windows.Forms.DataGridView dgvProdutos;
         private System.Windows.Forms.Label lblProcurar;
         private System.Windows.Forms.Label lblNome;
@@ -66,7 +67,7 @@
             this.tbxDescricao = new System.Windows.Forms.TextBox();
             this.tbxQuantidade = new System.Windows.Forms.TextBox();
             this.tbxPrecoVenda = new System.Windows.Forms.TextBox();
-            this.tbxFornecedor = new System.Windows.Forms.TextBox();
+            this.cbxFornecedor = new System.Windows.Forms.ComboBox(); // MODIFICADO
             this.dtpValidade = new System.Windows.Forms.DateTimePicker();
             this.btnSalvar = new System.Windows.Forms.Button();
             this.btnLimpar = new System.Windows.Forms.Button();
@@ -75,6 +76,7 @@
             this.btnNovaUnidade = new System.Windows.Forms.Button();
             this.btnNovaCategoria = new System.Windows.Forms.Button();
             this.btnMudarLucro = new System.Windows.Forms.Button();
+            this.btnNovoFornecedor = new System.Windows.Forms.Button(); // NOVO
             this.dgvProdutos = new System.Windows.Forms.DataGridView();
             this.lblProcurar = new System.Windows.Forms.Label();
             this.lblNome = new System.Windows.Forms.Label();
@@ -166,12 +168,13 @@
             this.tbxPrecoVenda.Size = new System.Drawing.Size(150, 23);
             this.tbxPrecoVenda.TabIndex = 7;
             // 
-            // tbxFornecedor
+            // cbxFornecedor
             // 
-            this.tbxFornecedor.Location = new System.Drawing.Point(387, 104);
-            this.tbxFornecedor.Name = "tbxFornecedor";
-            this.tbxFornecedor.Size = new System.Drawing.Size(150, 23);
-            this.tbxFornecedor.TabIndex = 8;
+            this.cbxFornecedor.FormattingEnabled = true;
+            this.cbxFornecedor.Location = new System.Drawing.Point(387, 104);
+            this.cbxFornecedor.Name = "cbxFornecedor";
+            this.cbxFornecedor.Size = new System.Drawing.Size(150, 23);
+            this.cbxFornecedor.TabIndex = 8;
             // 
             // dtpValidade
             // 
@@ -270,6 +273,19 @@
             this.btnMudarLucro.TabIndex = 16;
             this.btnMudarLucro.Text = "+";
             this.btnMudarLucro.UseVisualStyleBackColor = false;
+            // 
+            // btnNovoFornecedor
+            // 
+            this.btnNovoFornecedor.BackColor = System.Drawing.Color.RoyalBlue;
+            this.btnNovoFornecedor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNovoFornecedor.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNovoFornecedor.ForeColor = System.Drawing.Color.White;
+            this.btnNovoFornecedor.Location = new System.Drawing.Point(543, 104);
+            this.btnNovoFornecedor.Name = "btnNovoFornecedor";
+            this.btnNovoFornecedor.Size = new System.Drawing.Size(25, 23);
+            this.btnNovoFornecedor.TabIndex = 30;
+            this.btnNovoFornecedor.Text = "+";
+            this.btnNovoFornecedor.UseVisualStyleBackColor = false;
             // 
             // dgvProdutos
             // 
@@ -515,6 +531,7 @@
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.Controls.Add(this.btnNovoFornecedor);
             this.groupBox1.Controls.Add(this.lblNome);
             this.groupBox1.Controls.Add(this.tbxNome);
             this.groupBox1.Controls.Add(this.lblTipo);
@@ -532,7 +549,7 @@
             this.groupBox1.Controls.Add(this.lblPrecoVenda);
             this.groupBox1.Controls.Add(this.tbxPrecoVenda);
             this.groupBox1.Controls.Add(this.lblFornecedor);
-            this.groupBox1.Controls.Add(this.tbxFornecedor);
+            this.groupBox1.Controls.Add(this.cbxFornecedor);
             this.groupBox1.Controls.Add(this.lblValidade);
             this.groupBox1.Controls.Add(this.dtpValidade);
             this.groupBox1.Controls.Add(this.lblPercentualLucro);
@@ -585,7 +602,5 @@
             this.ResumeLayout(false);
 
         }
-
-
     }
 }
