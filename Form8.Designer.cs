@@ -340,6 +340,7 @@
             this.Controls.Add(this.label1);
             this.Name = "Form8";
             this.Text = "Análise de Lucros";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form8_FormClosing);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panelMetricas.ResumeLayout(false);

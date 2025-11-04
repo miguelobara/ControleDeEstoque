@@ -22,7 +22,6 @@
         private System.Windows.Forms.Button btnNovaUnidade;
         private System.Windows.Forms.Button btnNovaCategoria;
         private System.Windows.Forms.Button btnMudarLucro;
-        private System.Windows.Forms.Button btnNovoFornecedor; // NOVO: Botão para adicionar fornecedor
         private System.Windows.Forms.DataGridView dgvProdutos;
         private System.Windows.Forms.Label lblProcurar;
         private System.Windows.Forms.Label lblNome;
@@ -67,7 +66,7 @@
             this.tbxDescricao = new System.Windows.Forms.TextBox();
             this.tbxQuantidade = new System.Windows.Forms.TextBox();
             this.tbxPrecoVenda = new System.Windows.Forms.TextBox();
-            this.cbxFornecedor = new System.Windows.Forms.ComboBox(); // MODIFICADO
+            this.cbxFornecedor = new System.Windows.Forms.ComboBox();
             this.dtpValidade = new System.Windows.Forms.DateTimePicker();
             this.btnSalvar = new System.Windows.Forms.Button();
             this.btnLimpar = new System.Windows.Forms.Button();
@@ -76,7 +75,6 @@
             this.btnNovaUnidade = new System.Windows.Forms.Button();
             this.btnNovaCategoria = new System.Windows.Forms.Button();
             this.btnMudarLucro = new System.Windows.Forms.Button();
-            this.btnNovoFornecedor = new System.Windows.Forms.Button(); // NOVO
             this.dgvProdutos = new System.Windows.Forms.DataGridView();
             this.lblProcurar = new System.Windows.Forms.Label();
             this.lblNome = new System.Windows.Forms.Label();
@@ -111,16 +109,16 @@
             // 
             // tbxProcurar
             // 
-            this.tbxProcurar.Location = new System.Drawing.Point(73, 13);
+            this.tbxProcurar.Location = new System.Drawing.Point(89, 11);
             this.tbxProcurar.Name = "tbxProcurar";
-            this.tbxProcurar.Size = new System.Drawing.Size(200, 23);
+            this.tbxProcurar.Size = new System.Drawing.Size(206, 23);
             this.tbxProcurar.TabIndex = 0;
             // 
             // tbxNome
             // 
-            this.tbxNome.Location = new System.Drawing.Point(64, 33);
+            this.tbxNome.Location = new System.Drawing.Point(89, 33);
             this.tbxNome.Name = "tbxNome";
-            this.tbxNome.Size = new System.Drawing.Size(200, 23);
+            this.tbxNome.Size = new System.Drawing.Size(206, 23);
             this.tbxNome.TabIndex = 1;
             // 
             // cbxTipo
@@ -141,22 +139,22 @@
             // 
             // tbxPrecoCompra
             // 
-            this.tbxPrecoCompra.Location = new System.Drawing.Point(95, 138);
+            this.tbxPrecoCompra.Location = new System.Drawing.Point(89, 138);
             this.tbxPrecoCompra.Name = "tbxPrecoCompra";
-            this.tbxPrecoCompra.Size = new System.Drawing.Size(200, 23);
+            this.tbxPrecoCompra.Size = new System.Drawing.Size(206, 23);
             this.tbxPrecoCompra.TabIndex = 4;
             // 
             // tbxDescricao
             // 
-            this.tbxDescricao.Location = new System.Drawing.Point(73, 178);
+            this.tbxDescricao.Location = new System.Drawing.Point(89, 178);
             this.tbxDescricao.Multiline = true;
             this.tbxDescricao.Name = "tbxDescricao";
-            this.tbxDescricao.Size = new System.Drawing.Size(200, 60);
+            this.tbxDescricao.Size = new System.Drawing.Size(206, 101);
             this.tbxDescricao.TabIndex = 5;
             // 
             // tbxQuantidade
             // 
-            this.tbxQuantidade.Location = new System.Drawing.Point(384, 30);
+            this.tbxQuantidade.Location = new System.Drawing.Point(387, 30);
             this.tbxQuantidade.Name = "tbxQuantidade";
             this.tbxQuantidade.Size = new System.Drawing.Size(150, 23);
             this.tbxQuantidade.TabIndex = 6;
@@ -274,21 +272,11 @@
             this.btnMudarLucro.Text = "+";
             this.btnMudarLucro.UseVisualStyleBackColor = false;
             // 
-            // btnNovoFornecedor
-            // 
-            this.btnNovoFornecedor.BackColor = System.Drawing.Color.RoyalBlue;
-            this.btnNovoFornecedor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnNovoFornecedor.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnNovoFornecedor.ForeColor = System.Drawing.Color.White;
-            this.btnNovoFornecedor.Location = new System.Drawing.Point(543, 104);
-            this.btnNovoFornecedor.Name = "btnNovoFornecedor";
-            this.btnNovoFornecedor.Size = new System.Drawing.Size(25, 23);
-            this.btnNovoFornecedor.TabIndex = 30;
-            this.btnNovoFornecedor.Text = "+";
-            this.btnNovoFornecedor.UseVisualStyleBackColor = false;
-            // 
             // dgvProdutos
             // 
+            this.dgvProdutos.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvProdutos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProdutos.Location = new System.Drawing.Point(557, 22);
             this.dgvProdutos.Name = "dgvProdutos";
@@ -530,8 +518,10 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.BackColor = System.Drawing.Color.Silver;
-            this.groupBox1.Controls.Add(this.btnNovoFornecedor);
             this.groupBox1.Controls.Add(this.lblNome);
             this.groupBox1.Controls.Add(this.tbxNome);
             this.groupBox1.Controls.Add(this.lblTipo);
@@ -556,7 +546,6 @@
             this.groupBox1.Controls.Add(this.btnMudarLucro);
             this.groupBox1.Controls.Add(this.lblPrecoVendaRecomendado);
             this.groupBox1.Controls.Add(this.dgvProdutos);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.groupBox1.Location = new System.Drawing.Point(20, 60);
             this.groupBox1.Name = "groupBox1";
@@ -589,6 +578,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "Form4";
             this.Text = "Cadastro de Produtos";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form4_FormClosing);
             this.Load += new System.EventHandler(this.Form4_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).EndInit();
             this.groupBoxBusca.ResumeLayout(false);

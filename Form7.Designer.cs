@@ -223,6 +223,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "Form7";
             this.Text = "Lista de Fornecedores";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form7_FormClosing);
             this.Load += new System.EventHandler(this.Form7_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

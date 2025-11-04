@@ -276,5 +276,10 @@ namespace ControleDeEstoque
             }
             base.OnFormClosing(e);
         }
+
+        private void Form8_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }

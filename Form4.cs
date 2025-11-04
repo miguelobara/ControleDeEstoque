@@ -33,7 +33,7 @@ namespace ControleDeEstoque
             this.btnEditar.Click += new System.EventHandler(this.btnEditar_Click);
             this.btnNovaUnidade.Click += new System.EventHandler(this.btnNovaUnidade_Click);
             this.btnNovaCategoria.Click += new System.EventHandler(this.btnNovaCategoria_Click);
-            this.btnNovoFornecedor.Click += new System.EventHandler(this.btnNovoFornecedor_Click);
+           
             this.btnMudarLucro.Click += new System.EventHandler(this.btnMudarLucro_Click);
             this.tbxProcurar.TextChanged += new System.EventHandler(this.tbxProcurar_TextChanged);
             this.chkBuscarNome.CheckedChanged += new System.EventHandler(this.chkBuscarNome_CheckedChanged);
@@ -1147,6 +1147,11 @@ namespace ControleDeEstoque
             this.Visible = false;
             product.ShowDialog();
             this.Visible = true;
+        }
+
+        private void Form4_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

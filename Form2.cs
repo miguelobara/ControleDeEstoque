@@ -49,6 +49,11 @@ namespace ControleDeEstoque
             product.ShowDialog();
             this.Visible = true;
         }
+
+        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }
 

@@ -186,5 +186,10 @@ VALUES
         {
             LimparCampos();
         }
+
+        private void Form6_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }

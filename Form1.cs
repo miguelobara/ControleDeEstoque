@@ -27,35 +27,37 @@ namespace ControleDeEstoque
 
 
             string conexao = "Data Source=sqlexpress;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
+           
 
-
-            using (SqlConnection conn = new SqlConnection(conexao))
-            {
-                conn.Open();
-
-                // verifica se o email já existe
-                string verificasql = "select count(*) from Usuario where Email = @Email and Senha = @Senha";
-                using (SqlCommand cmd = new SqlCommand(verificasql, conn))
+                using (SqlConnection conn = new SqlConnection(conexao))
                 {
-                    cmd.Parameters.AddWithValue("@Email", email);
-                    cmd.Parameters.AddWithValue("@Senha", senha);
+                    conn.Open();
 
-                    int existe = (int)cmd.ExecuteScalar();
-
-                    if (existe > 0)
+                    // verifica se o email já existe
+                    string verificasql = "select count(*) from Usuario where Email = @Email and Senha = @Senha";
+                    using (SqlCommand cmd = new SqlCommand(verificasql, conn))
                     {
-                        Form2 product = new Form2();
-                        this.Visible = false;
-                        product.ShowDialog();
-                        this.Visible = true;
+                        cmd.Parameters.AddWithValue("@Email", email);
+                        cmd.Parameters.AddWithValue("@Senha", senha);
 
-                    }
-                    else
-                    {
-                        MessageBox.Show("Email ou Senha incorretos");
+                        int existe = (int)cmd.ExecuteScalar();
+
+                        if (existe > 0)
+                        {
+                            Form2 product = new Form2();
+                            this.Visible = false;
+                            product.ShowDialog();
+                            if(!this.IsDisposed)
+                                this.Visible = true;
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("Email ou Senha incorretos");
+                        }
                     }
                 }
-            }
+           
         }
 
         private void texboxName_TextChanged(object sender, EventArgs e)
