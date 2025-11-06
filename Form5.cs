@@ -1,314 +1,158 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Windows.Forms;
-using System.Drawing;
-using System.Linq;
+using ControleDeEstoque.Data.Repositories;
+using ControleDeEstoque.Helpers;
 
 namespace ControleDeEstoque
 {
     public partial class Form5 : Form
     {
+        private readonly UsuarioRepository _usuarioRepository;
+
         public Form5()
         {
             InitializeComponent();
+            _usuarioRepository = new UsuarioRepository();
             this.AcceptButton = btnCriar;
             AplicarEstilosModernos();
         }
 
         private void AplicarEstilosModernos()
         {
-            // Aplicar bordas arredondadas e sombras visuais
-            AplicarBordaArredondada(panelForm);
-            AplicarBordaArredondada(btnCriar);
-            AplicarBordaArredondada(btnVoltar);
-
-            // Configurar placeholders modernos
-            ConfigurarPlaceholders();
-        }
-
-        private void AplicarBordaArredondada(Control control)
-        {
-            // Simula bordas arredondadas através do FlatStyle
-            if (control is Button button)
-            {
-                button.FlatAppearance.BorderSize = 0;
-                button.FlatStyle = FlatStyle.Flat;
-            }
-        }
-
-        private void ConfigurarPlaceholders()
-        {
-            // Configurar placeholders para campos específicos
+            // Configura placeholders para melhor UX
             ConfigurarPlaceholder(tbxNome, "Digite seu nome completo");
             ConfigurarPlaceholder(tbxEmail1, "exemplo@email.com");
             ConfigurarPlaceholder(tbxRua, "Nome da rua e número");
             ConfigurarPlaceholder(tbxCidade, "Nome da cidade");
             ConfigurarPlaceholder(tbxUf, "UF");
             ConfigurarPlaceholder(tbxPais, "País");
-            ConfigurarPlaceholder(tbxCep, "00000-000");
-            ConfigurarPlaceholder(tbxRg, "Número do RG");
-            ConfigurarPlaceholder(tbxCpf, "000.000.000-00");
-            ConfigurarPlaceholder(tbxNascimento, "__/__/____");
-            ConfigurarPlaceholder(tbxTelefone, "(00) 00000-0000");
-        }
-
-        private void ConfigurarPlaceholder(Control control, string placeholder)
-        {
-            // Para TextBox
-            if (control is TextBox textBox)
-            {
-                ConfigurarPlaceholderTextBox(textBox, placeholder);
-            }
-            // Para MaskedTextBox
-            else if (control is MaskedTextBox maskedTextBox)
-            {
-                ConfigurarPlaceholderMaskedTextBox(maskedTextBox, placeholder);
-            }
-        }
-
-        private void ConfigurarPlaceholderTextBox(TextBox textBox, string placeholder)
-        {
-            textBox.Enter += (s, e) =>
-            {
-                if (textBox.Text == placeholder)
-                {
-                    textBox.Text = "";
-                    textBox.ForeColor = SystemColors.WindowText;
-                }
-            };
-
-            textBox.Leave += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(textBox.Text))
-                {
-                    textBox.Text = placeholder;
-                    textBox.ForeColor = SystemColors.GrayText;
-                }
-            };
-
-            // Configurar inicial
-            if (string.IsNullOrWhiteSpace(textBox.Text))
-            {
-                textBox.Text = placeholder;
-                textBox.ForeColor = SystemColors.GrayText;
-            }
-        }
-
-        private void ConfigurarPlaceholderMaskedTextBox(MaskedTextBox maskedTextBox, string placeholder)
-        {
-            maskedTextBox.Enter += (s, e) =>
-            {
-                if (maskedTextBox.Text == placeholder)
-                {
-                    maskedTextBox.Text = "";
-                    maskedTextBox.ForeColor = SystemColors.WindowText;
-                }
-            };
-
-            maskedTextBox.Leave += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(maskedTextBox.Text) || maskedTextBox.Text == maskedTextBox.Mask)
-                {
-                    maskedTextBox.Text = placeholder;
-                    maskedTextBox.ForeColor = SystemColors.GrayText;
-                }
-            };
-
-            // Configurar inicial
-            if (string.IsNullOrWhiteSpace(maskedTextBox.Text))
-            {
-                maskedTextBox.Text = placeholder;
-                maskedTextBox.ForeColor = SystemColors.GrayText;
-            }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (ValidarCampos())
+            if (ValidarTodosCampos())
             {
                 CadastrarUsuario();
             }
         }
 
-        private bool ValidarCampos()
+        private bool ValidarTodosCampos()
         {
-            // Validar Nome
-            if (string.IsNullOrWhiteSpace(tbxNome.Text) || tbxNome.Text == "Digite seu nome completo")
+            // Valida Nome
+            if (string.IsNullOrWhiteSpace(tbxNome.Text) ||
+                tbxNome.Text == "Digite seu nome completo")
             {
-                MostrarErro("Por favor, preencha o campo Nome.", tbxNome);
-                return false;
+                return MostrarErro("Por favor, preencha o campo Nome.", tbxNome);
             }
 
-            // Validar Email
-            if (string.IsNullOrWhiteSpace(tbxEmail1.Text) || tbxEmail1.Text == "exemplo@email.com")
+            // Valida Email
+            string email = tbxEmail1.Text.Trim();
+            if (string.IsNullOrWhiteSpace(email) || email == "exemplo@email.com")
             {
-                MostrarErro("Por favor, preencha o campo Email.", tbxEmail1);
-                return false;
+                return MostrarErro("Por favor, preencha o campo Email.", tbxEmail1);
             }
 
-            if (!ValidarEmail(tbxEmail1.Text.Trim()))
+            if (!ValidationHelper.ValidarEmail(email))
             {
-                MostrarErro("Por favor, insira um email válido.", tbxEmail1);
-                return false;
+                return MostrarErro("Por favor, insira um email válido.", tbxEmail1);
             }
 
-            // Validar Senha
+            // Valida Senha
             if (string.IsNullOrWhiteSpace(tbxSenha1.Text))
             {
-                MostrarErro("Por favor, preencha o campo Senha.", tbxSenha1);
-                return false;
+                return MostrarErro("Por favor, preencha o campo Senha.", tbxSenha1);
             }
 
-            if (tbxSenha1.Text.Length < 6)
+            if (!ValidationHelper.ValidarSenha(tbxSenha1.Text))
             {
-                MostrarErro("A senha deve ter pelo menos 6 caracteres.", tbxSenha1);
-                return false;
+                return MostrarErro("A senha deve ter pelo menos 6 caracteres.", tbxSenha1);
             }
 
-            // Validar CPF
-            string cpfLimpo = LimparCPF(tbxCpf.Text);
-            if (!string.IsNullOrWhiteSpace(cpfLimpo) && cpfLimpo != "00000000000")
+            // Valida CPF se fornecido
+            string cpfLimpo = ValidationHelper.RemoverFormatacao(tbxCpf.Text);
+            if (!string.IsNullOrWhiteSpace(cpfLimpo) &&
+                cpfLimpo != "00000000000" &&
+                cpfLimpo.Length == 11)
             {
-                if (cpfLimpo.Length != 11)
+                if (!ValidationHelper.ValidarCPF(cpfLimpo))
                 {
-                    MostrarErro("CPF inválido. Deve conter 11 dígitos.", tbxCpf);
-                    return false;
-                }
-
-                if (!ValidarCPF(cpfLimpo))
-                {
-                    MostrarErro("CPF inválido. Verifique os dígitos.", tbxCpf);
-                    return false;
+                    return MostrarErro("CPF inválido. Verifique os dígitos.", tbxCpf);
                 }
             }
 
-            // Validar Data de Nascimento
-            if (!string.IsNullOrWhiteSpace(tbxNascimento.Text) && tbxNascimento.Text != "__/__/____")
+            // Valida Data de Nascimento se fornecida
+            if (tbxNascimento.MaskCompleted)
             {
-                if (!ValidarDataNascimento(tbxNascimento.Text))
+                if (DateTime.TryParseExact(tbxNascimento.Text, "dd/MM/yyyy", null,
+                    System.Globalization.DateTimeStyles.None, out DateTime data))
                 {
-                    MostrarErro("Data de nascimento inválida. Use o formato DD/MM/AAAA.", tbxNascimento);
-                    return false;
+                    if (!ValidationHelper.ValidarDataNascimento(data, false))
+                    {
+                        return MostrarErro("Data de nascimento inválida.", tbxNascimento);
+                    }
                 }
             }
 
             return true;
         }
 
-        private string LimparCPF(string cpf)
-        {
-            if (string.IsNullOrWhiteSpace(cpf) || cpf == "000.000.000-00")
-                return "";
-
-            // Remove todos os caracteres não numéricos
-            return System.Text.RegularExpressions.Regex.Replace(cpf, @"[^\d]", "");
-        }
-
-        private bool ValidarCPF(string cpf)
-        {
-            // Remove caracteres não numéricos
-            cpf = new string(cpf.Where(char.IsDigit).ToArray());
-
-            // Verifica se tem 11 dígitos
-            if (cpf.Length != 11)
-                return false;
-
-            // Verifica se todos os dígitos são iguais
-            if (cpf.All(c => c == cpf[0]))
-                return false;
-
-            // Calcula primeiro dígito verificador
-            int soma = 0;
-            for (int i = 0; i < 9; i++)
-                soma += (cpf[i] - '0') * (10 - i);
-
-            int resto = soma % 11;
-            int digito1 = resto < 2 ? 0 : 11 - resto;
-
-            if (digito1 != (cpf[9] - '0'))
-                return false;
-
-            // Calcula segundo dígito verificador
-            soma = 0;
-            for (int i = 0; i < 10; i++)
-                soma += (cpf[i] - '0') * (11 - i);
-
-            resto = soma % 11;
-            int digito2 = resto < 2 ? 0 : 11 - resto;
-
-            return digito2 == (cpf[10] - '0');
-        }
-
-        private bool ValidarDataNascimento(string data)
-        {
-            try
-            {
-                DateTime dt = DateTime.ParseExact(data, "dd/MM/yyyy", null);
-                return dt <= DateTime.Now && dt.Year >= 1900;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private bool ValidarEmail(string email)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private void MostrarErro(string mensagem, Control controle)
-        {
-            MessageBox.Show(mensagem, "Validação",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            controle.Focus();
-        }
-
         private void CadastrarUsuario()
         {
             try
             {
-                string conexao = "Data Source=SQLEXPRESS;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
+                string email = tbxEmail1.Text.Trim();
 
-                using (SqlConnection conn = new SqlConnection(conexao))
+                // Verifica se email já existe
+                if (_usuarioRepository.EmailExiste(email))
                 {
-                    conn.Open();
+                    MessageBox.Show("Este email já está cadastrado.", "Email Existente",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-                    // Verificar se email já existe
-                    if (EmailJaCadastrado(conn, tbxEmail1.Text.Trim()))
+                // Verifica se CPF já existe (se foi fornecido)
+                string cpfLimpo = ValidationHelper.RemoverFormatacao(tbxCpf.Text);
+                if (!string.IsNullOrWhiteSpace(cpfLimpo) &&
+                    cpfLimpo != "00000000000" &&
+                    cpfLimpo.Length == 11)
+                {
+                    if (_usuarioRepository.CpfExiste(cpfLimpo))
                     {
-                        MessageBox.Show("Este email já está cadastrado.", "Email Existente",
+                        MessageBox.Show("Este CPF já está cadastrado.", "CPF Existente",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
+                }
 
-                    // Verificar se CPF já existe (se foi informado)
-                    string cpfLimpo = LimparCPF(tbxCpf.Text);
-                    if (!string.IsNullOrWhiteSpace(cpfLimpo) && cpfLimpo != "00000000000")
-                    {
-                        if (CPFJaCadastrado(conn, cpfLimpo))
-                        {
-                            MessageBox.Show("Este CPF já está cadastrado.", "CPF Existente",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            return;
-                        }
-                    }
+                // Cria objeto usuário
+                var usuario = new Usuario
+                {
+                    Nome = ObterValorCampo(tbxNome, "Digite seu nome completo"),
+                    Email = email,
+                    Senha = tbxSenha1.Text,
+                    Cpf = string.IsNullOrWhiteSpace(cpfLimpo) ||
+                          cpfLimpo == "00000000000" ? null : cpfLimpo,
+                    Rg = ObterValorCampo(tbxRg, "Número do RG"),
+                    Telefone = ObterValorCampo(tbxTelefone, "(00) 00000-0000"),
+                    Rua = ObterValorCampo(tbxRua, "Nome da rua e número"),
+                    Cidade = ObterValorCampo(tbxCidade, "Nome da cidade"),
+                    Uf = ObterValorCampo(tbxUf, "UF"),
+                    Cep = ObterValorCampo(tbxCep, "00000-000"),
+                    Pais = ObterValorCampo(tbxPais, "País"),
+                    Nascimento = ObterDataNascimento()
+                };
 
-                    // Inserir novo usuário
-                    InserirUsuario(conn);
-
+                // Cadastra usuário
+                if (_usuarioRepository.CadastrarUsuario(usuario))
+                {
                     MessageBox.Show("Cadastro realizado com sucesso!", "Sucesso",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
-
                     LimparCampos();
+                }
+                else
+                {
+                    MessageBox.Show("Erro ao realizar cadastro. Tente novamente.", "Erro",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
@@ -318,119 +162,48 @@ namespace ControleDeEstoque
             }
         }
 
-        private bool EmailJaCadastrado(SqlConnection conn, string email)
-        {
-            string verificaSql = "SELECT COUNT(*) FROM Usuario WHERE Email = @Email";
-            using (SqlCommand verificaCmd = new SqlCommand(verificaSql, conn))
-            {
-                verificaCmd.Parameters.AddWithValue("@Email", email);
-                return (int)verificaCmd.ExecuteScalar() > 0;
-            }
-        }
-
-        private bool CPFJaCadastrado(SqlConnection conn, string cpf)
-        {
-            string verificaSql = "SELECT COUNT(*) FROM Usuario WHERE Cpf = @Cpf";
-            using (SqlCommand verificaCmd = new SqlCommand(verificaSql, conn))
-            {
-                verificaCmd.Parameters.AddWithValue("@Cpf", cpf);
-                return (int)verificaCmd.ExecuteScalar() > 0;
-            }
-        }
-
-        private void InserirUsuario(SqlConnection conn)
-        {
-            string sql = @"INSERT INTO Usuario 
-                (Nome, Nascimento, Cpf, Rg, Email, Telefone, Cidade, Rua, Uf, Cep, Pais, Senha) 
-                VALUES (@Nome, @Nascimento, @Cpf, @Rg, @Email, @Telefone, @Cidade, @Rua, @Uf, @Cep, @Pais, @Senha)";
-
-            using (SqlCommand cmd = new SqlCommand(sql, conn))
-            {
-                cmd.Parameters.AddWithValue("@Nome", ObterValorCampo(tbxNome, "Digite seu nome completo"));
-                cmd.Parameters.AddWithValue("@Nascimento", ObterValorDataNascimento());
-
-                // CPF - limpar e formatar
-                string cpfLimpo = LimparCPF(tbxCpf.Text);
-                cmd.Parameters.AddWithValue("@Cpf", string.IsNullOrWhiteSpace(cpfLimpo) || cpfLimpo == "00000000000" ?
-                    (object)DBNull.Value : cpfLimpo);
-
-                cmd.Parameters.AddWithValue("@Rg", ObterValorCampo(tbxRg, "Número do RG"));
-                cmd.Parameters.AddWithValue("@Email", tbxEmail1.Text.Trim());
-                cmd.Parameters.AddWithValue("@Telefone", ObterValorCampo(tbxTelefone, "(00) 00000-0000"));
-                cmd.Parameters.AddWithValue("@Cidade", ObterValorCampo(tbxCidade, "Nome da cidade"));
-                cmd.Parameters.AddWithValue("@Rua", ObterValorCampo(tbxRua, "Nome da rua e número"));
-                cmd.Parameters.AddWithValue("@Uf", ObterValorCampo(tbxUf, "UF"));
-                cmd.Parameters.AddWithValue("@Cep", ObterValorCampo(tbxCep, "00000-000"));
-                cmd.Parameters.AddWithValue("@Pais", ObterValorCampo(tbxPais, "País"));
-                cmd.Parameters.AddWithValue("@Senha", tbxSenha1.Text);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        private object ObterValorCampo(Control controle, string placeholder = "")
+        private string ObterValorCampo(Control controle, string placeholder = "")
         {
             string texto = controle.Text.Trim();
             if (string.IsNullOrWhiteSpace(texto) || texto == placeholder)
-                return DBNull.Value;
+                return null;
             return texto;
         }
 
-        private object ObterValorDataNascimento()
+        private DateTime? ObterDataNascimento()
         {
-            if (tbxNascimento.MaskCompleted && !string.IsNullOrWhiteSpace(tbxNascimento.Text) && tbxNascimento.Text != "__/__/____")
+            if (tbxNascimento.MaskCompleted &&
+                DateTime.TryParseExact(tbxNascimento.Text, "dd/MM/yyyy", null,
+                    System.Globalization.DateTimeStyles.None, out DateTime data))
             {
-                try
-                {
-                    return DateTime.ParseExact(tbxNascimento.Text, "dd/MM/yyyy", null);
-                }
-                catch
-                {
-                    return DBNull.Value;
-                }
+                return data;
             }
-            return DBNull.Value;
+            return null;
         }
 
         private void LimparCampos()
         {
-            // Limpar todos os campos e restaurar placeholders
-            tbxNome.Text = "Digite seu nome completo";
-            tbxNome.ForeColor = SystemColors.GrayText;
-
-            tbxEmail1.Text = "exemplo@email.com";
-            tbxEmail1.ForeColor = SystemColors.GrayText;
-
+            tbxNome.Clear();
+            tbxEmail1.Clear();
             tbxSenha1.Clear();
-
-            tbxCpf.Text = "000.000.000-00";
-            tbxCpf.ForeColor = SystemColors.GrayText;
-
-            tbxRg.Text = "Número do RG";
-            tbxRg.ForeColor = SystemColors.GrayText;
-
-            tbxNascimento.Text = "__/__/____";
-            tbxNascimento.ForeColor = SystemColors.GrayText;
-
-            tbxTelefone.Text = "(00) 00000-0000";
-            tbxTelefone.ForeColor = SystemColors.GrayText;
-
-            tbxRua.Text = "Nome da rua e número";
-            tbxRua.ForeColor = SystemColors.GrayText;
-
-            tbxCidade.Text = "Nome da cidade";
-            tbxCidade.ForeColor = SystemColors.GrayText;
-
-            tbxUf.Text = "UF";
-            tbxUf.ForeColor = SystemColors.GrayText;
-
-            tbxCep.Text = "00000-000";
-            tbxCep.ForeColor = SystemColors.GrayText;
-
-            tbxPais.Text = "País";
-            tbxPais.ForeColor = SystemColors.GrayText;
-
+            tbxCpf.Clear();
+            tbxRg.Clear();
+            tbxNascimento.Clear();
+            tbxTelefone.Clear();
+            tbxRua.Clear();
+            tbxCidade.Clear();
+            tbxUf.Clear();
+            tbxCep.Clear();
+            tbxPais.Clear();
             tbxNome.Focus();
+        }
+
+        private bool MostrarErro(string mensagem, Control controle)
+        {
+            MessageBox.Show(mensagem, "Validação",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            controle.Focus();
+            return false;
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -438,60 +211,32 @@ namespace ControleDeEstoque
             this.Close();
         }
 
-        // Melhorar a experiência do usuário com eventos adicionais
-        private void tbxSenha1_KeyPress(object sender, KeyPressEventArgs e)
+        private void ConfigurarPlaceholder(Control controle, string placeholder)
         {
-            // Impedir caracteres especiais na senha se desejar
-            if (char.IsWhiteSpace(e.KeyChar))
+            if (controle is TextBox textBox)
             {
-                e.Handled = true;
-            }
-        }
-
-        private void tbxCep_Leave(object sender, EventArgs e)
-        {
-            // Formatar CEP
-            if (!string.IsNullOrWhiteSpace(tbxCep.Text) && tbxCep.Text != "00000-000")
-            {
-                string cep = tbxCep.Text.Replace("-", "").Trim();
-                if (cep.Length == 8)
+                textBox.Enter += (s, e) =>
                 {
-                    tbxCep.Text = cep.Insert(5, "-");
-                }
-            }
-        }
+                    if (textBox.Text == placeholder)
+                    {
+                        textBox.Text = "";
+                        textBox.ForeColor = System.Drawing.SystemColors.WindowText;
+                    }
+                };
 
-        // Formatar CPF automaticamente
-        private void tbxCpf_Leave(object sender, EventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(tbxCpf.Text) && tbxCpf.Text != "000.000.000-00")
-            {
-                string cpf = LimparCPF(tbxCpf.Text);
-                if (cpf.Length == 11)
+                textBox.Leave += (s, e) =>
                 {
-                    tbxCpf.Text = $"{cpf.Substring(0, 3)}.{cpf.Substring(3, 3)}.{cpf.Substring(6, 3)}-{cpf.Substring(9, 2)}";
-                }
-            }
-        }
+                    if (string.IsNullOrWhiteSpace(textBox.Text))
+                    {
+                        textBox.Text = placeholder;
+                        textBox.ForeColor = System.Drawing.SystemColors.GrayText;
+                    }
+                };
 
-        // Permitir apenas números no CPF
-        private void tbxCpf_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        // Formatar telefone automaticamente
-        private void tbxTelefone_Leave(object sender, EventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(tbxTelefone.Text) && tbxTelefone.Text != "(00) 00000-0000")
-            {
-                string telefone = new string(tbxTelefone.Text.Where(char.IsDigit).ToArray());
-                if (telefone.Length == 11)
+                if (string.IsNullOrWhiteSpace(textBox.Text))
                 {
-                    tbxTelefone.Text = $"({telefone.Substring(0, 2)}) {telefone.Substring(2, 5)}-{telefone.Substring(7, 4)}";
+                    textBox.Text = placeholder;
+                    textBox.ForeColor = System.Drawing.SystemColors.GrayText;
                 }
             }
         }

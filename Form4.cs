@@ -1153,5 +1153,10 @@ namespace ControleDeEstoque
         {
             Application.Exit();
         }
+
+        private void dgvProdutos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 }

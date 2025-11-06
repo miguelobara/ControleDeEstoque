@@ -282,6 +282,7 @@
             this.dgvProdutos.Name = "dgvProdutos";
             this.dgvProdutos.Size = new System.Drawing.Size(610, 297);
             this.dgvProdutos.TabIndex = 17;
+            this.dgvProdutos.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvProdutos_CellContentClick);
             // 
             // lblProcurar
             // 

@@ -416,6 +416,7 @@
             this.Name = "Form5";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Sistema - Cadastro de Usuário";
+            this.Load += new System.EventHandler(this.Form5_Load);
             this.panelMain.ResumeLayout(false);
             this.panelForm.ResumeLayout(false);
             this.panelForm.PerformLayout();

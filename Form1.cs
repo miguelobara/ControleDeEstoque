@@ -1,101 +1,118 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using ControleDeEstoque.Data.Repositories;
+using ControleDeEstoque.Helpers;
 
 namespace ControleDeEstoque
 {
     public partial class Form1 : Form
     {
+        private readonly UsuarioRepository _usuarioRepository;
+
         public Form1()
         {
             InitializeComponent();
+            _usuarioRepository = new UsuarioRepository();
+
+            // Configura tecla Enter para fazer login
+            this.AcceptButton = btnEnter;
         }
-
-
 
         private void FrmEnter_Click(object sender, EventArgs e)
         {
-            string email = tbxEmail.Text;
-            string senha = tbxSenha.Text;
-
-
-            string conexao = "Data Source=sqlexpress;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
-           
-
-                using (SqlConnection conn = new SqlConnection(conexao))
-                {
-                    conn.Open();
-
-                    // verifica se o email já existe
-                    string verificasql = "select count(*) from Usuario where Email = @Email and Senha = @Senha";
-                    using (SqlCommand cmd = new SqlCommand(verificasql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@Senha", senha);
-
-                        int existe = (int)cmd.ExecuteScalar();
-
-                        if (existe > 0)
-                        {
-                            Form2 product = new Form2();
-                            this.Visible = false;
-                            product.ShowDialog();
-                            if(!this.IsDisposed)
-                                this.Visible = true;
-
-                        }
-                        else
-                        {
-                            MessageBox.Show("Email ou Senha incorretos");
-                        }
-                    }
-                }
-           
+            RealizarLogin();
         }
 
-        private void texboxName_TextChanged(object sender, EventArgs e)
+        private void RealizarLogin()
         {
+            // Validações básicas
+            string email = tbxEmail.Text.Trim();
+            string senha = tbxSenha.Text;
 
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                MostrarErro("Por favor, digite seu email.", tbxEmail);
+                return;
+            }
+
+            //if (!ValidationHelper.ValidarEmail(email))
+            //{
+            //    MostrarErro("Por favor, digite um email válido.", tbxEmail);
+            //    return;
+            //}
+
+            if (string.IsNullOrWhiteSpace(senha))
+            {
+                MostrarErro("Por favor, digite sua senha.", tbxSenha);
+                return;
+            }
+
+            try
+            {
+                // Valida credenciais usando o repositório
+                if (_usuarioRepository.ValidarLogin(email, senha))
+                {
+                    AbrirFormularioPrincipal();
+                }
+                else
+                {
+                    MessageBox.Show("Email ou senha incorretos.", "Erro de Login",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    tbxSenha.Clear();
+                    tbxSenha.Focus();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao realizar login: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AbrirFormularioPrincipal()
+        {
+            Form2 formPrincipal = new Form2();
+            this.Hide();
+            formPrincipal.ShowDialog();
+
+            if (!this.IsDisposed)
+            {
+                LimparCampos();
+                this.Show();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Form5 product = new Form5();
-            this.Visible = false;
-            product.ShowDialog();
-            this.Visible = true;
+            // Primeiro acesso - abre formulário de cadastro
+            Form5 formCadastro = new Form5();
+            this.Hide();
+            formCadastro.ShowDialog();
+
+            if (!this.IsDisposed)
+                this.Show();
         }
 
-        private void label2_Click(object sender, EventArgs e)
+        private void LimparCampos()
         {
-
+            tbxEmail.Clear();
+            tbxSenha.Clear();
+            tbxEmail.Focus();
         }
 
-        private void label3_Click(object sender, EventArgs e)
+        private void MostrarErro(string mensagem, Control controle)
         {
-
+            MessageBox.Show(mensagem, "Validação",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            controle.Focus();
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tbxSenha_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        // Eventos vazios necessários pelo Designer (podem ser removidos se não usados)
+        private void texboxName_TextChanged(object sender, EventArgs e) { }
+        private void label2_Click(object sender, EventArgs e) { }
+        private void label3_Click(object sender, EventArgs e) { }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void groupBox1_Enter(object sender, EventArgs e) { }
+        private void tbxSenha_TextChanged(object sender, EventArgs e) { }
     }
 }
