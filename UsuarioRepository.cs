@@ -12,8 +12,9 @@ namespace ControleDeEstoque.Data.Repositories
         /// </summary>
         public Usuario ValidarLoginCompleto(string email, string senha)
         {
+            // CORRIGIDO: Nome da coluna para Id_Usuario
             const string query = @"
-                SELECT Id_Usu, Nome, Email
+                SELECT Id_Usuario, Nome, Email
                 FROM Usuario 
                 WHERE Email = @Email AND Senha = @Senha";
 
@@ -30,7 +31,7 @@ namespace ControleDeEstoque.Data.Repositories
                 DataRow row = dt.Rows[0];
                 return new Usuario
                 {
-                    Id = Convert.ToInt32(row["Id_Usu"]),
+                    Id = Convert.ToInt32(row["Id_Usuario"]),
                     Nome = row["Nome"].ToString(),
                     Email = row["Email"].ToString()
                 };
@@ -40,7 +41,7 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
-        /// Valida apenas se credenciais existem (compatibilidade)
+        /// Valida apenas se credenciais existem
         /// </summary>
         public bool ValidarLogin(string email, string senha)
         {
