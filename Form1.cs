@@ -13,9 +13,10 @@ namespace ControleDeEstoque
         {
             InitializeComponent();
             _usuarioRepository = new UsuarioRepository();
-
-            // Configura tecla Enter para fazer login
             this.AcceptButton = btnEnter;
+
+            // Limpa qualquer sessão anterior
+            UserSession.EncerrarSessao();
         }
 
         private void FrmEnter_Click(object sender, EventArgs e)
@@ -25,7 +26,6 @@ namespace ControleDeEstoque
 
         private void RealizarLogin()
         {
-            // Validações básicas
             string email = tbxEmail.Text.Trim();
             string senha = tbxSenha.Text;
 
@@ -35,12 +35,6 @@ namespace ControleDeEstoque
                 return;
             }
 
-            //if (!ValidationHelper.ValidarEmail(email))
-            //{
-            //    MostrarErro("Por favor, digite um email válido.", tbxEmail);
-            //    return;
-            //}
-
             if (string.IsNullOrWhiteSpace(senha))
             {
                 MostrarErro("Por favor, digite sua senha.", tbxSenha);
@@ -49,9 +43,17 @@ namespace ControleDeEstoque
 
             try
             {
-                // Valida credenciais usando o repositório
-                if (_usuarioRepository.ValidarLogin(email, senha))
+                // Valida credenciais e obtém dados do usuário
+                var usuario = _usuarioRepository.ValidarLoginCompleto(email, senha);
+
+                if (usuario != null)
                 {
+                    // INICIA A SESSÃO DO USUÁRIO
+                    UserSession.IniciarSessao(usuario.Id, usuario.Nome, usuario.Email);
+
+                    MessageBox.Show($"Bem-vindo, {usuario.Nome}!", "Login Realizado",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                     AbrirFormularioPrincipal();
                 }
                 else
@@ -77,6 +79,8 @@ namespace ControleDeEstoque
 
             if (!this.IsDisposed)
             {
+                // Quando voltar, encerra a sessão
+                UserSession.EncerrarSessao();
                 LimparCampos();
                 this.Show();
             }
@@ -84,7 +88,6 @@ namespace ControleDeEstoque
 
         private void button1_Click(object sender, EventArgs e)
         {
-            // Primeiro acesso - abre formulário de cadastro
             Form5 formCadastro = new Form5();
             this.Hide();
             formCadastro.ShowDialog();
@@ -107,7 +110,6 @@ namespace ControleDeEstoque
             controle.Focus();
         }
 
-        // Eventos vazios necessários pelo Designer (podem ser removidos se não usados)
         private void texboxName_TextChanged(object sender, EventArgs e) { }
         private void label2_Click(object sender, EventArgs e) { }
         private void label3_Click(object sender, EventArgs e) { }

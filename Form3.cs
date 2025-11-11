@@ -89,6 +89,9 @@ namespace ControleDeEstoque
 
         }
 
-        
+        private void tbxEmail1_TextChanged_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }

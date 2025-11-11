@@ -25,7 +25,7 @@
             this.tbxEmail1 = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
-            this.tbxCep = new System.Windows.Forms.TextBox();
+            this.tbxCep = new System.Windows.Forms.MaskedTextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.tbxPais = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
@@ -37,7 +37,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.tbxTelefone = new System.Windows.Forms.MaskedTextBox();
             this.label14 = new System.Windows.Forms.Label();
-            this.tbxRg = new System.Windows.Forms.TextBox();
+            this.tbxRg = new System.Windows.Forms.MaskedTextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.tbxNascimento = new System.Windows.Forms.MaskedTextBox();
             this.label12 = new System.Windows.Forms.Label();
@@ -142,6 +142,7 @@
             this.tbxSenha1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxSenha1.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxSenha1.Location = new System.Drawing.Point(260, 180);
+            this.tbxSenha1.MaxLength = 50;
             this.tbxSenha1.Name = "tbxSenha1";
             this.tbxSenha1.Size = new System.Drawing.Size(180, 25);
             this.tbxSenha1.TabIndex = 3;
@@ -152,6 +153,7 @@
             this.tbxEmail1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxEmail1.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxEmail1.Location = new System.Drawing.Point(260, 130);
+            this.tbxEmail1.MaxLength = 100;
             this.tbxEmail1.Name = "tbxEmail1";
             this.tbxEmail1.Size = new System.Drawing.Size(180, 25);
             this.tbxEmail1.TabIndex = 2;
@@ -183,6 +185,7 @@
             this.tbxCep.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxCep.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxCep.Location = new System.Drawing.Point(260, 380);
+            this.tbxCep.Mask = "00000-000";
             this.tbxCep.Name = "tbxCep";
             this.tbxCep.Size = new System.Drawing.Size(180, 25);
             this.tbxCep.TabIndex = 9;
@@ -203,6 +206,7 @@
             this.tbxPais.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxPais.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxPais.Location = new System.Drawing.Point(260, 330);
+            this.tbxPais.MaxLength = 50;
             this.tbxPais.Name = "tbxPais";
             this.tbxPais.Size = new System.Drawing.Size(180, 25);
             this.tbxPais.TabIndex = 8;
@@ -221,8 +225,10 @@
             // tbxUf
             // 
             this.tbxUf.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tbxUf.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.tbxUf.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxUf.Location = new System.Drawing.Point(260, 280);
+            this.tbxUf.MaxLength = 2;
             this.tbxUf.Name = "tbxUf";
             this.tbxUf.Size = new System.Drawing.Size(180, 25);
             this.tbxUf.TabIndex = 7;
@@ -243,6 +249,7 @@
             this.tbxCidade.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxCidade.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxCidade.Location = new System.Drawing.Point(260, 230);
+            this.tbxCidade.MaxLength = 50;
             this.tbxCidade.Name = "tbxCidade";
             this.tbxCidade.Size = new System.Drawing.Size(180, 25);
             this.tbxCidade.TabIndex = 6;
@@ -263,6 +270,7 @@
             this.tbxRua.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxRua.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxRua.Location = new System.Drawing.Point(260, 80);
+            this.tbxRua.MaxLength = 150;
             this.tbxRua.Name = "tbxRua";
             this.tbxRua.Size = new System.Drawing.Size(180, 25);
             this.tbxRua.TabIndex = 1;
@@ -304,6 +312,7 @@
             this.tbxRg.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxRg.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxRg.Location = new System.Drawing.Point(50, 330);
+            this.tbxRg.Mask = "00.000.000-0";
             this.tbxRg.Name = "tbxRg";
             this.tbxRg.Size = new System.Drawing.Size(180, 25);
             this.tbxRg.TabIndex = 10;
@@ -346,7 +355,7 @@
             this.tbxCpf.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxCpf.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxCpf.Location = new System.Drawing.Point(50, 230);
-            this.tbxCpf.Mask = "000,000,000-00";
+            this.tbxCpf.Mask = "000.000.000-00";
             this.tbxCpf.Name = "tbxCpf";
             this.tbxCpf.Size = new System.Drawing.Size(180, 25);
             this.tbxCpf.TabIndex = 4;
@@ -367,6 +376,7 @@
             this.tbxNome.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbxNome.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.tbxNome.Location = new System.Drawing.Point(50, 80);
+            this.tbxNome.MaxLength = 100;
             this.tbxNome.Name = "tbxNome";
             this.tbxNome.Size = new System.Drawing.Size(180, 25);
             this.tbxNome.TabIndex = 0;
@@ -437,7 +447,7 @@
         private System.Windows.Forms.TextBox tbxEmail1;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.TextBox tbxCep;
+        private System.Windows.Forms.MaskedTextBox tbxCep;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.TextBox tbxPais;
         private System.Windows.Forms.Label label13;
@@ -449,7 +459,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.MaskedTextBox tbxTelefone;
         private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.TextBox tbxRg;
+        private System.Windows.Forms.MaskedTextBox tbxRg;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.MaskedTextBox tbxNascimento;
         private System.Windows.Forms.Label label12;

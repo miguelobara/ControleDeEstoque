@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using ControleDeEstoque.Data;
 
 namespace ControleDeEstoque.Data.Repositories
 {
-    /// <summary>
-    /// Repositório para operações de usuários no banco de dados
-    /// </summary>
     public class UsuarioRepository
     {
         /// <summary>
-        /// Valida credenciais de login
+        /// Valida login e retorna dados do usuário
         /// </summary>
-        public bool ValidarLogin(string email, string senha)
+        public Usuario ValidarLoginCompleto(string email, string senha)
         {
             const string query = @"
-                SELECT COUNT(*) 
+                SELECT Id_Usu, Nome, Email
                 FROM Usuario 
                 WHERE Email = @Email AND Senha = @Senha";
 
@@ -25,13 +23,30 @@ namespace ControleDeEstoque.Data.Repositories
                 new SqlParameter("@Senha", senha)
             };
 
-            var count = (int)DatabaseHelper.ExecuteScalar(query, parameters);
-            return count > 0;
+            DataTable dt = DatabaseHelper.ExecuteQuery(query, parameters);
+
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                return new Usuario
+                {
+                    Id = Convert.ToInt32(row["Id_Usu"]),
+                    Nome = row["Nome"].ToString(),
+                    Email = row["Email"].ToString()
+                };
+            }
+
+            return null;
         }
 
         /// <summary>
-        /// Verifica se email já está cadastrado
+        /// Valida apenas se credenciais existem (compatibilidade)
         /// </summary>
+        public bool ValidarLogin(string email, string senha)
+        {
+            return ValidarLoginCompleto(email, senha) != null;
+        }
+
         public bool EmailExiste(string email)
         {
             const string query = "SELECT COUNT(*) FROM Usuario WHERE Email = @Email";
@@ -40,9 +55,6 @@ namespace ControleDeEstoque.Data.Repositories
             return count > 0;
         }
 
-        /// <summary>
-        /// Verifica se CPF já está cadastrado
-        /// </summary>
         public bool CpfExiste(string cpf)
         {
             const string query = "SELECT COUNT(*) FROM Usuario WHERE Cpf = @Cpf";
@@ -51,9 +63,6 @@ namespace ControleDeEstoque.Data.Repositories
             return count > 0;
         }
 
-        /// <summary>
-        /// Cadastra novo usuário no sistema
-        /// </summary>
         public bool CadastrarUsuario(Usuario usuario)
         {
             const string query = @"
@@ -82,11 +91,9 @@ namespace ControleDeEstoque.Data.Repositories
         }
     }
 
-    /// <summary>
-    /// Modelo de dados para Usuário
-    /// </summary>
     public class Usuario
     {
+        public int Id { get; set; }
         public string Nome { get; set; }
         public DateTime? Nascimento { get; set; }
         public string Cpf { get; set; }

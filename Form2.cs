@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ControleDeEstoque
@@ -15,6 +8,22 @@ namespace ControleDeEstoque
         public Form2()
         {
             InitializeComponent();
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            // Verifica se há usuário logado
+            if (!UserSession.EstaLogado)
+            {
+                MessageBox.Show("Sessão inválida. Faça login novamente.", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+                return;
+            }
+
+            // Atualiza o título com o nome do usuário
+            this.Text = $"Controle de Estoque - Usuário: {UserSession.Nome}";
+            label1.Text = $"Bem-vindo, {UserSession.Nome}!";
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -27,7 +36,6 @@ namespace ControleDeEstoque
 
         private void button2_Click(object sender, EventArgs e)
         {
-
             Form7 product = new Form7();
             this.Visible = false;
             product.ShowDialog();
@@ -36,10 +44,17 @@ namespace ControleDeEstoque
 
         private void btnVoltar_Click(object sender, EventArgs e)
         {
-            Form1 product = new Form1();
-            this.Visible = false;
-            product.ShowDialog();
-            this.Visible = true;
+            DialogResult result = MessageBox.Show(
+                "Deseja sair e voltar à tela de login?",
+                "Confirmar",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                UserSession.EncerrarSessao();
+                this.Close();
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -52,13 +67,11 @@ namespace ControleDeEstoque
 
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Application.Exit();
-        }
-
-        private void Form2_Load(object sender, EventArgs e)
-        {
-
+            // Não fecha o aplicativo, apenas volta para o login
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = false;
+            }
         }
     }
 }
-

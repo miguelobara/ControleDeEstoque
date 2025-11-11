@@ -32,9 +32,8 @@
             this.panel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
-
             // 
-            // panel1 - Cabeçalho
+            // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.RoyalBlue;
             this.panel1.Controls.Add(this.label1);
@@ -44,19 +43,17 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(370, 60);
             this.panel1.TabIndex = 0;
-
             // 
-            // label1 - Título
+            // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
             this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(150, 18);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(70, 25);
+            this.label1.Size = new System.Drawing.Size(71, 25);
             this.label1.TabIndex = 1;
             this.label1.Text = "LOGIN";
-
             // 
             // btnVoltar
             // 
@@ -71,9 +68,8 @@
             this.btnVoltar.Text = "← Voltar";
             this.btnVoltar.UseVisualStyleBackColor = false;
             this.btnVoltar.Click += new System.EventHandler(this.btnVoltar_Click);
-
             // 
-            // panel2 - Corpo
+            // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.White;
             this.panel2.Controls.Add(this.groupBox1);
@@ -83,9 +79,8 @@
             this.panel2.Padding = new System.Windows.Forms.Padding(30);
             this.panel2.Size = new System.Drawing.Size(370, 266);
             this.panel2.TabIndex = 1;
-
             // 
-            // groupBox1 - Área de Criação
+            // groupBox1
             // 
             this.groupBox1.Controls.Add(this.btnCriar);
             this.groupBox1.Controls.Add(this.tbxSenha1);
@@ -100,7 +95,6 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Criar Nova Conta";
-
             // 
             // btnCriar
             // 
@@ -115,7 +109,6 @@
             this.btnCriar.Text = "CRIAR";
             this.btnCriar.UseVisualStyleBackColor = false;
             this.btnCriar.Click += new System.EventHandler(this.button1_Click);
-
             // 
             // tbxSenha1
             // 
@@ -125,7 +118,6 @@
             this.tbxSenha1.PasswordChar = '*';
             this.tbxSenha1.Size = new System.Drawing.Size(200, 23);
             this.tbxSenha1.TabIndex = 3;
-
             // 
             // tbxEmail1
             // 
@@ -134,7 +126,7 @@
             this.tbxEmail1.Name = "tbxEmail1";
             this.tbxEmail1.Size = new System.Drawing.Size(200, 23);
             this.tbxEmail1.TabIndex = 2;
-
+            this.tbxEmail1.TextChanged += new System.EventHandler(this.tbxEmail1_TextChanged_1);
             // 
             // label3
             // 
@@ -142,10 +134,9 @@
             this.label3.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.label3.Location = new System.Drawing.Point(20, 90);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(120, 19);
+            this.label3.Size = new System.Drawing.Size(124, 19);
             this.label3.TabIndex = 1;
             this.label3.Text = "Qual e Sua Senha";
-
             // 
             // label2
             // 
@@ -153,10 +144,9 @@
             this.label2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.label2.Location = new System.Drawing.Point(20, 30);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(115, 19);
+            this.label2.Size = new System.Drawing.Size(120, 19);
             this.label2.TabIndex = 0;
             this.label2.Text = "Qual e Seu Email";
-
             // 
             // Form3
             // 

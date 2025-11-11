@@ -2,43 +2,48 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Collections.Generic;
+using ControleDeEstoque.Data;
 
 namespace ControleDeEstoque.Data.Repositories
 {
-    /// <summary>
-    /// Repositório para operações de fornecedores no banco de dados
-    /// </summary>
     public class FornecedorRepository
     {
         /// <summary>
-        /// Obtém todos os fornecedores
+        /// Obtém APENAS fornecedores do usuário logado
         /// </summary>
         public DataTable ObterTodosFornecedores()
         {
+            UserSession.VerificarSessao();
+
             const string query = @"
                 SELECT 
                     Id_Fornecedor, Nome_For, Cnpj_For, Telefone_For, 
                     Email_For, Cidade_For, Rua_For, Cep_For, 
                     Data_Cadastro_For, estatus_For
                 FROM Fornecedor
+                WHERE Id_Usuario = @IdUsuario
                 ORDER BY Nome_For";
 
-            return DatabaseHelper.ExecuteQuery(query);
+            return DatabaseHelper.ExecuteQuery(query,
+                new SqlParameter("@IdUsuario", UserSession.IdUsuario));
         }
 
         /// <summary>
-        /// Obtém fornecedores para ComboBox (Id e Nome)
+        /// Obtém fornecedores do usuário para ComboBox
         /// </summary>
         public Dictionary<int, string> ObterFornecedoresParaCombo()
         {
+            UserSession.VerificarSessao();
+
             const string query = @"
                 SELECT Id_Fornecedor, Nome_For 
                 FROM Fornecedor 
-                WHERE estatus_For = 'A'
+                WHERE estatus_For = 'A' AND Id_Usuario = @IdUsuario
                 ORDER BY Nome_For";
 
             var fornecedores = new Dictionary<int, string>();
-            var dataTable = DatabaseHelper.ExecuteQuery(query);
+            var dataTable = DatabaseHelper.ExecuteQuery(query,
+                new SqlParameter("@IdUsuario", UserSession.IdUsuario));
 
             foreach (DataRow row in dataTable.Rows)
             {
@@ -52,20 +57,22 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
-        /// Insere novo fornecedor
+        /// Insere fornecedor vinculado ao usuário logado
         /// </summary>
         public bool InserirFornecedor(Fornecedor fornecedor)
         {
+            UserSession.VerificarSessao();
+
             const string query = @"
                 DECLARE @NextID INT;
                 SELECT @NextID = ISNULL(MAX(Id_Fornecedor), 0) + 1 FROM Fornecedor;
 
                 INSERT INTO Fornecedor 
                 (Id_Fornecedor, Nome_For, Cnpj_For, Telefone_For, Email_For, 
-                 Cidade_For, Rua_For, Cep_For, Data_Cadastro_For, estatus_For)
+                 Cidade_For, Rua_For, Cep_For, Data_Cadastro_For, estatus_For, Id_Usuario)
                 VALUES 
                 (@NextID, @Nome, @Cnpj, @Telefone, @Email, 
-                 @Cidade, @Rua, @Cep, @DataCadastro, @Estatus)";
+                 @Cidade, @Rua, @Cep, @DataCadastro, @Estatus, @IdUsuario)";
 
             var parameters = new[]
             {
@@ -77,17 +84,20 @@ namespace ControleDeEstoque.Data.Repositories
                 new SqlParameter("@Rua", fornecedor.Rua),
                 new SqlParameter("@Cep", fornecedor.Cep),
                 new SqlParameter("@DataCadastro", fornecedor.DataCadastro),
-                new SqlParameter("@Estatus", fornecedor.Estatus)
+                new SqlParameter("@Estatus", fornecedor.Estatus),
+                new SqlParameter("@IdUsuario", UserSession.IdUsuario)
             };
 
             return DatabaseHelper.ExecuteNonQuery(query, parameters) > 0;
         }
 
         /// <summary>
-        /// Atualiza fornecedor existente
+        /// Atualiza fornecedor (apenas se pertencer ao usuário)
         /// </summary>
         public bool AtualizarFornecedor(Fornecedor fornecedor)
         {
+            UserSession.VerificarSessao();
+
             const string query = @"
                 UPDATE Fornecedor SET
                     Nome_For = @Nome,
@@ -98,7 +108,7 @@ namespace ControleDeEstoque.Data.Repositories
                     Rua_For = @Rua,
                     Cep_For = @Cep,
                     estatus_For = @Estatus
-                WHERE Id_Fornecedor = @Id";
+                WHERE Id_Fornecedor = @Id AND Id_Usuario = @IdUsuario";
 
             var parameters = new[]
             {
@@ -110,30 +120,35 @@ namespace ControleDeEstoque.Data.Repositories
                 new SqlParameter("@Cidade", fornecedor.Cidade),
                 new SqlParameter("@Rua", fornecedor.Rua),
                 new SqlParameter("@Cep", fornecedor.Cep),
-                new SqlParameter("@Estatus", fornecedor.Estatus)
+                new SqlParameter("@Estatus", fornecedor.Estatus),
+                new SqlParameter("@IdUsuario", UserSession.IdUsuario)
             };
 
             return DatabaseHelper.ExecuteNonQuery(query, parameters) > 0;
         }
 
         /// <summary>
-        /// Inativa fornecedor (soft delete)
+        /// Inativa fornecedor (apenas se pertencer ao usuário)
         /// </summary>
         public bool InativarFornecedor(int idFornecedor)
         {
+            UserSession.VerificarSessao();
+
             const string query = @"
                 UPDATE Fornecedor 
                 SET estatus_For = 'I' 
-                WHERE Id_Fornecedor = @Id";
+                WHERE Id_Fornecedor = @Id AND Id_Usuario = @IdUsuario";
 
-            return DatabaseHelper.ExecuteNonQuery(query, 
-                new SqlParameter("@Id", idFornecedor)) > 0;
+            var parameters = new[]
+            {
+                new SqlParameter("@Id", idFornecedor),
+                new SqlParameter("@IdUsuario", UserSession.IdUsuario)
+            };
+
+            return DatabaseHelper.ExecuteNonQuery(query, parameters) > 0;
         }
     }
 
-    /// <summary>
-    /// Modelo de dados para Fornecedor
-    /// </summary>
     public class Fornecedor
     {
         public int Id { get; set; }

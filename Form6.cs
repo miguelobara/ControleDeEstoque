@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Text.RegularExpressions;
+using ControleDeEstoque.Data.Repositories;
 
 namespace ControleDeEstoque
 {
     public partial class Form6 : Form
     {
+        private readonly FornecedorRepository _fornecedorRepository;
+
         public Form6()
         {
             InitializeComponent();
+            _fornecedorRepository = new FornecedorRepository();
             ConfigureDataPicker();
             ConfigureMasks();
         }
@@ -29,7 +24,6 @@ namespace ControleDeEstoque
 
         private void ConfigureMasks()
         {
-            // Configurar máscaras para melhor usabilidade
             mtbCnpj.Mask = "00,000,000/0000-00";
             mtbTelefone.Mask = "(00) 00000-0000";
             mtbCep.Mask = "00000-000";
@@ -41,69 +35,42 @@ namespace ControleDeEstoque
             if (!ValidarCampos())
                 return;
 
-            string conexao = "Data Source=SQLEXPRESS;Initial Catalog=CJ3027511PR2;User ID=aluno;Password=aluno;";
-
-            // Captura dos campos da interface
-            string nome = tbxNome_For.Text.Trim();
-            string cnpj = mtbCnpj.Text.Replace(",", "").Replace("/", "").Replace("-", "").Replace(".", "");
-            string telefone = mtbTelefone.Text.Replace("(", "").Replace(")", "").Replace("-", "").Replace(" ", "");
-            string email = tbxEmail_For.Text.Trim();
-            string cidade = tbxCidade_For.Text.Trim();
-            string rua = tbxRua_For.Text.Trim();
-            string cep = mtbCep.Text.Replace("-", "");
-            string estatus = "A";
-            DateTime dataCadastro = dtpDataCadastro.Value;
-
-            // Query que obtém o próximo ID automaticamente
-            string query = @"
-DECLARE @NextID INT;
-SELECT @NextID = ISNULL(MAX(id_Fornecedor), 0) + 1 FROM Fornecedor;
-
-INSERT INTO Fornecedor 
-(id_Fornecedor, Nome_For, Cnpj_For, Telefone_For, Email_For, Cidade_For, Rua_For, Cep_For, Data_Cadastro_For, estatus_For)
-VALUES 
-(@NextID, @Nome, @Cnpj, @Telefone, @Email, @Cidade, @Rua, @Cep, @DataCadastro, @Estatus)";
-
-            using (SqlConnection conn = new SqlConnection(conexao))
-            using (SqlCommand cmd = new SqlCommand(query, conn))
+            try
             {
-                cmd.Parameters.AddWithValue("@Nome", nome);
-                cmd.Parameters.AddWithValue("@Cnpj", cnpj);
-                cmd.Parameters.AddWithValue("@Telefone", telefone);
-                cmd.Parameters.AddWithValue("@Email", email);
-                cmd.Parameters.AddWithValue("@Cidade", cidade);
-                cmd.Parameters.AddWithValue("@Rua", rua);
-                cmd.Parameters.AddWithValue("@Cep", cep);
-                cmd.Parameters.AddWithValue("@DataCadastro", dataCadastro);
-                cmd.Parameters.AddWithValue("@Estatus", estatus);
+                var fornecedor = new Fornecedor
+                {
+                    Nome = tbxNome_For.Text.Trim(),
+                    Cnpj = mtbCnpj.Text.Replace(",", "").Replace("/", "").Replace("-", "").Replace(".", ""),
+                    Telefone = mtbTelefone.Text.Replace("(", "").Replace(")", "").Replace("-", "").Replace(" ", ""),
+                    Email = tbxEmail_For.Text.Trim(),
+                    Cidade = tbxCidade_For.Text.Trim(),
+                    Rua = tbxRua_For.Text.Trim(),
+                    Cep = mtbCep.Text.Replace("-", ""),
+                    DataCadastro = dtpDataCadastro.Value,
+                    Estatus = "A"
+                };
 
-                try
+                if (_fornecedorRepository.InserirFornecedor(fornecedor))
                 {
-                    conn.Open();
-                    int result = cmd.ExecuteNonQuery();
-                    if (result > 0)
-                    {
-                        MessageBox.Show("Fornecedor cadastrado com sucesso!", "Sucesso",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LimparCampos();
-                    }
+                    MessageBox.Show("Fornecedor cadastrado com sucesso!", "Sucesso",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LimparCampos();
                 }
-                catch (SqlException ex)
+                else
                 {
-                    MessageBox.Show($"Erro de SQL: {ex.Message}", "Erro",
+                    MessageBox.Show("Erro ao cadastrar fornecedor.", "Erro",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Erro inesperado: {ex.Message}", "Erro",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private bool ValidarCampos()
         {
-            // Validação básica dos campos
             if (string.IsNullOrWhiteSpace(tbxNome_For.Text))
             {
                 MessageBox.Show("Por favor, informe o nome do fornecedor.", "Aviso",
@@ -189,7 +156,7 @@ VALUES
 
         private void Form6_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Application.Exit();
+            // Não fecha o aplicativo
         }
     }
 }

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using ControleDeEstoque.Data;
 
 namespace ControleDeEstoque
 {
@@ -28,7 +25,6 @@ namespace ControleDeEstoque
 
         private void ConfigurarDateTimePickers()
         {
-            // Definir período padrão (últimos 30 dias)
             dtpFim.Value = DateTime.Now;
             dtpInicio.Value = DateTime.Now.AddDays(-30);
         }
@@ -42,7 +38,8 @@ namespace ControleDeEstoque
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao conectar com o banco: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Erro ao conectar: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -50,7 +47,9 @@ namespace ControleDeEstoque
         {
             try
             {
-                // CORREÇÃO: Usando a tabela correta "Produto" em vez de "Products"
+                UserSession.VerificarSessao();
+
+                // APENAS produtos do usuário logado
                 string query = @"
                     SELECT 
                         p.Nome_Prod as Nome_Produto,
@@ -60,9 +59,11 @@ namespace ControleDeEstoque
                         COALESCE(p.Quantidade_Prod, 0) as Quantidade_Vendida,
                         (p.Preco_Ven - p.Preco_Cmp) * COALESCE(p.Quantidade_Prod, 0) as Lucro_Total
                     FROM Produto p
+                    WHERE p.Id_Usuario = @IdUsuario
                     ORDER BY Lucro_Total DESC";
 
                 SqlCommand cmd = new SqlCommand(query, conexao);
+                cmd.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
 
                 SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 dadosLucros = new DataTable();
@@ -70,7 +71,6 @@ namespace ControleDeEstoque
 
                 dataGridViewLucros.DataSource = dadosLucros;
 
-                // Configurar formatação das colunas
                 if (dataGridViewLucros.Columns.Count > 0)
                 {
                     dataGridViewLucros.Columns["Preco_Custo"].DefaultCellStyle.Format = "C2";
@@ -78,7 +78,6 @@ namespace ControleDeEstoque
                     dataGridViewLucros.Columns["Lucro_Unitario"].DefaultCellStyle.Format = "C2";
                     dataGridViewLucros.Columns["Lucro_Total"].DefaultCellStyle.Format = "C2";
 
-                    // Renomear cabeçalhos
                     dataGridViewLucros.Columns["Nome_Produto"].HeaderText = "Nome do Produto";
                     dataGridViewLucros.Columns["Preco_Custo"].HeaderText = "Preço Custo";
                     dataGridViewLucros.Columns["Preco_Venda"].HeaderText = "Preço Venda";
@@ -86,11 +85,14 @@ namespace ControleDeEstoque
                     dataGridViewLucros.Columns["Quantidade_Vendida"].HeaderText = "Quantidade";
                     dataGridViewLucros.Columns["Lucro_Total"].HeaderText = "Lucro Total";
                 }
+
+                // Atualiza título com nome do usuário
+                this.Text = $"Análise de Lucros - {UserSession.Nome}";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao carregar dados: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                // Criar DataTable vazio em caso de erro
+                MessageBox.Show($"Erro ao carregar dados: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 dadosLucros = new DataTable();
             }
         }
@@ -99,7 +101,6 @@ namespace ControleDeEstoque
         {
             try
             {
-                // Calcular totais
                 decimal lucroTotal = 0;
                 decimal receitaTotal = 0;
                 decimal custoTotal = 0;
@@ -116,16 +117,13 @@ namespace ControleDeEstoque
                     custoTotal += precoCusto * quantidade;
                 }
 
-                // Atualizar labels
                 lblLucroTotal.Text = lucroTotal.ToString("C2");
                 lblReceitaTotal.Text = receitaTotal.ToString("C2");
                 lblCustoTotal.Text = custoTotal.ToString("C2");
 
-                // Calcular margem de lucro
                 decimal margemLucro = receitaTotal > 0 ? (lucroTotal / receitaTotal) * 100 : 0;
                 lblMargemLucro.Text = margemLucro.ToString("F2") + "%";
 
-                // Produto mais lucrativo
                 if (dadosLucros.Rows.Count > 0 && dadosLucros.Rows[0]["Lucro_Total"] != DBNull.Value)
                 {
                     DataRow topProduct = dadosLucros.Rows[0];
@@ -140,84 +138,20 @@ namespace ControleDeEstoque
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao calcular métricas: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Erro ao calcular métricas: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnFiltrarPeriodo_Click(object sender, EventArgs e)
         {
-            FiltrarPorPeriodo();
-        }
-
-        private void FiltrarPorPeriodo()
-        {
-            try
-            {
-                // CORREÇÃO: Query simplificada usando apenas a tabela Produto
-                DateTime dataInicio = dtpInicio.Value;
-                DateTime dataFim = dtpFim.Value;
-
-                string query = @"
-                    SELECT 
-                        p.Nome_Prod as Nome_Produto,
-                        p.Preco_Cmp as Preco_Custo,
-                        p.Preco_Ven as Preco_Venda,
-                        (p.Preco_Ven - p.Preco_Cmp) as Lucro_Unitario,
-                        COALESCE(p.Quantidade_Prod, 0) as Quantidade_Vendida,
-                        (p.Preco_Ven - p.Preco_Cmp) * COALESCE(p.Quantidade_Prod, 0) as Lucro_Total
-                    FROM Produto p
-                    ORDER BY Lucro_Total DESC";
-
-                SqlCommand cmd = new SqlCommand(query, conexao);
-
-                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                DataTable dtFiltrado = new DataTable();
-                adapter.Fill(dtFiltrado);
-
-                dataGridViewLucros.DataSource = dtFiltrado;
-                CalcularMetricasComFiltro(dtFiltrado);
-
-                MessageBox.Show($"Dados filtrados para o período: {dtpInicio.Value:dd/MM/yyyy} a {dtpFim.Value:dd/MM/yyyy}",
-                    "Filtro Aplicado", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao filtrar: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void CalcularMetricasComFiltro(DataTable dadosFiltrados)
-        {
-            decimal lucroTotal = 0;
-            decimal receitaTotal = 0;
-            decimal custoTotal = 0;
-
-            foreach (DataRow row in dadosFiltrados.Rows)
-            {
-                decimal lucro = row["Lucro_Total"] != DBNull.Value ? Convert.ToDecimal(row["Lucro_Total"]) : 0;
-                decimal precoVenda = row["Preco_Venda"] != DBNull.Value ? Convert.ToDecimal(row["Preco_Venda"]) : 0;
-                decimal precoCusto = row["Preco_Custo"] != DBNull.Value ? Convert.ToDecimal(row["Preco_Custo"]) : 0;
-                int quantidade = row["Quantidade_Vendida"] != DBNull.Value ? Convert.ToInt32(row["Quantidade_Vendida"]) : 0;
-
-                lucroTotal += lucro;
-                receitaTotal += precoVenda * quantidade;
-                custoTotal += precoCusto * quantidade;
-            }
-
-            lblLucroTotal.Text = lucroTotal.ToString("C2");
-            lblReceitaTotal.Text = receitaTotal.ToString("C2");
-            lblCustoTotal.Text = custoTotal.ToString("C2");
-
-            decimal margemLucro = receitaTotal > 0 ? (lucroTotal / receitaTotal) * 100 : 0;
-            lblMargemLucro.Text = margemLucro.ToString("F2") + "%";
+            CarregarDadosLucros();
+            CalcularMetricas();
+            MessageBox.Show($"Filtro aplicado: {dtpInicio.Value:dd/MM/yyyy} a {dtpFim.Value:dd/MM/yyyy}",
+                "Filtro", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void btnExportar_Click(object sender, EventArgs e)
-        {
-            ExportarParaCSV();
-        }
-
-        private void ExportarParaCSV()
         {
             try
             {
@@ -229,11 +163,8 @@ namespace ControleDeEstoque
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     StringBuilder csv = new StringBuilder();
-
-                    // Cabeçalho
                     csv.AppendLine("Nome do Produto;Preço Custo;Preço Venda;Lucro Unitário;Quantidade;Lucro Total");
 
-                    // Dados
                     foreach (DataRow row in dadosLucros.Rows)
                     {
                         csv.AppendLine(
@@ -247,7 +178,6 @@ namespace ControleDeEstoque
                     }
 
                     System.IO.File.WriteAllText(saveFileDialog.FileName, csv.ToString(), Encoding.UTF8);
-
                     MessageBox.Show("Relatório exportado com sucesso!", "Sucesso",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -279,7 +209,7 @@ namespace ControleDeEstoque
 
         private void Form8_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Application.Exit();
+            // Não fecha o aplicativo
         }
     }
 }
