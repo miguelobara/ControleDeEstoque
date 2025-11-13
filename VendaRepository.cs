@@ -18,67 +18,58 @@ namespace ControleDeEstoque.Data.Repositories
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
-
                 using (var transaction = connection.BeginTransaction())
                 {
                     try
                     {
-                        // 1. Obter informações do produto (preço e estoque atual)
+                        // 1. Obter informações do produto
                         var produtoInfo = ObterInformacoesProduto(venda.IdProduto, connection, transaction);
                         if (produtoInfo == null)
                             throw new Exception("Produto não encontrado.");
 
-                        decimal precoUnitario = produtoInfo.Preco;
-                        int estoqueAtual = produtoInfo.Estoque;
+                        // 2. Verificar estoque
+                        if (produtoInfo.Estoque < venda.Quantidade)
+                            throw new Exception($"Estoque insuficiente. Disponível: {produtoInfo.Estoque}");
 
-                        // 2. Verificar se há estoque suficiente
-                        if (estoqueAtual < venda.Quantidade)
-                            throw new Exception($"Estoque insuficiente. Disponível: {estoqueAtual}");
-
-                        // 3. Calcular valor total
-                        decimal valorTotal = precoUnitario * venda.Quantidade;
+                        // 3. Calcular valor
+                        decimal valorTotal = produtoInfo.Preco * venda.Quantidade;
 
                         // 4. Inserir venda
                         string queryVenda = @"
-                            INSERT INTO Venda (
-                                Id_Produto, Id_Usuario, Quantidade, 
-                                Valor_Unitario, Valor_Total, Data_Venda
-                            ) 
-                            VALUES (
-                                @IdProduto, @IdUsuario, @Quantidade, 
-                                @ValorUnitario, @ValorTotal, @DataVenda
-                            )";
+                            INSERT INTO Venda (Id_Produto, Id_Usuario, Quantidade, 
+                                             Valor_Unitario, Valor_Total, Data_Venda) 
+                            VALUES (@IdProduto, @IdUsuario, @Quantidade, 
+                                   @ValorUnitario, @ValorTotal, @DataVenda)";
 
-                        using (var command = new SqlCommand(queryVenda, connection, transaction))
+                        using (var cmd = new SqlCommand(queryVenda, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@IdProduto", venda.IdProduto);
-                            command.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
-                            command.Parameters.AddWithValue("@Quantidade", venda.Quantidade);
-                            command.Parameters.AddWithValue("@ValorUnitario", precoUnitario);
-                            command.Parameters.AddWithValue("@ValorTotal", valorTotal);
-                            command.Parameters.AddWithValue("@DataVenda", DateTime.Now);
-
-                            command.ExecuteNonQuery();
+                            cmd.Parameters.AddWithValue("@IdProduto", venda.IdProduto);
+                            cmd.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
+                            cmd.Parameters.AddWithValue("@Quantidade", venda.Quantidade);
+                            cmd.Parameters.AddWithValue("@ValorUnitario", produtoInfo.Preco);
+                            cmd.Parameters.AddWithValue("@ValorTotal", valorTotal);
+                            cmd.Parameters.AddWithValue("@DataVenda", DateTime.Now);
+                            cmd.ExecuteNonQuery();
                         }
 
-                        // 5. Atualizar estoque do produto
-                        string queryAtualizarEstoque = @"
+                        // 5. Atualizar estoque
+                        string queryEstoque = @"
                             UPDATE Produto 
                             SET Quantidade_Prod = Quantidade_Prod - @Quantidade
                             WHERE Id_Prod = @IdProduto AND Id_Usuario = @IdUsuario";
 
-                        using (var command = new SqlCommand(queryAtualizarEstoque, connection, transaction))
+                        using (var cmd = new SqlCommand(queryEstoque, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@Quantidade", venda.Quantidade);
-                            command.Parameters.AddWithValue("@IdProduto", venda.IdProduto);
-                            command.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
-                            command.ExecuteNonQuery();
+                            cmd.Parameters.AddWithValue("@Quantidade", venda.Quantidade);
+                            cmd.Parameters.AddWithValue("@IdProduto", venda.IdProduto);
+                            cmd.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
+                            cmd.ExecuteNonQuery();
                         }
 
                         transaction.Commit();
                         return true;
                     }
-                    catch (Exception)
+                    catch
                     {
                         transaction.Rollback();
                         throw;
@@ -88,36 +79,56 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
-        /// Obtém histórico de vendas do usuário logado
+        /// Obtém vendas do usuário por período
         /// </summary>
-        public DataTable ObterVendas(DateTime dataInicio, DateTime dataFim)
+        public DataTable ObterVendas(DateTime inicio, DateTime fim)
         {
             UserSession.VerificarSessao();
 
-            const string query = @"
-                SELECT 
-                    v.Id_Venda,
-                    p.Nome_Prod as Produto,
-                    v.Quantidade,
-                    v.Valor_Unitario,
-                    v.Valor_Total,
-                    v.Data_Venda,
-                    u.Nome as Vendedor
+            string query = @"
+                SELECT v.Id_Venda, p.Nome_Prod as Produto, v.Quantidade,
+                       v.Valor_Unitario, v.Valor_Total, v.Data_Venda,
+                       u.Nome as Vendedor
                 FROM Venda v
                 INNER JOIN Produto p ON v.Id_Produto = p.Id_Prod
                 INNER JOIN Usuario u ON v.Id_Usuario = u.Id_Usuario
                 WHERE v.Id_Usuario = @IdUsuario 
-                    AND v.Data_Venda BETWEEN @DataInicio AND @DataFim
+                  AND v.Data_Venda BETWEEN @Inicio AND @Fim
                 ORDER BY v.Data_Venda DESC";
 
-            var parameters = new[]
-            {
+            return DatabaseHelper.ExecuteQuery(query,
                 new SqlParameter("@IdUsuario", UserSession.IdUsuario),
-                new SqlParameter("@DataInicio", dataInicio.Date),
-                new SqlParameter("@DataFim", dataFim.Date.AddDays(1).AddSeconds(-1))
-            };
+                new SqlParameter("@Inicio", inicio.Date),
+                new SqlParameter("@Fim", fim.Date.AddDays(1).AddSeconds(-1)));
+        }
 
-            return DatabaseHelper.ExecuteQuery(query, parameters);
+        /// <summary>
+        /// MÉTODO ADICIONADO: GetByPeriod para compatibilidade
+        /// </summary>
+        public DataTable GetByPeriod(DateTime inicio, DateTime fim)
+        {
+            return ObterVendas(inicio, fim);
+        }
+
+        /// <summary>
+        /// MÉTODO ADICIONADO: GetTotalByPeriod
+        /// </summary>
+        public decimal GetTotalByPeriod(DateTime inicio, DateTime fim)
+        {
+            UserSession.VerificarSessao();
+
+            string query = @"
+                SELECT ISNULL(SUM(Valor_Total), 0) 
+                FROM Venda 
+                WHERE Id_Usuario = @IdUsuario 
+                  AND Data_Venda BETWEEN @Inicio AND @Fim";
+
+            var result = DatabaseHelper.ExecuteScalar(query,
+                new SqlParameter("@IdUsuario", UserSession.IdUsuario),
+                new SqlParameter("@Inicio", inicio.Date),
+                new SqlParameter("@Fim", fim.Date.AddDays(1).AddSeconds(-1)));
+
+            return result != DBNull.Value ? Convert.ToDecimal(result) : 0;
         }
 
         /// <summary>
@@ -130,46 +141,45 @@ namespace ControleDeEstoque.Data.Repositories
             using (var connection = DatabaseHelper.GetConnection())
             {
                 connection.Open();
-
                 using (var transaction = connection.BeginTransaction())
                 {
                     try
                     {
-                        // 1. Obter informações da venda
+                        // Obter info da venda
                         var vendaInfo = ObterInformacoesVenda(idVenda, connection, transaction);
                         if (vendaInfo == null)
                             throw new Exception("Venda não encontrada.");
 
-                        // 2. Restaurar estoque
-                        string queryRestaurarEstoque = @"
+                        // Restaurar estoque
+                        string queryEstoque = @"
                             UPDATE Produto 
                             SET Quantidade_Prod = Quantidade_Prod + @Quantidade
                             WHERE Id_Prod = @IdProduto AND Id_Usuario = @IdUsuario";
 
-                        using (var command = new SqlCommand(queryRestaurarEstoque, connection, transaction))
+                        using (var cmd = new SqlCommand(queryEstoque, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@Quantidade", vendaInfo.Quantidade);
-                            command.Parameters.AddWithValue("@IdProduto", vendaInfo.IdProduto);
-                            command.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
-                            command.ExecuteNonQuery();
+                            cmd.Parameters.AddWithValue("@Quantidade", vendaInfo.Quantidade);
+                            cmd.Parameters.AddWithValue("@IdProduto", vendaInfo.IdProduto);
+                            cmd.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
+                            cmd.ExecuteNonQuery();
                         }
 
-                        // 3. Excluir venda
-                        string queryExcluirVenda = @"
+                        // Excluir venda
+                        string queryDelete = @"
                             DELETE FROM Venda 
                             WHERE Id_Venda = @IdVenda AND Id_Usuario = @IdUsuario";
 
-                        using (var command = new SqlCommand(queryExcluirVenda, connection, transaction))
+                        using (var cmd = new SqlCommand(queryDelete, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@IdVenda", idVenda);
-                            command.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
-                            command.ExecuteNonQuery();
+                            cmd.Parameters.AddWithValue("@IdVenda", idVenda);
+                            cmd.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
+                            cmd.ExecuteNonQuery();
                         }
 
                         transaction.Commit();
                         return true;
                     }
-                    catch (Exception)
+                    catch
                     {
                         transaction.Rollback();
                         throw;
@@ -178,44 +188,20 @@ namespace ControleDeEstoque.Data.Repositories
             }
         }
 
-        /// <summary>
-        /// Obtém totais de vendas para relatórios
-        /// </summary>
-        public decimal ObterTotalVendasPeriodo(DateTime dataInicio, DateTime dataFim)
+        // ========== MÉTODOS PRIVADOS ==========
+        private ProdutoInfo ObterInformacoesProduto(int idProduto, SqlConnection conn, SqlTransaction trans)
         {
-            UserSession.VerificarSessao();
-
-            const string query = @"
-                SELECT ISNULL(SUM(Valor_Total), 0) 
-                FROM Venda 
-                WHERE Id_Usuario = @IdUsuario 
-                    AND Data_Venda BETWEEN @DataInicio AND @DataFim";
-
-            var parameters = new[]
-            {
-                new SqlParameter("@IdUsuario", UserSession.IdUsuario),
-                new SqlParameter("@DataInicio", dataInicio.Date),
-                new SqlParameter("@DataFim", dataFim.Date.AddDays(1).AddSeconds(-1))
-            };
-
-            var result = DatabaseHelper.ExecuteScalar(query, parameters);
-            return result != DBNull.Value ? Convert.ToDecimal(result) : 0;
-        }
-
-        // Métodos auxiliares privados
-        private ProdutoInfo ObterInformacoesProduto(int idProduto, SqlConnection connection, SqlTransaction transaction)
-        {
-            const string query = @"
+            string query = @"
                 SELECT Preco_Ven, Quantidade_Prod 
                 FROM Produto 
                 WHERE Id_Prod = @IdProduto AND Id_Usuario = @IdUsuario";
 
-            using (var command = new SqlCommand(query, connection, transaction))
+            using (var cmd = new SqlCommand(query, conn, trans))
             {
-                command.Parameters.AddWithValue("@IdProduto", idProduto);
-                command.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
+                cmd.Parameters.AddWithValue("@IdProduto", idProduto);
+                cmd.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
 
-                using (var reader = command.ExecuteReader())
+                using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -227,23 +213,22 @@ namespace ControleDeEstoque.Data.Repositories
                     }
                 }
             }
-
             return null;
         }
 
-        private VendaInfo ObterInformacoesVenda(int idVenda, SqlConnection connection, SqlTransaction transaction)
+        private VendaInfo ObterInformacoesVenda(int idVenda, SqlConnection conn, SqlTransaction trans)
         {
-            const string query = @"
+            string query = @"
                 SELECT Id_Produto, Quantidade 
                 FROM Venda 
                 WHERE Id_Venda = @IdVenda AND Id_Usuario = @IdUsuario";
 
-            using (var command = new SqlCommand(query, connection, transaction))
+            using (var cmd = new SqlCommand(query, conn, trans))
             {
-                command.Parameters.AddWithValue("@IdVenda", idVenda);
-                command.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
+                cmd.Parameters.AddWithValue("@IdVenda", idVenda);
+                cmd.Parameters.AddWithValue("@IdUsuario", UserSession.IdUsuario);
 
-                using (var reader = command.ExecuteReader())
+                using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -255,11 +240,9 @@ namespace ControleDeEstoque.Data.Repositories
                     }
                 }
             }
-
             return null;
         }
 
-        // Classes auxiliares
         private class ProdutoInfo
         {
             public decimal Preco { get; set; }

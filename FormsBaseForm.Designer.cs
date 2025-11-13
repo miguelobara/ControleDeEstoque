@@ -1,4 +1,4 @@
-﻿namespace ControleDeEstoque
+﻿namespace ControleDeEstoque.Forms
 {
     partial class FormsBaseForm
     {
