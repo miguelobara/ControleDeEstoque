@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Data;
-using System;
-
-uusing System;
+﻿using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Collections.Generic;
@@ -12,7 +7,6 @@ namespace ControleDeEstoque.Data.Repositories
 {
     /// <summary>
     /// Repositório base genérico que elimina duplicação de código
-    /// Todos os repositórios herdam deste para reutilizar funcionalidades comuns
     /// </summary>
     public abstract class BaseRepository<T> where T : class, new()
     {
@@ -96,7 +90,7 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
-        /// Cria parâmetro SQL automaticamente com tratamento de nulos
+        /// Cria parâmetro SQL com tratamento de nulos
         /// </summary>
         protected SqlParameter CreateParameter(string name, object value)
         {
@@ -140,12 +134,11 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
-        /// Busca genérica com paginação
+        /// Busca com paginação
         /// </summary>
         protected DataTable GetPaged(string query, int pageNumber, int pageSize, params SqlParameter[] parameters)
         {
-            var pagedQuery = $@"
-                {query}
+            var pagedQuery = $@"{query}
                 ORDER BY (SELECT NULL)
                 OFFSET {(pageNumber - 1) * pageSize} ROWS
                 FETCH NEXT {pageSize} ROWS ONLY";
@@ -162,11 +155,7 @@ namespace ControleDeEstoque.Data.Repositories
             if (!string.IsNullOrEmpty(whereClause))
                 query += $" AND {whereClause}";
 
-            var paramList = new List<SqlParameter>
-            {
-                CreateParameter("@IdUsuario", UserSession.IdUsuario)
-            };
-
+            var paramList = new List<SqlParameter> { CreateParameter("@IdUsuario", UserSession.IdUsuario) };
             if (parameters != null)
                 paramList.AddRange(parameters);
 
