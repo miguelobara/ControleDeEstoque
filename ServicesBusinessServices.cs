@@ -251,18 +251,33 @@ namespace ControleDeEstoque.Services
     /// </summary>
     public class BackupService
     {
+        private readonly string _connectionString;
+
+        public BackupService()
+        {
+            _connectionString = "Sua_String_De_Conexão_Aqui";
+        }
+
         public bool CreateBackup(string path = null)
         {
             try
             {
                 path = path ?? $"backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
 
-                var db = EnhancedDatabase.Instance;
-                db.Execute($@"
-                    BACKUP DATABASE CJ3027511PR2 
-                    TO DISK = @Path 
-                    WITH FORMAT, MEDIANAME = 'Backup', NAME = 'Full Backup'",
-                    new System.Data.SqlClient.SqlParameter("@Path", path));
+                using (var connection = new System.Data.SqlClient.SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var command = new System.Data.SqlClient.SqlCommand())
+                    {
+                        command.Connection = connection;
+                        command.CommandText = @"
+                            BACKUP DATABASE CJ3027511PR2 
+                            TO DISK = @Path 
+                            WITH FORMAT, MEDIANAME = 'Backup', NAME = 'Full Backup'";
+                        command.Parameters.AddWithValue("@Path", path);
+                        command.ExecuteNonQuery();
+                    }
+                }
 
                 Logger.Info($"Backup criado: {path}");
                 return true;

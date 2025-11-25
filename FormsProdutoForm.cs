@@ -2,129 +2,186 @@
 using System.Windows.Forms;
 using System.Drawing;
 using System.Linq;
-using ControleDeEstoque.Core;
 using ControleDeEstoque.Data.Repositories;
-using ControleDeEstoque.Services;
-using System.IO;
 
 namespace ControleDeEstoque.Forms
 {
     /// <summary>
-    /// Formulário de produtos completamente refatorado
+    /// Formulário de produtos CORRIGIDO e OTIMIZADO
     /// </summary>
-    public class ProdutoForm : BaseCrudForm<Produto>
+    public partial class ProdutoForm : Form
     {
         private readonly ProdutoRepository _repo;
         private readonly FornecedorRepository _fornecedorRepo;
-        private readonly ValidationService _validator;
 
-        // Controles
-        private TextBox _tbNome, _tbPrecoCompra, _tbPrecoVenda, _tbDescricao;
+        // Controles principais
+        private DataGridView _grid;
+        private Panel _panelForm;
+        private Panel _panelButtons;
+
+        // Controles de formulário
+        private TextBox _tbNome, _tbPrecoCompra, _tbPrecoVenda, _tbDescricao, _tbBusca;
         private ComboBox _cbCategoria, _cbUnidade, _cbFornecedor;
         private NumericUpDown _nudQuantidade, _nudJuros;
         private DateTimePicker _dtpValidade;
         private Label _lblLucroEstimado, _lblMargemLucro, _lblTotal;
-        private TextBox _tbBusca;
-        private GroupBox _gbFiltros;
+
+        // Botões
+        private Button _btnSalvar, _btnEditar, _btnDeletar, _btnNovo, _btnRefresh, _btnVoltar;
+
+        // Controle de estado
+        private bool _editMode = false;
+        private Produto _currentItem;
 
         public ProdutoForm()
         {
             _repo = new ProdutoRepository();
             _fornecedorRepo = new FornecedorRepository();
-            _validator = new ValidationService();
 
             this.Text = "Gerenciamento de Produtos";
             this.Size = new Size(1200, 700);
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+            InitializeComponents();
+            LoadData();
         }
 
-        protected override void SetupFormControls()
+        private void InitializeComponents()
         {
-            PanelForm.AutoScroll = true;
-            int y = 10;
-            int spacing = 35;
-
-            // Busca
-            _gbFiltros = new GroupBox
+            // Header
+            var panelHeader = new Panel
             {
-                Text = "Buscar Produto",
-                Location = new Point(10, y),
-                Size = new Size(360, 70),
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+                Dock = DockStyle.Top,
+                Height = 60,
+                BackColor = Color.RoyalBlue
             };
 
-            _tbBusca = new TextBox
+            var lblTitle = new Label
             {
-                Location = new Point(10, 25),
-                Size = new Size(340, 25),
-                PlaceholderText = "Digite para buscar..."
+                Text = "GERENCIAMENTO DE PRODUTOS",
+                Dock = DockStyle.Fill,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleCenter
             };
-            _tbBusca.TextChanged += (s, e) => FiltrarProdutos();
 
-            _gbFiltros.Controls.Add(_tbBusca);
-            PanelForm.Controls.Add(_gbFiltros);
-            y += 80;
-
-            // Nome
-            PanelForm.Controls.Add(CreateLabel("Nome do Produto:", y));
-            _tbNome = new TextBox { Location = new Point(10, y + 20), Size = new Size(360, 25) };
-            PanelForm.Controls.Add(_tbNome);
-            y += spacing + 15;
-
-            // Categoria
-            PanelForm.Controls.Add(CreateLabel("Categoria:", y));
-            _cbCategoria = new ComboBox
+            _btnVoltar = new Button
             {
-                Location = new Point(10, y + 20),
-                Size = new Size(250, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            _cbCategoria.Items.AddRange(new[] { "Selecione...", "Limpeza", "Bebida", "Comida", "Higiene", "Bazar", "Outros" });
-            _cbCategoria.SelectedIndex = 0;
-
-            var btnNovaCategoria = new Button
-            {
-                Text = "+",
-                Location = new Point(265, y + 20),
-                Size = new Size(30, 25),
-                BackColor = AppCore.PrimaryColor,
+                Text = "← Voltar",
+                Location = new Point(10, 15),
+                Size = new Size(90, 30),
+                BackColor = Color.Green,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
-            btnNovaCategoria.Click += (s, e) => AdicionarCategoria();
+            _btnVoltar.Click += (s, e) => this.Close();
 
-            PanelForm.Controls.Add(_cbCategoria);
-            PanelForm.Controls.Add(btnNovaCategoria);
-            y += spacing + 15;
+            panelHeader.Controls.Add(lblTitle);
+            panelHeader.Controls.Add(_btnVoltar);
+            this.Controls.Add(panelHeader);
+
+            // Panel Formulário (Esquerda)
+            _panelForm = new Panel
+            {
+                Dock = DockStyle.Left,
+                Width = 400,
+                Padding = new Padding(10),
+                BackColor = Color.White,
+                AutoScroll = true
+            };
+
+            SetupFormControls();
+            this.Controls.Add(_panelForm);
+
+            // Grid (Centro)
+            _grid = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                BackgroundColor = Color.White,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                ReadOnly = true,
+                AllowUserToAddRows = false
+            };
+            _grid.SelectionChanged += Grid_SelectionChanged;
+            this.Controls.Add(_grid);
+
+            // Panel Botões (Inferior)
+            _panelButtons = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 60,
+                BackColor = Color.Gainsboro
+            };
+
+            CreateButtons();
+            this.Controls.Add(_panelButtons);
+        }
+
+        private void SetupFormControls()
+        {
+            int y = 10;
+            int spacing = 70;
+
+            // Busca
+            var gbBusca = new GroupBox
+            {
+                Text = "Buscar Produto",
+                Location = new Point(10, y),
+                Size = new Size(360, 60),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+
+            _tbBusca = new TextBox { Location = new Point(10, 25), Size = new Size(340, 25) };
+            _tbBusca.TextChanged += (s, e) => FilterProducts();
+            gbBusca.Controls.Add(_tbBusca);
+            _panelForm.Controls.Add(gbBusca);
+            y += 70;
+
+            // Nome
+            _panelForm.Controls.Add(CreateLabel("Nome:", y));
+            _tbNome = new TextBox { Location = new Point(10, y + 20), Size = new Size(360, 25) };
+            _panelForm.Controls.Add(_tbNome);
+            y += spacing;
+
+            // Categoria
+            _panelForm.Controls.Add(CreateLabel("Categoria:", y));
+            _cbCategoria = new ComboBox
+            {
+                Location = new Point(10, y + 20),
+                Size = new Size(280, 25),
+                DropDownStyle = ComboBoxStyle.DropDown
+            };
+            _cbCategoria.Items.AddRange(new[] { "Limpeza", "Bebida", "Comida", "Higiene", "Bazar" });
+
+            var btnAddCat = CreateSmallButton("+", 295, y + 20);
+            btnAddCat.Click += (s, e) => AddNewCategory();
+
+            _panelForm.Controls.Add(_cbCategoria);
+            _panelForm.Controls.Add(btnAddCat);
+            y += spacing;
 
             // Unidade
-            PanelForm.Controls.Add(CreateLabel("Unidade de Medida:", y));
+            _panelForm.Controls.Add(CreateLabel("Unidade:", y));
             _cbUnidade = new ComboBox
             {
                 Location = new Point(10, y + 20),
                 Size = new Size(360, 25),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            _cbUnidade.Items.AddRange(new[] { "Selecione...", "Kg", "g", "L", "ml", "Unidade", "Caixa", "Pacote" });
-            _cbUnidade.SelectedIndex = 0;
-            PanelForm.Controls.Add(_cbUnidade);
-            y += spacing + 15;
+            _cbUnidade.Items.AddRange(new[] { "Kg", "g", "L", "ml", "Un", "Cx", "Pct" });
+            _panelForm.Controls.Add(_cbUnidade);
+            y += spacing;
 
             // Preço Compra
-            PanelForm.Controls.Add(CreateLabel("Preço de Compra:", y));
+            _panelForm.Controls.Add(CreateLabel("Preço Compra:", y));
             _tbPrecoCompra = new TextBox { Location = new Point(10, y + 20), Size = new Size(150, 25) };
-            _tbPrecoCompra.TextChanged += (s, e) => CalcularLucro();
-            PanelForm.Controls.Add(_tbPrecoCompra);
-            y += spacing + 15;
+            _tbPrecoCompra.TextChanged += (s, e) => CalculateLucro();
+            _panelForm.Controls.Add(_tbPrecoCompra);
+            y += spacing;
 
-            // Preço Venda
-            PanelForm.Controls.Add(CreateLabel("Preço de Venda:", y));
-            _tbPrecoVenda = new TextBox { Location = new Point(10, y + 20), Size = new Size(150, 25) };
-            _tbPrecoVenda.TextChanged += (s, e) => CalcularLucro();
-            PanelForm.Controls.Add(_tbPrecoVenda);
-            y += spacing + 15;
-
-            // Juros/Margem
-            PanelForm.Controls.Add(CreateLabel("Margem de Lucro (%):", y));
+            // Margem Lucro
+            _panelForm.Controls.Add(CreateLabel("Margem Lucro (%):", y));
             _nudJuros = new NumericUpDown
             {
                 Location = new Point(10, y + 20),
@@ -134,91 +191,141 @@ namespace ControleDeEstoque.Forms
                 DecimalPlaces = 2,
                 Value = 30
             };
-            _nudJuros.ValueChanged += (s, e) => RecalcularPrecoVenda();
-            PanelForm.Controls.Add(_nudJuros);
-            y += spacing + 15;
+            _nudJuros.ValueChanged += (s, e) => RecalculatePrecoVenda();
+            _panelForm.Controls.Add(_nudJuros);
+            y += spacing;
 
-            // Info Lucro
+            // Preço Venda
+            _panelForm.Controls.Add(CreateLabel("Preço Venda:", y));
+            _tbPrecoVenda = new TextBox { Location = new Point(10, y + 20), Size = new Size(150, 25) };
+            _tbPrecoVenda.TextChanged += (s, e) => CalculateLucro();
+            _panelForm.Controls.Add(_tbPrecoVenda);
+            y += spacing;
+
+            // Labels de Lucro
             _lblLucroEstimado = new Label
             {
                 Location = new Point(10, y),
                 Size = new Size(360, 20),
-                Text = "Lucro Unitário: R$ 0,00",
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                ForeColor = AppCore.SuccessColor
+                Text = "Lucro: R$ 0,00",
+                ForeColor = Color.Green,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
-            PanelForm.Controls.Add(_lblLucroEstimado);
-            y += 25;
+            _panelForm.Controls.Add(_lblLucroEstimado);
 
             _lblMargemLucro = new Label
             {
-                Location = new Point(10, y),
+                Location = new Point(10, y + 20),
                 Size = new Size(360, 20),
-                Text = "Margem Real: 0%",
-                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-                ForeColor = AppCore.InfoColor
+                Text = "Margem: 0%",
+                ForeColor = Color.Blue,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
-            PanelForm.Controls.Add(_lblMargemLucro);
-            y += 30;
+            _panelForm.Controls.Add(_lblMargemLucro);
+            y += 50;
 
             // Quantidade
-            PanelForm.Controls.Add(CreateLabel("Quantidade em Estoque:", y));
+            _panelForm.Controls.Add(CreateLabel("Quantidade:", y));
             _nudQuantidade = new NumericUpDown
             {
                 Location = new Point(10, y + 20),
                 Size = new Size(100, 25),
-                Minimum = 0,
                 Maximum = 100000
             };
-            _nudQuantidade.ValueChanged += (s, e) => CalcularLucro();
-            PanelForm.Controls.Add(_nudQuantidade);
-            y += spacing + 15;
+            _nudQuantidade.ValueChanged += (s, e) => CalculateLucro();
+            _panelForm.Controls.Add(_nudQuantidade);
+            y += spacing;
 
-            // Total estoque
+            // Total
             _lblTotal = new Label
             {
                 Location = new Point(10, y),
                 Size = new Size(360, 20),
-                Text = "Valor Total Estoque: R$ 0,00",
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                ForeColor = AppCore.PrimaryColor
+                Text = "Total Estoque: R$ 0,00",
+                ForeColor = Color.DarkBlue,
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold)
             };
-            PanelForm.Controls.Add(_lblTotal);
+            _panelForm.Controls.Add(_lblTotal);
             y += 30;
 
             // Fornecedor
-            PanelForm.Controls.Add(CreateLabel("Fornecedor:", y));
+            _panelForm.Controls.Add(CreateLabel("Fornecedor:", y));
             _cbFornecedor = new ComboBox
             {
                 Location = new Point(10, y + 20),
                 Size = new Size(360, 25),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            CarregarFornecedores();
-            PanelForm.Controls.Add(_cbFornecedor);
-            y += spacing + 15;
+            LoadFornecedores();
+            _panelForm.Controls.Add(_cbFornecedor);
+            y += spacing;
 
             // Validade
-            PanelForm.Controls.Add(CreateLabel("Data de Validade:", y));
+            _panelForm.Controls.Add(CreateLabel("Validade:", y));
             _dtpValidade = new DateTimePicker
             {
                 Location = new Point(10, y + 20),
                 Size = new Size(200, 25),
                 Format = DateTimePickerFormat.Short
             };
-            PanelForm.Controls.Add(_dtpValidade);
-            y += spacing + 15;
+            _panelForm.Controls.Add(_dtpValidade);
+            y += spacing;
 
             // Descrição
-            PanelForm.Controls.Add(CreateLabel("Descrição:", y));
+            _panelForm.Controls.Add(CreateLabel("Descrição:", y));
             _tbDescricao = new TextBox
             {
                 Location = new Point(10, y + 20),
                 Size = new Size(360, 80),
-                Multiline = true,
-                ScrollBars = ScrollBars.Vertical
+                Multiline = true
             };
-            PanelForm.Controls.Add(_tbDescricao);
+            _panelForm.Controls.Add(_tbDescricao);
+        }
+
+        private void CreateButtons()
+        {
+            _btnNovo = CreateButton("Novo", 10, Color.Green);
+            _btnNovo.Click += (s, e) => NewMode();
+
+            _btnSalvar = CreateButton("Salvar", 120, Color.RoyalBlue);
+            _btnSalvar.Click += (s, e) => Save();
+
+            _btnEditar = CreateButton("Editar", 230, Color.SteelBlue);
+            _btnEditar.Click += (s, e) => EditMode();
+
+            _btnDeletar = CreateButton("Deletar", 340, Color.Crimson);
+            _btnDeletar.Click += (s, e) => Delete();
+
+            _btnRefresh = CreateButton("Atualizar", 450, Color.Gray);
+            _btnRefresh.Click += (s, e) => LoadData();
+
+            _panelButtons.Controls.AddRange(new[] { _btnNovo, _btnSalvar, _btnEditar, _btnDeletar, _btnRefresh });
+        }
+
+        private Button CreateButton(string text, int x, Color color)
+        {
+            return new Button
+            {
+                Text = text,
+                Location = new Point(x, 15),
+                Size = new Size(100, 30),
+                BackColor = color,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+        }
+
+        private Button CreateSmallButton(string text, int x, int y)
+        {
+            return new Button
+            {
+                Text = text,
+                Location = new Point(x, y),
+                Size = new Size(30, 25),
+                BackColor = Color.RoyalBlue,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
         }
 
         private Label CreateLabel(string text, int y)
@@ -232,27 +339,105 @@ namespace ControleDeEstoque.Forms
             };
         }
 
-        private void CalcularLucro()
+        private void LoadData()
+        {
+            try
+            {
+                var produtos = _repo.GetAll();
+                _grid.DataSource = produtos;
+                ConfigureGrid();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ConfigureGrid()
+        {
+            if (_grid.Columns.Count == 0) return;
+
+            _grid.Columns["Id"].Visible = false;
+            _grid.Columns["Nome"].HeaderText = "Produto";
+            _grid.Columns["PrecoVenda"].DefaultCellStyle.Format = "C2";
+            _grid.Columns["PrecoCompra"].DefaultCellStyle.Format = "C2";
+            _grid.Columns["LucroUnitario"].DefaultCellStyle.Format = "C2";
+            _grid.Columns["MargemLucro"].DefaultCellStyle.Format = "F2";
+        }
+
+        private void FilterProducts()
+        {
+            if (string.IsNullOrWhiteSpace(_tbBusca.Text))
+            {
+                LoadData();
+                return;
+            }
+
+            var produtos = _repo.Search(_tbBusca.Text, new SearchOptions
+            {
+                SearchName = true,
+                SearchCategory = true
+            });
+
+            _grid.DataSource = produtos;
+            ConfigureGrid();
+        }
+
+        private void Grid_SelectionChanged(object sender, EventArgs e)
+        {
+            if (_grid.SelectedRows.Count > 0 && !_editMode)
+            {
+                _currentItem = _grid.SelectedRows[0].DataBoundItem as Produto;
+                if (_currentItem != null)
+                    LoadToForm(_currentItem);
+            }
+        }
+
+        private void LoadToForm(Produto p)
+        {
+            _tbNome.Text = p.Nome;
+            _cbCategoria.Text = p.Categoria;
+            _cbUnidade.Text = p.UnidadeMedida;
+            _tbPrecoCompra.Text = p.PrecoCompra.ToString("F2");
+            _tbPrecoVenda.Text = p.PrecoVenda.ToString("F2");
+            _nudQuantidade.Value = p.Quantidade;
+            _nudJuros.Value = p.Juros;
+            _dtpValidade.Value = p.Validade;
+            _tbDescricao.Text = p.Descricao;
+
+            if (p.IdFornecedor.HasValue)
+            {
+                for (int i = 0; i < _cbFornecedor.Items.Count; i++)
+                {
+                    if (_cbFornecedor.Items[i] is ComboItem ci && ci.Value == p.IdFornecedor.Value)
+                    {
+                        _cbFornecedor.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            CalculateLucro();
+        }
+
+        private void CalculateLucro()
         {
             if (decimal.TryParse(_tbPrecoCompra.Text, out decimal compra) &&
                 decimal.TryParse(_tbPrecoVenda.Text, out decimal venda))
             {
-                decimal lucroUnit = venda - compra;
-                decimal margem = compra > 0 ? (lucroUnit / compra) * 100 : 0;
-                decimal quantidade = _nudQuantidade.Value;
+                decimal lucro = venda - compra;
+                decimal margem = compra > 0 ? (lucro / compra) * 100 : 0;
+                decimal total = compra * _nudQuantidade.Value;
 
-                _lblLucroEstimado.Text = $"Lucro Unitário: {AppCore.FormatCurrency(lucroUnit)}";
-                _lblLucroEstimado.ForeColor = lucroUnit >= 0 ? AppCore.SuccessColor : AppCore.DangerColor;
-
-                _lblMargemLucro.Text = $"Margem Real: {AppCore.FormatPercent(margem)}";
-
-                decimal totalEstoque = compra * quantidade;
-                decimal lucroTotal = lucroUnit * quantidade;
-                _lblTotal.Text = $"Valor Total Estoque: {AppCore.FormatCurrency(totalEstoque)} | Lucro Potencial: {AppCore.FormatCurrency(lucroTotal)}";
+                _lblLucroEstimado.Text = $"Lucro: {lucro:C2}";
+                _lblLucroEstimado.ForeColor = lucro >= 0 ? Color.Green : Color.Red;
+                _lblMargemLucro.Text = $"Margem: {margem:F2}%";
+                _lblTotal.Text = $"Total Estoque: {total:C2}";
             }
         }
 
-        private void RecalcularPrecoVenda()
+        private void RecalculatePrecoVenda()
         {
             if (decimal.TryParse(_tbPrecoCompra.Text, out decimal compra) && compra > 0)
             {
@@ -262,10 +447,10 @@ namespace ControleDeEstoque.Forms
             }
         }
 
-        private void CarregarFornecedores()
+        private void LoadFornecedores()
         {
             _cbFornecedor.Items.Clear();
-            _cbFornecedor.Items.Add("Sem Fornecedor");
+            _cbFornecedor.Items.Add(new ComboItem { Text = "Sem Fornecedor", Value = 0 });
 
             var fornecedores = _fornecedorRepo.GetForCombo();
             foreach (var f in fornecedores)
@@ -274,9 +459,9 @@ namespace ControleDeEstoque.Forms
             _cbFornecedor.SelectedIndex = 0;
         }
 
-        private void AdicionarCategoria()
+        private void AddNewCategory()
         {
-            string nova = Microsoft.VisualBasic.Interaction.InputBox("Nome da nova categoria:", "Nova Categoria");
+            string nova = PromptInput("Nome da nova categoria:", "Nova Categoria");
             if (!string.IsNullOrWhiteSpace(nova))
             {
                 _cbCategoria.Items.Add(nova);
@@ -284,79 +469,113 @@ namespace ControleDeEstoque.Forms
             }
         }
 
-        private void FiltrarProdutos()
+        private void NewMode()
         {
-            if (string.IsNullOrWhiteSpace(_tbBusca.Text))
+            _editMode = false;
+            _currentItem = new Produto();
+            ClearForm();
+            _btnSalvar.Text = "Salvar Novo";
+        }
+
+        private void EditMode()
+        {
+            if (_currentItem == null)
             {
-                RefreshGrid();
+                MessageBox.Show("Selecione um produto", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            var produtos = _repo.Search(_tbBusca.Text, new SearchOptions { SearchName = true, SearchCategory = true });
-            Grid.DataSource = produtos;
-            ConfigureGridColumns();
+            _editMode = true;
+            _btnSalvar.Text = "Salvar Edição";
+            this.BackColor = Color.LightYellow;
         }
 
-        protected override object LoadData() => _repo.GetAll();
-
-        protected override void ConfigureGridColumns()
+        private void Save()
         {
-            if (Grid.Columns.Count == 0) return;
+            if (!Validate()) return;
 
-            Grid.Columns["Id"].Visible = false;
-            Grid.Columns["Nome"].HeaderText = "Nome do Produto";
-            Grid.Columns["Categoria"].HeaderText = "Categoria";
-            Grid.Columns["PrecoVenda"].HeaderText = "Preço";
-            Grid.Columns["PrecoVenda"].DefaultCellStyle.Format = "C2";
-            Grid.Columns["Quantidade"].HeaderText = "Estoque";
-            Grid.Columns["LucroUnitario"].HeaderText = "Lucro Unit.";
-            Grid.Columns["LucroUnitario"].DefaultCellStyle.Format = "C2";
-            Grid.Columns["MargemLucro"].HeaderText = "Margem %";
-            Grid.Columns["MargemLucro"].DefaultCellStyle.Format = "F2";
-        }
-
-        protected override Produto GetSelectedItem()
-        {
-            if (Grid.SelectedRows.Count == 0) return null;
-            return Grid.SelectedRows[0].DataBoundItem as Produto;
-        }
-
-        protected override void LoadItemToForm(Produto item)
-        {
-            _tbNome.Text = item.Nome;
-            _cbCategoria.Text = item.Categoria;
-            _cbUnidade.Text = item.UnidadeMedida;
-            _tbPrecoCompra.Text = item.PrecoCompra.ToString("F2");
-            _tbPrecoVenda.Text = item.PrecoVenda.ToString("F2");
-            _nudQuantidade.Value = item.Quantidade;
-            _nudJuros.Value = item.Juros;
-            _dtpValidade.Value = item.Validade;
-            _tbDescricao.Text = item.Descricao;
-
-            if (item.IdFornecedor.HasValue)
+            try
             {
-                for (int i = 1; i < _cbFornecedor.Items.Count; i++)
+                var produto = GetFormData();
+                bool success = _editMode ? _repo.Update(produto) : _repo.Insert(produto);
+
+                if (success)
                 {
-                    if (_cbFornecedor.Items[i] is ComboItem ci && ci.Value == item.IdFornecedor.Value)
-                    {
-                        _cbFornecedor.SelectedIndex = i;
-                        break;
-                    }
+                    MessageBox.Show("Salvo com sucesso!", "Sucesso",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ExitEditMode();
+                    LoadData();
+                    ClearForm();
                 }
             }
-
-            CalcularLucro();
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro: {ex.Message}", "Erro",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        protected override Produto GetFormData()
+        private void Delete()
+        {
+            if (_currentItem == null)
+            {
+                MessageBox.Show("Selecione um produto", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show($"Deletar {_currentItem.Nome}?", "Confirmar",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                if (_repo.Delete(_currentItem.Id))
+                {
+                    MessageBox.Show("Deletado!", "Sucesso",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadData();
+                    ClearForm();
+                }
+            }
+        }
+
+        private bool Validate()
+        {
+            if (string.IsNullOrWhiteSpace(_tbNome.Text))
+            {
+                MessageBox.Show("Nome é obrigatório", "Validação",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                _tbNome.Focus();
+                return false;
+            }
+
+            if (!decimal.TryParse(_tbPrecoCompra.Text, out decimal compra) || compra <= 0)
+            {
+                MessageBox.Show("Preço de compra inválido", "Validação",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                _tbPrecoCompra.Focus();
+                return false;
+            }
+
+            if (!decimal.TryParse(_tbPrecoVenda.Text, out decimal venda) || venda <= 0)
+            {
+                MessageBox.Show("Preço de venda inválido", "Validação",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                _tbPrecoVenda.Focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        private Produto GetFormData()
         {
             int? idFornecedor = null;
-            if (_cbFornecedor.SelectedIndex > 0 && _cbFornecedor.SelectedItem is ComboItem ci)
+            if (_cbFornecedor.SelectedItem is ComboItem ci && ci.Value > 0)
                 idFornecedor = ci.Value;
 
             return new Produto
             {
-                Id = CurrentItem?.Id ?? 0,
+                Id = _currentItem?.Id ?? 0,
                 Nome = _tbNome.Text.Trim(),
                 Categoria = _cbCategoria.Text,
                 UnidadeMedida = _cbUnidade.Text,
@@ -370,29 +589,53 @@ namespace ControleDeEstoque.Forms
             };
         }
 
-        protected override bool ValidateForm()
+        private void ClearForm()
         {
-            var produto = GetFormData();
-            var result = _validator.ValidateProduto(produto);
-
-            if (!result.IsValid)
-            {
-                AppCore.ShowError(result.GetErrorsMessage());
-                return false;
-            }
-
-            if (result.HasWarnings)
-            {
-                if (!AppCore.Confirm($"{result.GetWarningsMessage()}\n\nDeseja continuar?"))
-                    return false;
-            }
-
-            return true;
+            _tbNome.Clear();
+            _cbCategoria.SelectedIndex = -1;
+            _cbUnidade.SelectedIndex = -1;
+            _tbPrecoCompra.Clear();
+            _tbPrecoVenda.Clear();
+            _nudQuantidade.Value = 0;
+            _nudJuros.Value = 30;
+            _tbDescricao.Clear();
+            _cbFornecedor.SelectedIndex = 0;
+            _dtpValidade.Value = DateTime.Now;
+            _lblLucroEstimado.Text = "Lucro: R$ 0,00";
+            _lblMargemLucro.Text = "Margem: 0%";
+            _lblTotal.Text = "Total: R$ 0,00";
         }
 
-        protected override bool InsertItem(Produto item) => _repo.Insert(item);
-        protected override bool UpdateItem(Produto item) => _repo.Update(item);
-        protected override bool DeleteItemFromDb(Produto item) => _repo.Delete(item.Id);
+        private void ExitEditMode()
+        {
+            _editMode = false;
+            _btnSalvar.Text = "Salvar";
+            this.BackColor = SystemColors.Control;
+        }
+
+        private string PromptInput(string text, string caption)
+        {
+            Form prompt = new Form()
+            {
+                Width = 400,
+                Height = 150,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = caption,
+                StartPosition = FormStartPosition.CenterScreen,
+                MaximizeBox = false,
+                MinimizeBox = false
+            };
+
+            Label textLabel = new Label() { Left = 20, Top = 20, Text = text, Width = 350 };
+            TextBox textBox = new TextBox() { Left = 20, Top = 50, Width = 340 };
+            Button confirmation = new Button() { Text = "OK", Left = 250, Width = 100, Top = 80, DialogResult = DialogResult.OK };
+
+            confirmation.Click += (s, e) => { prompt.Close(); };
+            prompt.Controls.AddRange(new Control[] { textLabel, textBox, confirmation });
+            prompt.AcceptButton = confirmation;
+
+            return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
+        }
 
         private class ComboItem
         {
