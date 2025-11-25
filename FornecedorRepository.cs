@@ -57,6 +57,14 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
+        /// NOVO: Alias para compatibilidade
+        /// </summary>
+        public Dictionary<int, string> GetForCombo()
+        {
+            return ObterFornecedoresParaCombo();
+        }
+
+        /// <summary>
         /// Insere fornecedor vinculado ao usuário logado
         /// </summary>
         public bool InserirFornecedor(Fornecedor fornecedor)

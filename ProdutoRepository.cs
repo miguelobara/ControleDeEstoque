@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Collections.Generic;
+using System.Linq;
 using ControleDeEstoque.Data;
 
 namespace ControleDeEstoque.Data.Repositories
@@ -30,6 +31,99 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
+        /// NOVO: Retorna lista de objetos Produto (para uso em forms modernos)
+        /// </summary>
+        public List<Produto> GetAll()
+        {
+            var dt = ObterTodosProdutos();
+            var produtos = new List<Produto>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                produtos.Add(new Produto
+                {
+                    Id = Convert.ToInt32(row["Id_Prod"]),
+                    Nome = row["Nome_Prod"].ToString(),
+                    Categoria = row["Categoria"].ToString(),
+                    Validade = Convert.ToDateTime(row["Validade"]),
+                    Descricao = row["Descricao"]?.ToString(),
+                    PrecoVenda = Convert.ToDecimal(row["Preco_Ven"]),
+                    PrecoCompra = Convert.ToDecimal(row["Preco_Cmp"]),
+                    Quantidade = Convert.ToInt32(Convert.ToDecimal(row["Quantidade_Prod"])),
+                    UnidadeMedida = row["Unidade_Medida_Prod"].ToString(),
+                    Juros = row["juros"] != DBNull.Value ? Convert.ToDecimal(row["juros"]) : 30m
+                });
+            }
+
+            return produtos;
+        }
+
+        /// <summary>
+        /// NOVO: Busca produtos com opções
+        /// </summary>
+        public List<Produto> Search(string termo, SearchOptions options)
+        {
+            var produtos = GetAll();
+
+            if (string.IsNullOrWhiteSpace(termo))
+                return produtos;
+
+            termo = termo.ToLower();
+
+            return produtos.Where(p =>
+                (options.SearchName && p.Nome.ToLower().Contains(termo)) ||
+                (options.SearchCategory && p.Categoria?.ToLower().Contains(termo) == true) ||
+                (options.SearchDescription && p.Descricao?.ToLower().Contains(termo) == true)
+            ).ToList();
+        }
+
+        /// <summary>
+        /// NOVO: Produtos com estoque baixo
+        /// </summary>
+        public List<Produto> GetLowStock(int threshold = 10)
+        {
+            return GetAll().Where(p => p.Quantidade <= threshold).ToList();
+        }
+
+        /// <summary>
+        /// NOVO: Contagem de produtos por categoria
+        /// </summary>
+        public Dictionary<string, int> GetCategoriesCount()
+        {
+            return GetAll()
+                .GroupBy(p => p.Categoria ?? "Sem Categoria")
+                .ToDictionary(g => g.Key, g => g.Count());
+        }
+
+        /// <summary>
+        /// NOVO: Fornecedores para ComboBox
+        /// </summary>
+        public Dictionary<int, string> GetForCombo()
+        {
+            UserSession.VerificarSessao();
+
+            const string query = @"
+                SELECT Id_Fornecedor, Nome_For 
+                FROM Fornecedor 
+                WHERE estatus_For = 'A' AND Id_Usuario = @IdUsuario
+                ORDER BY Nome_For";
+
+            var result = new Dictionary<int, string>();
+            var dt = DatabaseHelper.ExecuteQuery(query,
+                new SqlParameter("@IdUsuario", UserSession.IdUsuario));
+
+            foreach (DataRow row in dt.Rows)
+            {
+                result.Add(
+                    Convert.ToInt32(row["Id_Fornecedor"]),
+                    row["Nome_For"].ToString()
+                );
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Busca produtos do usuário logado com filtros
         /// </summary>
         public DataTable BuscarProdutos(string termo, bool buscarNome, bool buscarCategoria,
@@ -40,7 +134,6 @@ namespace ControleDeEstoque.Data.Repositories
             var conditions = new List<string>();
             var parameters = new List<SqlParameter>();
 
-            // Sempre filtra pelo usuário
             conditions.Add("p.Id_Usuario = @IdUsuario");
             parameters.Add(new SqlParameter("@IdUsuario", UserSession.IdUsuario));
 
@@ -105,6 +198,14 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
+        /// NOVO: Insert simplificado
+        /// </summary>
+        public bool Insert(Produto produto)
+        {
+            return InserirProduto(produto);
+        }
+
+        /// <summary>
         /// Atualiza produto (apenas se pertencer ao usuário)
         /// </summary>
         public bool AtualizarProduto(Produto produto)
@@ -145,6 +246,14 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
+        /// NOVO: Update simplificado
+        /// </summary>
+        public bool Update(Produto produto)
+        {
+            return AtualizarProduto(produto);
+        }
+
+        /// <summary>
         /// Deleta produto (apenas se pertencer ao usuário)
         /// </summary>
         public bool DeletarProduto(int idProduto)
@@ -162,6 +271,14 @@ namespace ControleDeEstoque.Data.Repositories
             };
 
             return DatabaseHelper.ExecuteNonQuery(query, parameters) > 0;
+        }
+
+        /// <summary>
+        /// NOVO: Delete simplificado
+        /// </summary>
+        public bool Delete(int id)
+        {
+            return DeletarProduto(id);
         }
 
         public decimal ObterPercentualLucroPadrao()
@@ -201,6 +318,9 @@ namespace ControleDeEstoque.Data.Repositories
         }
     }
 
+    /// <summary>
+    /// Classe Produto com propriedades calculadas
+    /// </summary>
     public class Produto
     {
         public int Id { get; set; }
@@ -214,5 +334,20 @@ namespace ControleDeEstoque.Data.Repositories
         public string UnidadeMedida { get; set; }
         public int? IdFornecedor { get; set; }
         public decimal Juros { get; set; }
+
+        // Propriedades calculadas
+        public decimal LucroUnitario => PrecoVenda - PrecoCompra;
+        public decimal LucroTotal => LucroUnitario * Quantidade;
+        public decimal MargemLucro => PrecoCompra > 0 ? (LucroUnitario / PrecoCompra) * 100 : 0;
+    }
+
+    /// <summary>
+    /// Opções de busca
+    /// </summary>
+    public class SearchOptions
+    {
+        public bool SearchName { get; set; } = true;
+        public bool SearchCategory { get; set; } = false;
+        public bool SearchDescription { get; set; } = false;
     }
 }
