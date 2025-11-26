@@ -157,9 +157,6 @@
     <Compile Include="FormsProdutoForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormsProdutoForm.Designer.cs">
-      <DependentUpon>FormsProdutoForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="FornecedorRepository.cs" />
     <Compile Include="ProdutoRepository.cs" />
     <Compile Include="Program.cs" />

@@ -17,34 +17,18 @@
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.btnVoltar = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.nomeForDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.telefoneForDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.emailForDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cepForDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataCadastroForDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.estatusForDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.fornecedorBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.cJ3027511PR2DataSet5 = new ControleDeEstoque.CJ3027511PR2DataSet5();
             this.panel3 = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
             this.btnAdicionar = new System.Windows.Forms.Button();
-            this.cJ3027511PR2DataSet = new ControleDeEstoque.CJ3027511PR2DataSet();
-            this.cJ3027511PR2DataSetBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.fornecedorTableAdapter = new ControleDeEstoque.CJ3027511PR2DataSet5TableAdapters.FornecedorTableAdapter();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fornecedorBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet5)).BeginInit();
             this.panel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSetBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -96,72 +80,21 @@
             // 
             // dataGridView1
             // 
-            this.dataGridView1.AutoGenerateColumns = false;
-            this.dataGridView1.BackgroundColor = System.Drawing.Color.Silver;
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView1.BackgroundColor = System.Drawing.Color.White;
+            this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.nomeForDataGridViewTextBoxColumn,
-            this.telefoneForDataGridViewTextBoxColumn,
-            this.emailForDataGridViewTextBoxColumn,
-            this.cepForDataGridViewTextBoxColumn,
-            this.dataCadastroForDataGridViewTextBoxColumn,
-            this.estatusForDataGridViewTextBoxColumn});
-            this.dataGridView1.DataSource = this.fornecedorBindingSource;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(20, 20);
             this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridView1.Size = new System.Drawing.Size(760, 290);
-            this.dataGridView1.TabIndex = 5;
-            // 
-            // nomeForDataGridViewTextBoxColumn
-            // 
-            this.nomeForDataGridViewTextBoxColumn.DataPropertyName = "Nome_For";
-            this.nomeForDataGridViewTextBoxColumn.HeaderText = "Nome";
-            this.nomeForDataGridViewTextBoxColumn.Name = "nomeForDataGridViewTextBoxColumn";
-            this.nomeForDataGridViewTextBoxColumn.Width = 150;
-            // 
-            // telefoneForDataGridViewTextBoxColumn
-            // 
-            this.telefoneForDataGridViewTextBoxColumn.DataPropertyName = "Telefone_For";
-            this.telefoneForDataGridViewTextBoxColumn.HeaderText = "Telefone";
-            this.telefoneForDataGridViewTextBoxColumn.Name = "telefoneForDataGridViewTextBoxColumn";
-            // 
-            // emailForDataGridViewTextBoxColumn
-            // 
-            this.emailForDataGridViewTextBoxColumn.DataPropertyName = "Email_For";
-            this.emailForDataGridViewTextBoxColumn.HeaderText = "E-mail";
-            this.emailForDataGridViewTextBoxColumn.Name = "emailForDataGridViewTextBoxColumn";
-            this.emailForDataGridViewTextBoxColumn.Width = 150;
-            // 
-            // cepForDataGridViewTextBoxColumn
-            // 
-            this.cepForDataGridViewTextBoxColumn.DataPropertyName = "Cep_For";
-            this.cepForDataGridViewTextBoxColumn.HeaderText = "CEP";
-            this.cepForDataGridViewTextBoxColumn.Name = "cepForDataGridViewTextBoxColumn";
-            // 
-            // dataCadastroForDataGridViewTextBoxColumn
-            // 
-            this.dataCadastroForDataGridViewTextBoxColumn.DataPropertyName = "Data_Cadastro_For";
-            this.dataCadastroForDataGridViewTextBoxColumn.HeaderText = "Data Cadastro";
-            this.dataCadastroForDataGridViewTextBoxColumn.Name = "dataCadastroForDataGridViewTextBoxColumn";
-            this.dataCadastroForDataGridViewTextBoxColumn.Width = 120;
-            // 
-            // estatusForDataGridViewTextBoxColumn
-            // 
-            this.estatusForDataGridViewTextBoxColumn.DataPropertyName = "estatus_For";
-            this.estatusForDataGridViewTextBoxColumn.HeaderText = "Status";
-            this.estatusForDataGridViewTextBoxColumn.Name = "estatusForDataGridViewTextBoxColumn";
-            this.estatusForDataGridViewTextBoxColumn.Width = 80;
-            // 
-            // fornecedorBindingSource
-            // 
-            this.fornecedorBindingSource.DataMember = "Fornecedor";
-            this.fornecedorBindingSource.DataSource = this.cJ3027511PR2DataSet5;
-            // 
-            // cJ3027511PR2DataSet5
-            // 
-            this.cJ3027511PR2DataSet5.DataSetName = "CJ3027511PR2DataSet5";
-            this.cJ3027511PR2DataSet5.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
+            this.dataGridView1.TabIndex = 0;
+            this.dataGridView1.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridView1_CellFormatting);
             // 
             // panel3
             // 
@@ -198,20 +131,6 @@
             this.btnAdicionar.UseVisualStyleBackColor = false;
             this.btnAdicionar.Click += new System.EventHandler(this.btnAdicionar_Click);
             // 
-            // cJ3027511PR2DataSet
-            // 
-            this.cJ3027511PR2DataSet.DataSetName = "CJ3027511PR2DataSet";
-            this.cJ3027511PR2DataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            // 
-            // cJ3027511PR2DataSetBindingSource
-            // 
-            this.cJ3027511PR2DataSetBindingSource.DataSource = this.cJ3027511PR2DataSet;
-            this.cJ3027511PR2DataSetBindingSource.Position = 0;
-            // 
-            // fornecedorTableAdapter
-            // 
-            this.fornecedorTableAdapter.ClearBeforeFill = true;
-            // 
             // Form7
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -222,6 +141,7 @@
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel1);
             this.Name = "Form7";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Lista de Fornecedores";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form7_FormClosing);
             this.Load += new System.EventHandler(this.Form7_Load);
@@ -229,12 +149,8 @@
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fornecedorBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet5)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSet)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cJ3027511PR2DataSetBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -249,16 +165,5 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnAdicionar;
-        private System.Windows.Forms.BindingSource cJ3027511PR2DataSetBindingSource;
-        private CJ3027511PR2DataSet cJ3027511PR2DataSet;
-        private CJ3027511PR2DataSet5 cJ3027511PR2DataSet5;
-        private System.Windows.Forms.BindingSource fornecedorBindingSource;
-        private CJ3027511PR2DataSet5TableAdapters.FornecedorTableAdapter fornecedorTableAdapter;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nomeForDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn telefoneForDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn emailForDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn cepForDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataCadastroForDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn estatusForDataGridViewTextBoxColumn;
     }
 }

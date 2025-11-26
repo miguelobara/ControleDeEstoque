@@ -17,9 +17,17 @@ namespace ControleDeEstoque.Data.Repositories
 
             const string query = @"
                 SELECT 
-                    Id_Fornecedor, Nome_For, Cnpj_For, Telefone_For, 
-                    Email_For, Cidade_For, Rua_For, Cep_For, 
-                    Data_Cadastro_For, estatus_For
+                    Id_Fornecedor, 
+                    Nome_For, 
+                    Cnpj_For, 
+                    Telefone_For, 
+                    Email_For, 
+                    Cidade_For, 
+                    Rua_For, 
+                    Cep_For, 
+                    Data_Cadastro_For, 
+                    estatus_For,
+                    Id_Usuario
                 FROM Fornecedor
                 WHERE Id_Usuario = @IdUsuario
                 ORDER BY Nome_For";
@@ -29,7 +37,7 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
-        /// Obtém fornecedores do usuário para ComboBox
+        /// Obtém fornecedores ativos do usuário para ComboBox
         /// </summary>
         public Dictionary<int, string> ObterFornecedoresParaCombo()
         {
@@ -57,14 +65,6 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
-        /// NOVO: Alias para compatibilidade
-        /// </summary>
-        public Dictionary<int, string> GetForCombo()
-        {
-            return ObterFornecedoresParaCombo();
-        }
-
-        /// <summary>
         /// Insere fornecedor vinculado ao usuário logado
         /// </summary>
         public bool InserirFornecedor(Fornecedor fornecedor)
@@ -84,15 +84,15 @@ namespace ControleDeEstoque.Data.Repositories
 
             var parameters = new[]
             {
-                new SqlParameter("@Nome", fornecedor.Nome),
-                new SqlParameter("@Cnpj", fornecedor.Cnpj),
-                new SqlParameter("@Telefone", fornecedor.Telefone),
-                new SqlParameter("@Email", fornecedor.Email),
-                new SqlParameter("@Cidade", fornecedor.Cidade),
-                new SqlParameter("@Rua", fornecedor.Rua),
-                new SqlParameter("@Cep", fornecedor.Cep),
+                new SqlParameter("@Nome", fornecedor.Nome ?? (object)DBNull.Value),
+                new SqlParameter("@Cnpj", fornecedor.Cnpj ?? (object)DBNull.Value),
+                new SqlParameter("@Telefone", fornecedor.Telefone ?? (object)DBNull.Value),
+                new SqlParameter("@Email", fornecedor.Email ?? (object)DBNull.Value),
+                new SqlParameter("@Cidade", fornecedor.Cidade ?? (object)DBNull.Value),
+                new SqlParameter("@Rua", fornecedor.Rua ?? (object)DBNull.Value),
+                new SqlParameter("@Cep", fornecedor.Cep ?? (object)DBNull.Value),
                 new SqlParameter("@DataCadastro", fornecedor.DataCadastro),
-                new SqlParameter("@Estatus", fornecedor.Estatus),
+                new SqlParameter("@Estatus", fornecedor.Estatus ?? "A"),
                 new SqlParameter("@IdUsuario", UserSession.IdUsuario)
             };
 
@@ -100,60 +100,25 @@ namespace ControleDeEstoque.Data.Repositories
         }
 
         /// <summary>
-        /// Atualiza fornecedor (apenas se pertencer ao usuário)
+        /// Verifica se já existe um fornecedor com o mesmo CNPJ para o usuário
         /// </summary>
-        public bool AtualizarFornecedor(Fornecedor fornecedor)
+        public bool ExisteFornecedorPorCnpj(string cnpj)
         {
             UserSession.VerificarSessao();
 
             const string query = @"
-                UPDATE Fornecedor SET
-                    Nome_For = @Nome,
-                    Cnpj_For = @Cnpj,
-                    Telefone_For = @Telefone,
-                    Email_For = @Email,
-                    Cidade_For = @Cidade,
-                    Rua_For = @Rua,
-                    Cep_For = @Cep,
-                    estatus_For = @Estatus
-                WHERE Id_Fornecedor = @Id AND Id_Usuario = @IdUsuario";
+                SELECT COUNT(1) 
+                FROM Fornecedor 
+                WHERE Cnpj_For = @Cnpj AND Id_Usuario = @IdUsuario";
 
             var parameters = new[]
             {
-                new SqlParameter("@Id", fornecedor.Id),
-                new SqlParameter("@Nome", fornecedor.Nome),
-                new SqlParameter("@Cnpj", fornecedor.Cnpj),
-                new SqlParameter("@Telefone", fornecedor.Telefone),
-                new SqlParameter("@Email", fornecedor.Email),
-                new SqlParameter("@Cidade", fornecedor.Cidade),
-                new SqlParameter("@Rua", fornecedor.Rua),
-                new SqlParameter("@Cep", fornecedor.Cep),
-                new SqlParameter("@Estatus", fornecedor.Estatus),
+                new SqlParameter("@Cnpj", cnpj),
                 new SqlParameter("@IdUsuario", UserSession.IdUsuario)
             };
 
-            return DatabaseHelper.ExecuteNonQuery(query, parameters) > 0;
-        }
-
-        /// <summary>
-        /// Inativa fornecedor (apenas se pertencer ao usuário)
-        /// </summary>
-        public bool InativarFornecedor(int idFornecedor)
-        {
-            UserSession.VerificarSessao();
-
-            const string query = @"
-                UPDATE Fornecedor 
-                SET estatus_For = 'I' 
-                WHERE Id_Fornecedor = @Id AND Id_Usuario = @IdUsuario";
-
-            var parameters = new[]
-            {
-                new SqlParameter("@Id", idFornecedor),
-                new SqlParameter("@IdUsuario", UserSession.IdUsuario)
-            };
-
-            return DatabaseHelper.ExecuteNonQuery(query, parameters) > 0;
+            var result = DatabaseHelper.ExecuteScalar(query, parameters);
+            return Convert.ToInt32(result) > 0;
         }
     }
 
@@ -167,7 +132,7 @@ namespace ControleDeEstoque.Data.Repositories
         public string Cidade { get; set; }
         public string Rua { get; set; }
         public string Cep { get; set; }
-        public DateTime DataCadastro { get; set; }
+        public DateTime DataCadastro { get; set; } = DateTime.Now;
         public string Estatus { get; set; } = "A";
     }
 }

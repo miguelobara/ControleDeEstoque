@@ -341,9 +341,7 @@ namespace ControleDeEstoque.Data.Repositories
         public decimal MargemLucro => PrecoCompra > 0 ? (LucroUnitario / PrecoCompra) * 100 : 0;
     }
 
-    /// <summary>
-    /// Opções de busca
-    /// </summary>
+   
     public class SearchOptions
     {
         public bool SearchName { get; set; } = true;

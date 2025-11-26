@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data;
 using System.Windows.Forms;
 using ControleDeEstoque.Data.Repositories;
@@ -41,6 +40,10 @@ namespace ControleDeEstoque
         {
             try
             {
+                // Limpa o DataGridView antes de carregar novos dados
+                dataGridView1.DataSource = null;
+                dataGridView1.Columns.Clear();
+
                 // Obtém APENAS fornecedores do usuário logado
                 DataTable fornecedores = _fornecedorRepository.ObterTodosFornecedores();
 
@@ -50,24 +53,7 @@ namespace ControleDeEstoque
                 // Configura as colunas
                 if (dataGridView1.Columns.Count > 0)
                 {
-                    dataGridView1.Columns["Id_Fornecedor"].Visible = false;
-                    dataGridView1.Columns["Nome_For"].HeaderText = "Nome";
-                    dataGridView1.Columns["Nome_For"].Width = 150;
-                    dataGridView1.Columns["Telefone_For"].HeaderText = "Telefone";
-                    dataGridView1.Columns["Telefone_For"].Width = 100;
-                    dataGridView1.Columns["Email_For"].HeaderText = "E-mail";
-                    dataGridView1.Columns["Email_For"].Width = 150;
-                    dataGridView1.Columns["Cep_For"].HeaderText = "CEP";
-                    dataGridView1.Columns["Cep_For"].Width = 80;
-                    dataGridView1.Columns["Data_Cadastro_For"].HeaderText = "Data Cadastro";
-                    dataGridView1.Columns["Data_Cadastro_For"].Width = 100;
-                    dataGridView1.Columns["estatus_For"].HeaderText = "Status";
-                    dataGridView1.Columns["estatus_For"].Width = 60;
-
-                    // Oculta colunas desnecessárias
-                    dataGridView1.Columns["Cnpj_For"].Visible = false;
-                    dataGridView1.Columns["Cidade_For"].Visible = false;
-                    dataGridView1.Columns["Rua_For"].Visible = false;
+                    ConfigurarColunasDataGridView();
                 }
 
                 // Atualiza label com quantidade
@@ -83,6 +69,42 @@ namespace ControleDeEstoque
                 MessageBox.Show($"Erro ao carregar fornecedores: {ex.Message}", "Erro",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void ConfigurarColunasDataGridView()
+        {
+            // Oculta coluna ID
+            OcultarColuna("Id_Fornecedor");
+            OcultarColuna("Id_Usuario");
+
+            // Configura colunas visíveis
+            ConfigurarColuna("Nome_For", "Nome", 150);
+            ConfigurarColuna("Telefone_For", "Telefone", 100);
+            ConfigurarColuna("Email_For", "E-mail", 150);
+            ConfigurarColuna("Cep_For", "CEP", 80);
+            ConfigurarColuna("Data_Cadastro_For", "Data Cadastro", 100);
+            ConfigurarColuna("estatus_For", "Status", 60);
+
+            // Oculta colunas desnecessárias
+            OcultarColuna("Cnpj_For");
+            OcultarColuna("Cidade_For");
+            OcultarColuna("Rua_For");
+        }
+
+        private void ConfigurarColuna(string nomeColuna, string headerText, int width)
+        {
+            if (dataGridView1.Columns.Contains(nomeColuna))
+            {
+                dataGridView1.Columns[nomeColuna].HeaderText = headerText;
+                dataGridView1.Columns[nomeColuna].Width = width;
+                dataGridView1.Columns[nomeColuna].HeaderCell.Style.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            }
+        }
+
+        private void OcultarColuna(string nomeColuna)
+        {
+            if (dataGridView1.Columns.Contains(nomeColuna))
+                dataGridView1.Columns[nomeColuna].Visible = false;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -110,6 +132,27 @@ namespace ControleDeEstoque
         private void Form7_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Não fecha o aplicativo, apenas o formulário
+        }
+
+        private void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            // Formata a coluna de data
+            if (dataGridView1.Columns[e.ColumnIndex].Name == "Data_Cadastro_For" && e.Value != null)
+            {
+                if (DateTime.TryParse(e.Value.ToString(), out DateTime data))
+                {
+                    e.Value = data.ToString("dd/MM/yyyy");
+                    e.FormattingApplied = true;
+                }
+            }
+
+            // Formata a coluna de status
+            if (dataGridView1.Columns[e.ColumnIndex].Name == "estatus_For" && e.Value != null)
+            {
+                string status = e.Value.ToString();
+                e.Value = status == "A" ? "Ativo" : "Inativo";
+                e.FormattingApplied = true;
+            }
         }
     }
 }
