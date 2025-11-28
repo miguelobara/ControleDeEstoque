@@ -111,11 +111,12 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(550, 20);
+            this.label2.Location = new System.Drawing.Point(462, 20);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(115, 19);
+            this.label2.Size = new System.Drawing.Size(212, 19);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Novo Fornecedor";
+            this.label2.Text = "Novo Fornecedor (0 cadastrados)";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // btnAdicionar
             // 

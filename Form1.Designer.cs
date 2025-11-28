@@ -110,6 +110,7 @@
             this.tbxSenha.Size = new System.Drawing.Size(200, 29);
             this.tbxSenha.TabIndex = 6;
             this.tbxSenha.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tbxSenha.TextChanged += new System.EventHandler(this.tbxSenha_TextChanged_1);
             // 
             // tbxEmail
             // 

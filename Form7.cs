@@ -56,13 +56,14 @@ namespace ControleDeEstoque
                     ConfigurarColunasDataGridView();
                 }
 
-                // Atualiza label com quantidade
-                label2.Text = $"Novo Fornecedor ({fornecedores.Rows.Count} cadastrados)";
+                // CORREÇÃO: Atualiza label com quantidade formatada corretamente
+                int quantidade = fornecedores.Rows.Count;
+                label2.Text = $"Novo Fornecedor ({quantidade} {(quantidade == 1 ? "cadastrado" : "cadastrados")})";
 
                 // Log de debug
                 System.Diagnostics.Debug.WriteLine(
                     $"[FORM7] Usuário: {UserSession.Nome} (ID: {UserSession.IdUsuario}) " +
-                    $"| Fornecedores: {fornecedores.Rows.Count}");
+                    $"| Fornecedores: {quantidade}");
             }
             catch (Exception ex)
             {

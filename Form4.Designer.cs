@@ -11,9 +11,9 @@
         private System.Windows.Forms.ComboBox cbxUnidade;
         private System.Windows.Forms.TextBox tbxPrecoCompra;
         private System.Windows.Forms.TextBox tbxDescricao;
-        private System.Windows.Forms.TextBox tbxQuantidade;
+        private System.Windows.Forms.NumericUpDown nudQuantidade;
         private System.Windows.Forms.TextBox tbxPrecoVenda;
-        private System.Windows.Forms.ComboBox cbxFornecedor; // MODIFICADO: ComboBox em vez de TextBox
+        private System.Windows.Forms.ComboBox cbxFornecedor;
         private System.Windows.Forms.DateTimePicker dtpValidade;
         private System.Windows.Forms.Button btnSalvar;
         private System.Windows.Forms.Button btnLimpar;
@@ -64,7 +64,7 @@
             this.cbxUnidade = new System.Windows.Forms.ComboBox();
             this.tbxPrecoCompra = new System.Windows.Forms.TextBox();
             this.tbxDescricao = new System.Windows.Forms.TextBox();
-            this.tbxQuantidade = new System.Windows.Forms.TextBox();
+            this.nudQuantidade = new System.Windows.Forms.NumericUpDown();
             this.tbxPrecoVenda = new System.Windows.Forms.TextBox();
             this.cbxFornecedor = new System.Windows.Forms.ComboBox();
             this.dtpValidade = new System.Windows.Forms.DateTimePicker();
@@ -99,6 +99,7 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            ((System.ComponentModel.ISupportInitialize)(this.nudQuantidade)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).BeginInit();
             this.groupBoxBusca.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -152,12 +153,15 @@
             this.tbxDescricao.Size = new System.Drawing.Size(206, 101);
             this.tbxDescricao.TabIndex = 5;
             // 
-            // tbxQuantidade
+            // nudQuantidade
             // 
-            this.tbxQuantidade.Location = new System.Drawing.Point(387, 30);
-            this.tbxQuantidade.Name = "tbxQuantidade";
-            this.tbxQuantidade.Size = new System.Drawing.Size(150, 23);
-            this.tbxQuantidade.TabIndex = 6;
+            this.nudQuantidade.Location = new System.Drawing.Point(387, 30);
+            this.nudQuantidade.Name = "nudQuantidade";
+            this.nudQuantidade.Size = new System.Drawing.Size(150, 23);
+            this.nudQuantidade.TabIndex = 6;
+            this.nudQuantidade.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
+            this.nudQuantidade.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
+            this.nudQuantidade.Value = new decimal(new int[] { 0, 0, 0, 0 });
             // 
             // tbxPrecoVenda
             // 
@@ -274,8 +278,8 @@
             // 
             // dgvProdutos
             // 
-            this.dgvProdutos.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.dgvProdutos.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvProdutos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProdutos.Location = new System.Drawing.Point(557, 22);
@@ -519,8 +523,8 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.BackColor = System.Drawing.Color.Silver;
             this.groupBox1.Controls.Add(this.lblNome);
@@ -536,7 +540,7 @@
             this.groupBox1.Controls.Add(this.lblDescricao);
             this.groupBox1.Controls.Add(this.tbxDescricao);
             this.groupBox1.Controls.Add(this.lblQuantidade);
-            this.groupBox1.Controls.Add(this.tbxQuantidade);
+            this.groupBox1.Controls.Add(this.nudQuantidade);
             this.groupBox1.Controls.Add(this.lblPrecoVenda);
             this.groupBox1.Controls.Add(this.tbxPrecoVenda);
             this.groupBox1.Controls.Add(this.lblFornecedor);
@@ -581,6 +585,7 @@
             this.Text = "Cadastro de Produtos";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form4_FormClosing);
             this.Load += new System.EventHandler(this.Form4_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.nudQuantidade)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProdutos)).EndInit();
             this.groupBoxBusca.ResumeLayout(false);
             this.groupBoxBusca.PerformLayout();

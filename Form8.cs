@@ -211,5 +211,13 @@ namespace ControleDeEstoque
         {
             // Não fecha o aplicativo
         }
+
+        private void btnVoltar_Click(object sender, EventArgs e)
+        {
+            Form2 product = new Form2();
+            this.Visible = false;
+            product.ShowDialog();
+            this.Visible = true;
+        }
     }
 }

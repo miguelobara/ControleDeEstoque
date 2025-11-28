@@ -26,6 +26,9 @@ namespace ControleDeEstoque
             ConfigurarPlaceholder(tbxCidade, "Nome da cidade");
             ConfigurarPlaceholder(tbxUf, "UF");
             ConfigurarPlaceholder(tbxPais, "País");
+            
+            // Configurar placeholders para campos que não devem trim no início
+            ConfigurarPlaceholderSemTrim(tbxRua, "Nome da rua e número");
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -46,7 +49,7 @@ namespace ControleDeEstoque
             }
 
             // Valida Email
-            string email = tbxEmail1.Text.Trim();
+            string email = tbxEmail1.Text;
             if (string.IsNullOrWhiteSpace(email) || email == "exemplo@email.com")
             {
                 return MostrarErro("Por favor, preencha o campo Email.", tbxEmail1);
@@ -100,7 +103,11 @@ namespace ControleDeEstoque
         {
             try
             {
-                string email = tbxEmail1.Text.Trim();
+                string email = tbxEmail1.Text;
+                if (email == "exemplo@email.com")
+                {
+                    email = "";
+                }
 
                 // Verifica se email já existe
                 if (_usuarioRepository.EmailExiste(email))
@@ -130,14 +137,13 @@ namespace ControleDeEstoque
                     Nome = ObterValorCampo(tbxNome, "Digite seu nome completo"),
                     Email = email,
                     Senha = tbxSenha1.Text,
-                    Cpf = string.IsNullOrWhiteSpace(cpfLimpo) ||
-                          cpfLimpo == "00000000000" ? null : cpfLimpo,
-                    Rg = ObterValorCampo(tbxRg, "Número do RG"),
-                    Telefone = ObterValorCampo(tbxTelefone, "(00) 00000-0000"),
-                    Rua = ObterValorCampo(tbxRua, "Nome da rua e número"),
+                    Cpf = ObterValorCampoMascarado(tbxCpf, "000.000.000-00"),
+                    Rg = ObterValorCampoMascarado(tbxRg, "00.000.000-0"),
+                    Telefone = ObterValorCampoMascarado(tbxTelefone, "(00) 00000-0000"),
+                    Rua = ObterValorCampoSemTrimInicio(tbxRua, "Nome da rua e número"),
                     Cidade = ObterValorCampo(tbxCidade, "Nome da cidade"),
                     Uf = ObterValorCampo(tbxUf, "UF"),
-                    Cep = ObterValorCampo(tbxCep, "00000-000"),
+                    Cep = ObterValorCampoMascarado(tbxCep, "00000-000"),
                     Pais = ObterValorCampo(tbxPais, "País"),
                     Nascimento = ObterDataNascimento()
                 };
@@ -164,9 +170,50 @@ namespace ControleDeEstoque
 
         private string ObterValorCampo(Control controle, string placeholder = "")
         {
-            string texto = controle.Text.Trim();
-            if (string.IsNullOrWhiteSpace(texto) || texto == placeholder)
+            string texto = controle.Text;
+            
+            // Se o texto for exatamente igual ao placeholder, retorna null
+            if (texto == placeholder)
                 return null;
+                
+            // Se estiver vazio ou só espaços, retorna null
+            if (string.IsNullOrWhiteSpace(texto))
+                return null;
+                
+            return texto;
+        }
+
+        private string ObterValorCampoSemTrimInicio(Control controle, string placeholder = "")
+        {
+            string texto = controle.Text;
+            
+            // Se o texto for exatamente igual ao placeholder, retorna null
+            if (texto == placeholder)
+                return null;
+                
+            // Se estiver vazio, retorna null (mas preserva se tiver só espaços)
+            if (string.IsNullOrEmpty(texto))
+                return null;
+                
+            return texto;
+        }
+
+        private string ObterValorCampoMascarado(MaskedTextBox controle, string mascaraCompleta = "")
+        {
+            string texto = controle.Text;
+            
+            // Se o texto for exatamente igual à máscara completa (com underlines), retorna null
+            if (texto.Replace('_', ' ').Trim() == mascaraCompleta.Replace('_', ' ').Trim())
+                return null;
+                
+            // Se não preencheu a máscara completamente, retorna null
+            if (!controle.MaskCompleted)
+                return null;
+                
+            // Se estiver vazio, retorna null
+            if (string.IsNullOrWhiteSpace(texto))
+                return null;
+                
             return texto;
         }
 
@@ -195,6 +242,9 @@ namespace ControleDeEstoque
             tbxUf.Clear();
             tbxCep.Clear();
             tbxPais.Clear();
+            
+            // Reaplicar placeholders após limpar
+            AplicarEstilosModernos();
             tbxNome.Focus();
         }
 
@@ -212,6 +262,36 @@ namespace ControleDeEstoque
         }
 
         private void ConfigurarPlaceholder(Control controle, string placeholder)
+        {
+            if (controle is TextBox textBox)
+            {
+                textBox.Enter += (s, e) =>
+                {
+                    if (textBox.Text == placeholder)
+                    {
+                        textBox.Text = "";
+                        textBox.ForeColor = System.Drawing.SystemColors.WindowText;
+                    }
+                };
+
+                textBox.Leave += (s, e) =>
+                {
+                    if (string.IsNullOrWhiteSpace(textBox.Text))
+                    {
+                        textBox.Text = placeholder;
+                        textBox.ForeColor = System.Drawing.SystemColors.GrayText;
+                    }
+                };
+
+                if (string.IsNullOrWhiteSpace(textBox.Text))
+                {
+                    textBox.Text = placeholder;
+                    textBox.ForeColor = System.Drawing.SystemColors.GrayText;
+                }
+            }
+        }
+
+        private void ConfigurarPlaceholderSemTrim(Control controle, string placeholder)
         {
             if (controle is TextBox textBox)
             {

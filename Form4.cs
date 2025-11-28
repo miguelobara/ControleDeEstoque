@@ -44,7 +44,7 @@ namespace ControleDeEstoque
             // Cálculo automático de preço
             tbxPrecoCompra.TextChanged += (s, e) => CalcularPrecoVendaRecomendado();
             tbxPrecoVenda.TextChanged += (s, e) => VerificarDiferencaPreco();
-            tbxQuantidade.TextChanged += (s, e) => CalcularPrecoVendaRecomendado();
+            nudQuantidade.ValueChanged += (s, e) => CalcularPrecoVendaRecomendado();
         }
 
         private void Form4_Load(object sender, EventArgs e)
@@ -306,7 +306,7 @@ namespace ControleDeEstoque
                 return;
             }
 
-            int quantidade = int.TryParse(tbxQuantidade.Text, out int qtd) && qtd > 0 ? qtd : 1;
+            int quantidade = (int)nudQuantidade.Value;
 
             decimal precoVendaRecomendado = precoCompra * (1 + percentualLucro / 100m);
             decimal lucroUnitario = precoVendaRecomendado - precoCompra;
@@ -356,6 +356,7 @@ namespace ControleDeEstoque
                 lblPrecoVendaRecomendado.BackColor = Color.LightGreen;
             }
         }
+
         private void btnSalvar_Click(object sender, EventArgs e)
         {
             if (!ValidarCampos()) return;
@@ -366,7 +367,7 @@ namespace ControleDeEstoque
 
                 decimal precoCompra = decimal.Parse(tbxPrecoCompra.Text);
                 decimal precoVenda = decimal.Parse(tbxPrecoVenda.Text);
-                int quantidade = int.Parse(tbxQuantidade.Text);
+                int quantidade = (int)nudQuantidade.Value;
 
                 // Verifica prejuízo
                 if (!ConfirmarPrejuizo(precoCompra, precoVenda, quantidade))
@@ -439,8 +440,8 @@ namespace ControleDeEstoque
             if (!decimal.TryParse(tbxPrecoVenda.Text, out decimal precoVenda) || precoVenda <= 0)
                 return MostrarErro("Informe um preço de venda válido.", tbxPrecoVenda);
 
-            if (!int.TryParse(tbxQuantidade.Text, out int quantidade) || quantidade < 0)
-                return MostrarErro("Informe uma quantidade válida.", tbxQuantidade);
+            if (nudQuantidade.Value < 0)
+                return MostrarErro("Informe uma quantidade válida.", nudQuantidade);
 
             string fornecedorSelecionado = cbxFornecedor.Text;
             if (!string.IsNullOrEmpty(fornecedorSelecionado) &&
@@ -567,7 +568,7 @@ namespace ControleDeEstoque
 
             string quantidade = GetCellValue(row, "Quantidade_Prod");
             if (decimal.TryParse(quantidade, out decimal qtd))
-                tbxQuantidade.Text = ((int)qtd).ToString();
+                nudQuantidade.Value = (int)qtd;
 
             tbxPrecoVenda.Text = GetCellValue(row, "Preco_Ven");
 
@@ -631,7 +632,7 @@ namespace ControleDeEstoque
             cbxUnidade.SelectedIndex = -1;
             tbxPrecoCompra.Clear();
             tbxDescricao.Clear();
-            tbxQuantidade.Clear();
+            nudQuantidade.Value = 0;
             tbxPrecoVenda.Clear();
             cbxFornecedor.SelectedIndex = 0;
             dtpValidade.Value = DateTime.Now;
@@ -773,4 +774,3 @@ namespace ControleDeEstoque
         private void lblFornecedor_Click(object sender, EventArgs e) { }
     }
 }
-// Continua no próximo artifact...
